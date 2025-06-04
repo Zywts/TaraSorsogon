@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tara! Sorsogon - Tourism Information System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Calendar CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="#home">
+                <img src="images/logo.png" alt="Tara! Sorsogon Logo" class="logo">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#attractions">Attractions</a></li>
+            <li><a href="#events">Events</a></li>
+            <li><a href="#dining">Dining</a></li>
+            <li><a href="#accommodation">Accommodation</a></li>
+            <li><a href="#phrases">Local Phrases</a></li>
+            <li><a href="#emergency">Emergency</a></li>
+            <!-- <li><a href="#" id="login-btn">Login</a></li> -->
+        </ul>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="home" class="hero">
+        <div class="hero-content">
+            <div class="hero-logo">
+                <img src="images/logo-hero.png" alt="Tara! Sorsogon Logo" class="hero-logo-img">
+            </div>
+            <p>Discover the beauty of Bicol's southernmost province</p>
+            <div class="search-container">
+                <form class="search-form">
+                    <input type="text" placeholder="Search places, events, or attractions..." class="search-input">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <!-- Attractions Gallery -->
+    <section id="attractions" class="section reveal-on-scroll">
+        <div class="section-header">
+            <h2>Attractions Gallery</h2>
+            <a href="attractions.html" class="view-all">View All Attractions <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="carousel-container">
+            <div class="carousel">
+
+                <div class="carousel-item">
+                    <img src="images/bulusan-lake.jpg" alt="Bulusan Lake">
+                    <div class="carousel-caption">
+                        <h3>Bulusan Lake</h3>
+                        <p>A serene lake surrounded by lush forests</p>
+                    </div>
+                </div>
+
+                <div class="carousel-item">
+                    <img src="images/bulusan-lake.jpg" alt="Bulusan Lake">
+                    <div class="carousel-caption">
+                        <h3>Bulusan Lake</h3>
+                        <p>A serene lake surrounded by lush forests</p>
+                    </div>
+                </div>
+                <!-- More carousel items will be added dynamically -->
+            </div>
+            <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- Event Calendar -->
+    <section id="events" class="section reveal-on-scroll">
+        <h2>Event Calendar</h2>
+        <div class="calendar-container">
+            <div class="events-list">
+                <!-- Event items will be dynamically populated by script.js -->
+                <h3>Upcoming Events</h3>
+                <p>Loading events...</p> 
+            </div>
+            <div id="calendar"></div>
+        </div>
+    </section>
+
+    <!-- Visitor Feedback -->
+    <!-- <section id="feedback" class="section">
+        <h2>Share Your Experience</h2>
+        <form id="feedback-form" class="feedback-form">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="rating">Rating:</label>
+                <div class="star-rating">
+                    <i class="far fa-star" data-rating="1"></i>
+                    <i class="far fa-star" data-rating="2"></i>
+                    <i class="far fa-star" data-rating="3"></i>
+                    <i class="far fa-star" data-rating="4"></i>
+                    <i class="far fa-star" data-rating="5"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="comments">Comments:</label>
+                <textarea id="comments" name="comments" required></textarea>
+            </div>
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </section> -->
+
+    <!-- Interactive Map -->
+    <section id="map" class="section reveal-on-scroll">
+        <h2>Explore Sorsogon</h2>
+        <div id="interactive-map"></div>
+        <div class="map-filters">
+            <button class="map-filter active" data-type="all">All Places</button>
+            <button class="map-filter" data-type="attractions">Attractions</button>
+            <button class="map-filter" data-type="dining">Dining</button>
+            <button class="map-filter" data-type="accommodation">Accommodation</button>
+        </div>
+    </section>
+
+    <!-- Dining -->
+    <section id="dining" class="section reveal-on-scroll">
+        <div class="section-header">
+            <h2>Places to Dine</h2>
+            <a href="dining.html" class="view-all">View All Restaurants <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="cards-container">
+            <a href="dining/marions-garden.html" class="card-link">
+                <div class="card">
+                    <img src="images/marions-garden.jpg" alt="Marion's Garden">
+                    <div class="card-content">
+                        <h3>Marion's Garden</h3>
+                        <p>Offers Filipino fiesta and Asian cuisine in a garden setting.</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Sorsogon City</p>
+                        <p><i class="fas fa-phone"></i> +63 XXX XXX XXXX</p>
+                        <a href="dining/marions-garden.html" class="see-more">See Details <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </a>
+            <a href="dining/balay-cena-una.html" class="card-link">
+                <div class="card">
+                    <img src="images/marions-garden.jpg" alt="Balay Cena Una">
+                    <div class="card-content">
+                        <h3>Balay Cena Una</h3>
+                        <p>Traditional Bicolano restaurant in a heritage house serving authentic local dishes.</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Sorsogon City</p>
+                        <p><i class="fas fa-phone"></i> +63 XXX XXX XXXX</p>
+                        <a href="dining/balay-cena-una.html" class="see-more">See Details <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </a>
+            <a href="dining/cafe-de-sorsogon.html" class="card-link">
+                <div class="card">
+                    <img src="images/marions-garden.jpg" alt="Café de Sorsogon">
+                    <div class="card-content">
+                        <h3>Café de Sorsogon</h3>
+                        <p>Modern café offering fusion dishes and local coffee with a view of Sorsogon Bay.</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Sorsogon City</p>
+                        <p><i class="fas fa-phone"></i> +63 XXX XXX XXXX</p>
+                        <a href="dining/cafe-de-sorsogon.html" class="see-more">See Details <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Accommodation -->
+    <section id="accommodation" class="section reveal-on-scroll">
+        <div class="section-header">
+            <h2>Places to Stay</h2>
+            <a href="accommodation.html" class="view-all">View All Accommodations <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="cards-container">
+            <a href="accommodation/siama-hotel.html" class="card-link">
+                <div class="card">
+                    <img src="images/siama-hotel.png" alt="Siama Hotel">
+                    <div class="card-content">
+                        <h3>Siama Hotel</h3>
+                        <p>Modern native-inspired luxury hotel with spacious rooms and excellent amenities.</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Sorsogon City</p>
+                        <p><i class="fas fa-phone"></i> +63 XXX XXX XXXX</p>
+                        <a href="accommodation/siama-hotel.html" class="see-more">See Details <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </a>
+            <a href="accommodation/bulusan-lake-resort.html" class="card-link">
+                <div class="card">
+                    <img src="images/siama-hotel.png" alt="Bulusan Lake Resort">
+                    <div class="card-content">
+                        <h3>Bulusan Lake Resort</h3>
+                        <p>Peaceful lakeside accommodation offering water activities and nature tours.</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Bulusan</p>
+                        <p><i class="fas fa-phone"></i> +63 XXX XXX XXXX</p>
+                        <a href="accommodation/bulusan-lake-resort.html" class="see-more">See Details <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </a>
+            <a href="accommodation/rizal-beach-resort.html" class="card-link">
+                <div class="card">
+                    <img src="images/siama-hotel.png" alt="Rizal Beach Resort">
+                    <div class="card-content">
+                        <h3>Rizal Beach Resort</h3>
+                        <p>Beachfront resort with comfortable rooms and stunning ocean views.</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Gubat</p>
+                        <p><i class="fas fa-phone"></i> +63 XXX XXX XXXX</p>
+                        <a href="accommodation/rizal-beach-resort.html" class="see-more">See Details <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Local Phrases -->
+    <section id="phrases" class="section reveal-on-scroll">
+        <h2>Local Phrases</h2>
+        <div class="phrases-container">
+            <div class="phrase-card">
+                <h3>Common Bicolano Phrases</h3>
+                <div class="phrase-list">
+                    <div class="phrase-item">
+                        <h4>Maray na aldaw!</h4>
+                        <p>Good day!</p>
+                    </div>
+                    <div class="phrase-item">
+                        <h4>Kumusta ka?</h4>
+                        <p>How are you?</p>
+                    </div>
+                    <div class="phrase-item">
+                        <h4>Salamat</h4>
+                        <p>Thank you</p>
+                    </div>
+                    <div class="phrase-item">
+                        <h4>Mabalos</h4>
+                        <p>Thank you (formal)</p>
+                    </div>
+                    <div class="phrase-item">
+                        <h4>Tara!</h4>
+                        <p>Let's go!</p>
+                    </div>
+                    <div class="phrase-item">
+                        <h4>Masarap!</h4>
+                        <p>Delicious!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Contacts -->
+    <section id="emergency" class="section reveal-on-scroll">
+        <h2>Emergency Contacts</h2>
+        <div class="emergency-container">
+            <div class="emergency-card">
+                <h3>Police Hotlines</h3>
+                <ul class="contact-list">
+                    <li><i class="fas fa-phone"></i> Sorsogon City Police: 911</li>
+                    <li><i class="fas fa-phone"></i> Provincial Police: +63 XXX XXX XXXX</li>
+                    <li><i class="fas fa-phone"></i> Tourist Police: +63 XXX XXX XXXX</li>
+                    <li><i class="fas fa-building"></i> Police Headquarters: Sorsogon City</li>
+                </ul>
+            </div>
+            <div class="emergency-card">
+                <h3>Medical Emergency</h3>
+                <ul class="contact-list">
+                    <li><i class="fas fa-hospital"></i> Sorsogon Provincial Hospital</li>
+                    <li><i class="fas fa-phone"></i> Emergency: +63 XXX XXX XXXX</li>
+                    <li><i class="fas fa-ambulance"></i> Ambulance: 911</li>
+                    <li><i class="fas fa-first-aid"></i> Red Cross: +63 XXX XXX XXXX</li>
+                </ul>
+            </div>
+            <div class="emergency-card">
+                <h3>Fire & Rescue</h3>
+                <ul class="contact-list">
+                    <li><i class="fas fa-fire-extinguisher"></i> Fire Department: 911</li>
+                    <li><i class="fas fa-phone"></i> Bureau of Fire: +63 XXX XXX XXXX</li>
+                    <li><i class="fas fa-helicopter"></i> Coast Guard: +63 XXX XXX XXXX</li>
+                    <li><i class="fas fa-life-ring"></i> Rescue Team: +63 XXX XXX XXXX</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Discover Sorsogon is your ultimate guide to exploring the beauty and culture of Sorsogon, Philippines.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#attractions">Attractions</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#dining">Dining</a></li>
+                    <li><a href="#accommodation">Accommodation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: info@discoversorsogon.ph</p>
+                <p>Phone: +63 XXX XXX XXXX</p>
+                <p>Sorsogon, Philippines</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Discover Sorsogon. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login Overlay -->
+    <!--
+    <div id="login-overlay" class="overlay-container">
+        <div class="overlay-content">
+            <span class="close-btn" id="close-login">&times;</span>
+            <h2>Login</h2>
+            <p class="welcome-text">Welcome back! Please login to your account.</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username or Email:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-options">
+                    <a href="#" class="forgot-password">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+            <p class="create-account-link">Don't have an account? <a href="#">Create one</a>.</p>
+        </div>
+    </div>
+    -->
+
+    <!-- Signup Overlay -->
+    <!--
+    <div id="signup-overlay" class="overlay-container">
+        <div class="overlay-content">
+            <span class="close-btn" id="close-signup">&times;</span>
+            <h2>Create Account</h2>
+            <p class="welcome-text">Join us! Create an account to get started.</p>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-username">Username:</label>
+                    <input type="text" id="signup-username" name="signup-username" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email:</label>
+                    <input type="email" id="signup-email" name="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password:</label>
+                    <input type="password" id="signup-password" name="signup-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password:</label>
+                    <input type="password" id="signup-confirm-password" name="signup-confirm-password" required>
+                </div>
+                <button type="submit" class="btn-signup">Create Account</button>
+            </form>
+            <p class="login-account-link">Already have an account? <a href="#" id="show-login-link">Login</a>.</p>
+        </div>
+    </div>
+    -->
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="script.js"></script>
+</body>
+</html> 
