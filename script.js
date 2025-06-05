@@ -488,7 +488,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-/*
 // Login Overlay Logic
 const loginBtn = document.getElementById('login-btn');
 const loginOverlay = document.getElementById('login-overlay');
@@ -572,7 +571,6 @@ if (createAccountLink && loginOverlay && signupOverlay) {
         signupOverlay.style.display = 'flex';
     });
 }
-*/
 
 // Function to reveal elements on scroll
 const revealOnScroll = () => {
