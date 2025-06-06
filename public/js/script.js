@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageEl.textContent = 'Logging in...';
 
             try {
-                const response = await fetch('http://localhost:3000/api/login', {
+                const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageEl.textContent = 'Signing up...';
 
             try {
-                const response = await fetch('http://localhost:3000/api/signup', {
+                const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, password })
@@ -288,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageEl.style.color = 'inherit';
 
             try {
-                const response = await fetch('http://localhost:3000/api/feedback', {
+                const response = await fetch('/api/feedback', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
