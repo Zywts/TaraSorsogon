@@ -14,6 +14,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalFacebook = document.getElementById("modal-facebook");
   const modalMessenger = document.getElementById("modal-messenger");
 
+  function showModal(data) {
+    // Populate modal fields from the dataset
+    modalImage.src = data.image;
+    modalImage.alt = data.name;
+    modalName.textContent = data.name;
+    modalAddress.textContent = data.address;
+    modalDescription.textContent = data.description;
+    modalHours.textContent = data.hours;
+    modalBest.textContent = data.best;
+
+    // Update phone link
+    modalPhone.href = `tel:${data.phone.replace(/\s+/g, "")}`;
+    modalPhoneText.textContent = data.phone;
+
+    // Update Facebook and Messenger links
+    modalFacebook.href = data.facebook;
+    modalMessenger.href = data.messenger;
+
+    // Show the modal
+    modalOverlay.classList.add("active");
+    // Prevent background scrolling
+    document.body.style.overflow = "hidden";
+  }
+
   // 1) Show Modal with data from clicked card
   document.querySelectorAll(".dining-card").forEach((card) => {
     card.addEventListener("click", () => {
@@ -26,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const placeName = queryParams.get('name');
 
   if (placeName) {
-    // Find the card that matches the name and trigger a click
+    // Find the card that matches the name and trigger its modal
     const cardToOpen = document.querySelector(`.dining-card[data-name="${placeName}"]`);
     if (cardToOpen) {
       // Use a small timeout to ensure all assets are loaded before showing modal

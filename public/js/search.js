@@ -36,10 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         resultsGrid.innerHTML = results.map(place => {
-            // Use placeholder if image_url is missing
             const imageUrl = place.image_url || 'images/placeholder.jpg';
-            // Construct the link to the dining page with a query parameter
-            const detailUrl = `dining.html?name=${encodeURIComponent(place.name)}`;
+            let detailUrl = '#'; // Default link
+
+            // Construct the correct URL based on the place type
+            const placeType = place.type.toLowerCase();
+            if (placeType === 'dining' || placeType === 'restaurant') {
+                detailUrl = `dining.html?name=${encodeURIComponent(place.name)}`;
+            } else if (placeType === 'attraction' || placeType === 'tourist spot') {
+                detailUrl = `attractions.html?name=${encodeURIComponent(place.name)}`;
+            }
+            // Add more else-if blocks for other types like 'accommodation' if needed
 
             return `
                 <a href="${detailUrl}" class="card-link">

@@ -55,4 +55,17 @@ document.addEventListener('DOMContentLoaded', () => {
       closeModal();
     }
   });
+
+  // Check for a query parameter on page load to auto-trigger a modal
+  const queryParams = new URLSearchParams(window.location.search);
+  const attractionName = queryParams.get('name');
+
+  if (attractionName) {
+    const attractionToOpen = document.querySelector(`.attraction[data-name="${attractionName}"]`);
+    if (attractionToOpen) {
+      setTimeout(() => {
+        openModal(attractionToOpen);
+      }, 100);
+    }
+  }
 }); 
