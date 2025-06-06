@@ -186,4 +186,48 @@ h1 {
   font-size: 16px;
   color: #555555;
   margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .attraction {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .image-wrapper {
+    width: 100%;
+    height: 200px; /* Adjust height for tablet view */
+  }
+
+  .attractions-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .attraction-modal-content {
+    flex-direction: column;
+  }
+
+  #attraction-modal-image {
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 60px 1rem 1rem;
+  }
+
+  .heading-text h2 {
+    font-size: 28px;
+  }
+
+  .attraction-text h3 {
+    font-size: 1.1rem;
+  }
+
+  .attraction-modal-text h2 {
+    font-size: 24px;
+  }
 } 
