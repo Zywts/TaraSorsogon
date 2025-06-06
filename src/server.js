@@ -36,7 +36,7 @@ app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
 // Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // --- AUTH & ADMIN MIDDLEWARE ---
 const adminMiddleware = async (req, res, next) => {
@@ -71,11 +71,6 @@ const adminMiddleware = async (req, res, next) => {
         res.status(401).json({ error: 'Invalid or expired token.' });
     }
 };
-
-// Basic Route
-app.get('/', (req, res) => {
-    res.send('TaraSorsogon Backend is running!');
-});
 
 // --- API ROUTES ---
 
