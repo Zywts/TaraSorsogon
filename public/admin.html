@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Tara! Sorsogon</title>
+    <link rel="icon" href="images/head-logo.png" type="image/png">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Basic dashboard styles */
+        body {
+            background-color: #f4f7f6;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .dashboard-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-header h1 {
+            color: var(--primary-color);
+        }
+        .home-link {
+            text-decoration: none;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .home-link:hover {
+            background-color: var(--secondary-color);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+        .status-pending { color: #f0ad4e; }
+        .status-approved { color: #5cb85c; }
+        .status-rejected { color: #d9534f; }
+        .actions button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-approve { background-color: #5cb85c; }
+        .btn-reject { background-color: #d9534f; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+            <a href="index.html" class="home-link">Back to Main Site</a>
+        </div>
+
+        <section id="feedback-management">
+            <h2>Feedback Management</h2>
+            <div id="feedback-table-container">
+                <p>Loading feedback...</p>
+            </div>
+        </section>
+
+        <section id="user-management" style="margin-top: 3rem;">
+            <h2>User Management</h2>
+            <div id="users-table-container">
+                <p>Loading users...</p>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html> 

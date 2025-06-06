@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tara! Sorsogon - Tourism Information System</title>
+    <title>Tara! Sorsogon</title>
     <link rel="icon" href="images/head-logo.png" type="image/png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Calendar CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -34,6 +34,7 @@
             <li><a href="#phrases">Local Phrases</a></li>
             <li><a href="#emergency">Emergency</a></li>
             <li><a href="#" id="login-btn">Login</a></li>
+            <li><a href="#" id="signup-btn">Sign Up</a></li>
         </ul>
         <div class="hamburger">
             <span></span>
@@ -84,7 +85,6 @@
                         <p>A serene lake surrounded by lush forests</p>
                     </div>
                 </div>
-                <!-- More carousel items will be added dynamically -->
             </div>
             <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
             <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
@@ -96,7 +96,6 @@
         <h2>Event Calendar</h2>
         <div class="calendar-container">
             <div class="events-list">
-                <!-- Event items will be dynamically populated by script.js -->
                 <h3>Upcoming Events</h3>
                 <p>Loading events...</p> 
             </div>
@@ -105,7 +104,8 @@
     </section>
 
     <!-- Visitor Feedback -->
-    <!-- <section id="feedback" class="section">
+    <!-- 
+    <section id="feedback" class="section">
         <h2>Share Your Experience</h2>
         <form id="feedback-form" class="feedback-form">
             <div class="form-group">
@@ -125,14 +125,17 @@
                     <i class="far fa-star" data-rating="4"></i>
                     <i class="far fa-star" data-rating="5"></i>
                 </div>
+                <input type="hidden" name="rating" id="rating-value" value="0">
             </div>
             <div class="form-group">
                 <label for="comments">Comments:</label>
                 <textarea id="comments" name="comments" required></textarea>
             </div>
             <button type="submit">Submit Feedback</button>
+            <p class="form-message" id="feedback-message"></p>
         </form>
-    </section> -->
+    </section>
+    -->
 
     <!-- Interactive Map -->
     <section id="map" class="section reveal-on-scroll">
@@ -336,56 +339,51 @@
         </div>
     </footer>
 
-    <!-- Login Overlay -->
-    <div id="login-overlay" class="overlay-container">
-        <div class="overlay-content">
-            <span class="close-btn" id="close-login">&times;</span>
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-login-modal">&times;</span>
             <h2>Login</h2>
-            <p class="welcome-text">Welcome back! Please login to your account.</p>
             <form id="login-form">
                 <div class="form-group">
-                    <label for="username">Username or Email:</label>
-                    <input type="text" id="username" name="username" required>
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" name="email" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" name="password" required>
                 </div>
-                <div class="form-options">
-                    <a href="#" class="forgot-password">Forgot password?</a>
-                </div>
-                <button type="submit" class="btn-login">Login</button>
+                <button type="submit" class="btn">Login</button>
+                <p class="form-message" id="login-message"></p>
             </form>
-            <p class="create-account-link">Don't have an account? <a href="#">Create one</a>.</p>
         </div>
     </div>
 
-    <!-- Signup Overlay -->
-    <div id="signup-overlay" class="overlay-container">
-        <div class="overlay-content">
-            <span class="close-btn" id="close-signup">&times;</span>
-            <h2>Create Account</h2>
-            <p class="welcome-text">Join us! Create an account to get started.</p>
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-signup-modal">&times;</span>
+            <h2>Sign Up</h2>
             <form id="signup-form">
                 <div class="form-group">
                     <label for="signup-username">Username:</label>
-                    <input type="text" id="signup-username" name="signup-username" required>
+                    <input type="text" id="signup-username" name="username" required>
                 </div>
                 <div class="form-group">
                     <label for="signup-email">Email:</label>
-                    <input type="email" id="signup-email" name="signup-email" required>
+                    <input type="email" id="signup-email" name="email" required>
                 </div>
                 <div class="form-group">
                     <label for="signup-password">Password:</label>
-                    <input type="password" id="signup-password" name="signup-password" required>
+                    <input type="password" id="signup-password" name="password" required>
                 </div>
                 <div class="form-group">
                     <label for="signup-confirm-password">Confirm Password:</label>
-                    <input type="password" id="signup-confirm-password" name="signup-confirm-password" required>
+                    <input type="password" id="signup-confirm-password" name="confirmPassword" required>
                 </div>
-                <button type="submit" class="btn-signup">Create Account</button>
+                <button type="submit" class="btn">Sign Up</button>
+                <p class="form-message" id="signup-message"></p>
             </form>
-            <p class="login-account-link">Already have an account? <a href="#" id="show-login-link">Login</a>.</p>
         </div>
     </div>
 
@@ -394,6 +392,6 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html> 

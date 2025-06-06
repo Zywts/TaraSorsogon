@@ -63,6 +63,253 @@ document.addEventListener('DOMContentLoaded', () => {
              updateEventsList(null, calendarInstance);
         }
     }
+
+    // Modal Functionality
+    // Get modal elements
+    const loginModal = document.getElementById('login-modal');
+    const signupModal = document.getElementById('signup-modal');
+
+    // Get buttons that open modals
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+
+    // Get close buttons for modals
+    const closeLoginModalBtn = document.getElementById('close-login-modal');
+    const closeSignupModalBtn = document.getElementById('close-signup-modal');
+
+    // Get forms
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    const heroSearchForm = document.querySelector('.search-form'); // Assuming this is your hero search form
+
+    // Function to open a modal
+    const openModal = (modal) => {
+        if (modal) modal.style.display = 'block';
+    };
+
+    // Function to close a modal
+    const closeModal = (modal) => {
+        if (modal) modal.style.display = 'none';
+    };
+
+    // Event listeners for opening modals
+    if (loginBtn) loginBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default anchor behavior
+        openModal(loginModal);
+    });
+    if (signupBtn) signupBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default anchor behavior
+        openModal(signupModal);
+    });
+
+    // Event listeners for closing modals with X button
+    if (closeLoginModalBtn) closeLoginModalBtn.addEventListener('click', () => closeModal(loginModal));
+    if (closeSignupModalBtn) closeSignupModalBtn.addEventListener('click', () => closeModal(signupModal));
+
+    // Event listener for closing modals by clicking outside
+    window.addEventListener('click', (event) => {
+        if (event.target === loginModal) closeModal(loginModal);
+        if (event.target === signupModal) closeModal(signupModal);
+    });
+
+    // Login form submission
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const messageEl = document.getElementById('login-message');
+            messageEl.textContent = 'Logging in...';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login failed');
+                }
+                messageEl.textContent = data.message;
+                // Store token and user info in localStorage
+                localStorage.setItem('accessToken', data.access_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Example: Close modal and update UI after successful login
+                setTimeout(() => {
+                    closeModal(loginModal);
+                    updateUIAfterLogin();
+                }, 1000);
+
+            } catch (error) {
+                messageEl.textContent = error.message;
+            }
+        });
+    }
+
+    // Signup form submission
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            const messageEl = document.getElementById('signup-message');
+            messageEl.textContent = ''; // Clear previous messages
+
+            if (password !== confirmPassword) {
+                messageEl.textContent = 'Passwords do not match!';
+                return;
+            }
+            
+            messageEl.textContent = 'Signing up...';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Signup failed');
+                }
+                messageEl.textContent = data.message;
+                // Optionally close modal after a delay
+                setTimeout(() => closeModal(signupModal), 2000);
+            } catch (error) {
+                messageEl.textContent = error.message;
+            }
+        });
+    }
+
+    // Hero Search form submission
+    if (heroSearchForm) {
+        heroSearchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const searchInput = heroSearchForm.querySelector('.search-input');
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            if (searchTerm) {
+                // Redirect to the search results page with the term as a query parameter
+                window.location.href = `search.html?term=${encodeURIComponent(searchTerm)}`;
+            }
+        });
+    }
+
+    // Function to update UI after login
+    function updateUIAfterLogin() {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            const loginBtn = document.getElementById('login-btn');
+            const signupBtn = document.getElementById('signup-btn');
+            const navLinks = document.querySelector('.nav-links');
+
+            // Hide login/signup buttons
+            if(loginBtn) loginBtn.parentElement.style.display = 'none';
+            if(signupBtn) signupBtn.parentElement.style.display = 'none';
+
+            // Find the logout button's parent li to insert before it
+            const emergencyLi = document.querySelector('a[href="#emergency"]').parentElement;
+
+            // Add welcome message
+            const welcomeLi = document.createElement('li');
+            welcomeLi.textContent = `Welcome, ${user.username}!`;
+            
+            // Add Admin Dashboard link if user is admin
+            if (user.role === 'admin') {
+                const adminLi = document.createElement('li');
+                adminLi.innerHTML = `<a href="admin.html">Admin Dashboard</a>`;
+                emergencyLi.parentElement.insertBefore(adminLi, emergencyLi.nextElementSibling);
+            }
+
+            // Add logout button
+            const logoutLi = document.createElement('li');
+            const logoutBtn = document.createElement('a');
+            logoutBtn.href = '#';
+            logoutBtn.id = 'logout-btn';
+            logoutBtn.textContent = 'Logout';
+            logoutLi.appendChild(logoutBtn);
+
+            // Insert before the emergency link for proper ordering
+            emergencyLi.parentElement.insertBefore(welcomeLi, emergencyLi.nextElementSibling);
+            welcomeLi.parentElement.insertBefore(logoutLi, welcomeLi.nextElementSibling);
+
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('user');
+                // Ideally, you should also call a /api/logout endpoint on the backend
+                window.location.reload(); // Simple way to reset state
+            });
+        }
+    }
+
+    // Check login status on page load
+    updateUIAfterLogin();
+
+    // Handle Feedback Form
+    const feedbackForm = document.getElementById('feedback-form');
+    if(feedbackForm) {
+        const stars = feedbackForm.querySelectorAll('.star-rating i');
+        const ratingInput = feedbackForm.querySelector('#rating-value');
+        let currentRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                currentRating = star.dataset.rating;
+                ratingInput.value = currentRating;
+                updateStars(currentRating);
+            });
+            star.addEventListener('mouseover', () => updateStars(star.dataset.rating));
+        });
+
+        feedbackForm.querySelector('.star-rating').addEventListener('mouseleave', () => updateStars(currentRating));
+
+        function updateStars(rating) {
+            stars.forEach(star => {
+                star.classList.toggle('fas', star.dataset.rating <= rating);
+                star.classList.toggle('far', star.dataset.rating > rating);
+            });
+        }
+        
+        feedbackForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const messageEl = document.getElementById('feedback-message');
+            const formData = {
+                name: feedbackForm.name.value,
+                email: feedbackForm.email.value,
+                rating: parseInt(ratingInput.value, 10),
+                comments: feedbackForm.comments.value
+            };
+            
+            messageEl.textContent = 'Submitting...';
+            messageEl.style.color = 'inherit';
+
+            try {
+                const response = await fetch('http://localhost:3000/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to submit feedback.');
+                }
+                
+                messageEl.textContent = data.message;
+                messageEl.style.color = 'green';
+                feedbackForm.reset();
+                currentRating = 0;
+                updateStars(0);
+
+            } catch (error) {
+                messageEl.textContent = error.message;
+                messageEl.style.color = 'red';
+            }
+        });
+    }
 });
 
 // Carousel functionality
@@ -211,60 +458,6 @@ function updateEventsList(selectedDate, fpInstance) {
             });
         }
     }
-}
-
-// Feedback form
-const feedbackForm = document.getElementById('feedback-form');
-if (feedbackForm) {
-    const stars = document.querySelectorAll('.star-rating i');
-    let rating = 0;
-
-    // Star rating functionality
-    stars.forEach(star => {
-        star.addEventListener('mouseover', function() {
-            const rating = this.dataset.rating;
-            updateStars(rating);
-        });
-
-        star.addEventListener('click', function() {
-            rating = this.dataset.rating;
-            updateStars(rating);
-        });
-    });
-
-    document.querySelector('.star-rating').addEventListener('mouseleave', () => {
-        updateStars(rating);
-    });
-
-    function updateStars(value) {
-        stars.forEach(star => {
-            const starRating = star.dataset.rating;
-            star.classList.toggle('fas', starRating <= value);
-            star.classList.toggle('far', starRating > value);
-        });
-    }
-
-    // Form submission
-    feedbackForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const formData = {
-            name: feedbackForm.name.value,
-            email: feedbackForm.email.value,
-            rating: rating,
-            comments: feedbackForm.comments.value
-        };
-
-        // Here you would typically send the data to your backend
-        console.log('Feedback submitted:', formData);
-        
-        // Clear form
-        feedbackForm.reset();
-        rating = 0;
-        updateStars(0);
-        
-        alert('Thank you for your feedback!');
-    });
 }
 
 // Map functionality
@@ -488,90 +681,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Login Overlay Logic
-const loginBtn = document.getElementById('login-btn');
-const loginOverlay = document.getElementById('login-overlay');
-const closeLoginBtn = document.getElementById('close-login');
-const loginForm = document.getElementById('login-form');
-const createAccountLink = document.querySelector('.create-account-link a'); // Link in login overlay
-
-// Signup Overlay Elements
-const signupOverlay = document.getElementById('signup-overlay');
-const closeSignupBtn = document.getElementById('close-signup');
-const signupForm = document.getElementById('signup-form');
-const showLoginLink = document.getElementById('show-login-link'); // Link in signup overlay
-
-if (loginBtn && loginOverlay && closeLoginBtn && loginForm) {
-    loginBtn.addEventListener('click', (e) => {
-        e.preventDefault(); // Prevent default anchor behavior
-        loginOverlay.style.display = 'flex';
-        // Ensure signup is hidden if it was somehow left open
-        if (signupOverlay) signupOverlay.style.display = 'none'; 
-    });
-
-    closeLoginBtn.addEventListener('click', () => {
-        loginOverlay.style.display = 'none';
-    });
-
-    loginOverlay.addEventListener('click', (e) => {
-        if (e.target === loginOverlay) {
-            loginOverlay.style.display = 'none';
-        }
-    });
-
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        console.log('Login form submitted');
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value; // Corrected from email to password
-        console.log('Username:', username, 'Password:', password);
-        alert('Login functionality is not yet implemented. Check console for form data.');
-        loginOverlay.style.display = 'none';
-        loginForm.reset();
-    });
-}
-
-// Signup Overlay Logic
-if (signupOverlay && closeSignupBtn && signupForm && showLoginLink) {
-    closeSignupBtn.addEventListener('click', () => {
-        signupOverlay.style.display = 'none';
-    });
-
-    signupOverlay.addEventListener('click', (e) => {
-        if (e.target === signupOverlay) {
-            signupOverlay.style.display = 'none';
-        }
-    });
-
-    signupForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        console.log('Signup form submitted');
-        const signupUsername = document.getElementById('signup-username').value;
-        const signupEmail = document.getElementById('signup-email').value;
-        const signupPassword = document.getElementById('signup-password').value;
-        // Add more validation/logic as needed (e.g., confirm password)
-        console.log('Signup Data:', { username: signupUsername, email: signupEmail, password: signupPassword });
-        alert('Signup functionality is not yet implemented. Check console for form data.');
-        signupOverlay.style.display = 'none';
-        signupForm.reset();
-    });
-
-    showLoginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        signupOverlay.style.display = 'none';
-        if (loginOverlay) loginOverlay.style.display = 'flex'; // Show login overlay
-    });
-}
-
-// Link from Login to Signup Overlay
-if (createAccountLink && loginOverlay && signupOverlay) {
-    createAccountLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        loginOverlay.style.display = 'none';
-        signupOverlay.style.display = 'flex';
-    });
-}
-
 // Function to reveal elements on scroll
 const revealOnScroll = () => {
     const sections = document.querySelectorAll('.reveal-on-scroll');
@@ -586,4 +695,4 @@ const revealOnScroll = () => {
 };
 
 window.addEventListener('scroll', revealOnScroll);
-document.addEventListener('DOMContentLoaded', revealOnScroll); // Trigger on initial load for visible elements 
+document.addEventListener('DOMContentLoaded', revealOnScroll); // Trigger on initial load for visible elements
