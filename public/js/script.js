@@ -512,137 +512,153 @@ const locations = {
     ]
 };
 
+const SUPABASE_URL = 'https://fyzktgorhtbyxpwkrgoi.supabase.co'; 
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5emt0Z29yaHRieXhwd2tyZ29pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMDE4OTcsImV4cCI6MjA2NDc3Nzg5N30.gSPpJPpL36mN-vbN-OXJoJElOGCje-Fo3Nq6oQLvp3U'; // Replace with your Supabase public anon key
+
+let supabase;
+try {
+    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch(e) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+}
+
 let map;
-let markers = [];
+let allMarkers = []; // To store all markers for filtering
+const sorsogonBounds = [
+    [12.53, 123.5], // Southwest coordinates
+    [13.2, 124.25]  // Northeast coordinates
+];
 
-function initMap() {
-    const sorsogonCenter = [12.8700, 124.0000];
-    
-    // Check if the map container exists
-    const mapContainer = document.getElementById('interactive-map');
-    if (!mapContainer) {
-        console.error('Map container #interactive-map not found.');
-        return;
-    }
-    // Ensure container is not already initialized by Leaflet
-    if (mapContainer._leaflet_id) {
-        return;
-    }
+async function initMap() {
+    if (document.getElementById('interactive-map')) {
+        map = L.map('interactive-map').setView([12.85, 124.0], 10); // Center of Sorsogon
 
-    const initialZoomLevel = 10;
-    const minZoomLevel = 10;
-    const maxZoomLevel = 15;
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            minZoom: 9,
+        }).addTo(map);
 
-    map = L.map('interactive-map', {
-        center: sorsogonCenter,
-        zoom: initialZoomLevel, // Initial zoom
-        minZoom: minZoomLevel,  // Minimum allowed zoom
-        maxZoom: maxZoomLevel,  // Maximum allowed zoom
-        zoomControl: true,      // Re-enable the +/- buttons
-        scrollWheelZoom: true,  // Re-enable zoom on mouse scroll
-        doubleClickZoom: true,  // Re-enable zoom on double click
-        touchZoom: true,        // Re-enable pinch zoom on touch devices
-        dragging: true          // Keep dragging enabled
-    });
-
-    // Define the coordinates for maxBounds
-    // User's NE: 13°32'26.9"N 122°10'56.9"E -> Lat: 13.540806, Lon: 122.182472
-    // User's SW: 12°23'35.0"N 124°33'56.7"E -> Lat: 12.393056, Lon: 124.565750
-
-    const southWestBoundLat = 12.530960; // Derived from user's SW Lat
-    const southWestBoundLng = 122.783565; // Derived from user's SW Lon (it's the easternmost)
-    const northEastBoundLat = 13.106850; // Derived from user's NE Lat
-    const northEastBoundLng = 124.952358; // Derived from user's NE Lon (it's the westernmost)
-
-    const corner1 = L.latLng(southWestBoundLat, southWestBoundLng);
-    const corner2 = L.latLng(northEastBoundLat, northEastBoundLng);
-    const bounds = L.latLngBounds(corner1, corner2);
-
-    map.setMaxBounds(bounds);
-    map.on('drag', function() {
-        map.panInsideBounds(bounds, { animate: false });
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Initial call to add all markers
-    addMarkers('all');
-
-    // Add event listeners to filter buttons
-    const filterButtons = document.querySelectorAll('.map-filter');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            filterMarkers(this.dataset.type);
+        map.setMaxBounds(sorsogonBounds);
+        map.on('drag', function() {
+            map.panInsideBounds(sorsogonBounds, { animate: false });
         });
-    });
+
+        // Fetch places from Supabase and add markers
+        await addMarkers('all');
+
+        // Setup filter buttons
+        const filters = document.querySelectorAll('.map-filter');
+        filters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                filters.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                const type = this.getAttribute('data-type');
+                filterMarkers(type);
+            });
+        });
+    }
 }
 
 function createMarker(location) {
-    const marker = L.marker([location.position.lat, location.position.lng], {
-        icon: getMarkerIcon(location.type)
-    });
-    
-    marker.bindPopup(`<b>${location.name}</b><br>${location.description}`);
-    markers.push(marker);
+    if (!location.position || typeof location.position.lat !== 'number' || typeof location.position.lon !== 'number') {
+        console.warn('Invalid location data:', location);
+        return null;
+    }
+
+    const marker = L.marker([location.position.lat, location.position.lon], { icon: getMarkerIcon(location.type) });
+
+    // Create popup content
+    let popupContent = `
+        <div class="map-popup">
+            ${location.image_url ? `<img src="${location.image_url}" alt="${location.name}" style="width:100%;height:auto;border-radius:5px;">` : ''}
+            <h4>${location.name}</h4>
+            <p>${location.description}</p>
+        </div>
+    `;
+
+    marker.bindPopup(popupContent);
+    marker.options.type = location.type; // Store type for filtering
     return marker;
 }
 
 function getMarkerIcon(type) {
-    let iconUrl = 'images/marker-icon-blue.png'; // Default icon
-    const iconSize = [25, 41]; // Standard Leaflet pin size [width, height]
-    const iconAnchor = [12, 41]; // Point of the icon that corresponds to marker\'s location
-    const popupAnchor = [1, -34]; // Point from which the popup should open relative to the iconAnchor
+    let icon = 'fas fa-map-marker'; // Default icon
+    let color = '#3498db'; // Default blue for 'all' or others
 
     if (type === 'attractions') {
-        iconUrl = 'images/marker-icon-blue.png'; // Or your preferred color for attractions
+        icon = 'fas fa-hiking'; // Or your preferred icon for attractions
     } else if (type === 'dining') {
-        iconUrl = 'images/marker-icon-red.png';
+        icon = 'fas fa-utensils';
+        color = '#e74c3c'; // Red for dining
     } else if (type === 'accommodation') {
-        iconUrl = 'images/marker-icon-green.png';
+        icon = 'fas fa-hotel';
+        color = '#2ecc71'; // Green for accommodation
     }
-    // Add more else if blocks for other types if needed
 
-    return L.icon({
-        iconUrl: iconUrl,
-        iconSize: iconSize,
-        iconAnchor: iconAnchor,
-        popupAnchor: popupAnchor
+    return L.divIcon({
+        html: `<i class="fas ${icon} fa-2x" style="color: ${color};"></i>`,
+        className: 'map-marker-icon',
+        iconSize: [30, 42],
+        iconAnchor: [15, 42],
+        popupAnchor: [0, -35]
     });
 }
 
-function addMarkers(type) {
-    clearMarkers();
-
-    let locationsToShow = [];
-    if (type === 'all') {
-        locationsToShow = [
-            ...locations.attractions,
-            ...locations.dining,
-            ...locations.accommodation
-        ];
-    } else if (locations[type]) {
-        locationsToShow = locations[type];
+async function addMarkers(type = 'all') {
+    if (!supabase) {
+        console.error("Supabase client is not initialized.");
+        return;
     }
 
-    locationsToShow.forEach(location => {
-        const marker = createMarker(location);
-        marker.addTo(map);
-    });
+    clearMarkers();
+    allMarkers = [];
+
+    try {
+        let { data: places, error } = await supabase.from('places').select('*');
+
+        if (error) {
+            console.error('Error fetching places:', error);
+            return;
+        }
+
+        if (places) {
+            places.forEach(place => {
+                // The position from the DB is a stringified JSON, so we need to parse it.
+                if (typeof place.position === 'string') {
+                    try {
+                        place.position = JSON.parse(place.position);
+                    } catch (e) {
+                        console.warn(`Could not parse position for place: ${place.name}`);
+                        place.position = null;
+                    }
+                }
+
+                const marker = createMarker(place);
+                if (marker) {
+                    allMarkers.push(marker);
+                }
+            });
+        }
+        filterMarkers(type); // Initial filter after loading all markers
+    } catch (err) {
+        console.error("An error occurred while fetching and adding markers:", err);
+    }
 }
 
 function clearMarkers() {
-    markers.forEach(marker => {
+    allMarkers.forEach(marker => {
         map.removeLayer(marker);
     });
-    markers = [];
+    allMarkers = [];
 }
 
 function filterMarkers(type) {
-    addMarkers(type);
+    clearMarkers();
+    allMarkers.forEach(marker => {
+        if (type === 'all' || marker.options.type === type) {
+            marker.addTo(map);
+        }
+    });
 }
 
 // Call initMap when the DOM is ready
