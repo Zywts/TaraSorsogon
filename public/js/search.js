@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchSearchResults(term) {
         try {
-            const response = await fetch(`http://localhost:3000/api/search?term=${encodeURIComponent(term)}`);
+            const response = await fetch(`/api/search?term=${encodeURIComponent(term)}`);
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Search failed');
