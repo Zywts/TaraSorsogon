@@ -107,10 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeSignupModalBtn) closeSignupModalBtn.addEventListener('click', () => closeModal(signupModal));
 
     // Event listener for closing modals by clicking outside
-    window.addEventListener('click', (event) => {
+    /* window.addEventListener('click', (event) => {
         if (event.target === loginModal) closeModal(loginModal);
         if (event.target === signupModal) closeModal(signupModal);
-    });
+    }); */
 
     // Login form submission
     if (loginForm) {
@@ -529,8 +529,8 @@ function initMap() {
         return;
     }
 
-    const initialZoomLevel = 11;
-    const minZoomLevel = 11;
+    const initialZoomLevel = 10;
+    const minZoomLevel = 10;
     const maxZoomLevel = 15;
 
     map = L.map('interactive-map', {
@@ -669,14 +669,31 @@ if (document.getElementById('interactive-map')) {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-            // Close mobile menu if open
-            document.querySelector('.nav-links').classList.remove('active');
+        
+        const navLinks = document.querySelector('.nav-links');
+        if (navLinks && navLinks.classList.contains('active')) {
+            navLinks.classList.remove('active');
+        }
+        
+        const href = this.getAttribute('href');
+        if (href === '#' || href.length < 2) return; 
+
+        try {
+            const target = document.querySelector(href);
+            if (target) {
+                const navbar = document.querySelector('.navbar');
+                const navbarHeight = navbar ? navbar.offsetHeight : 0;
+                const offsetPadding = 20; // 20px of extra space
+                const targetPosition = target.getBoundingClientRect().top + window.scrollY - navbarHeight - offsetPadding;
+
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        } catch (error) {
+            // This can happen if the href is not a valid selector
+            console.error("Error finding target for smooth scroll:", error);
         }
     });
 });

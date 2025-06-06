@@ -1,0 +1,189 @@
+body {
+  margin: 0;
+  background: linear-gradient(to bottom, #ffffff 0%, #e6f4ea 100%);
+  background-attachment: fixed;
+  color: #333;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 2rem 2rem;
+}
+h1 {
+  color: #2e7d32;
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.municipality {
+  margin-bottom: 3rem;
+}
+.municipality-header {
+  margin-bottom: 1.5rem;
+}
+.attraction {
+  display: flex;
+  gap: 20px;
+  background: white;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  align-items: flex-start;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.attraction:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+}
+.image-wrapper {
+  flex-shrink: 0;
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 1rem;
+  transition: transform 0.3s;
+  cursor: pointer;
+  z-index: 998;
+}
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.image-wrapper:hover img {
+  transform: scale(1.05);
+}
+.attraction-text {
+  flex: 1;
+}
+.attraction h3 {
+  margin: 0 0 5px;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.attraction p {
+  margin: 4px 0;
+}
+
+/* New Attraction Detail Modal Styles */
+.attraction-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.attraction-modal-overlay.active {
+  display: flex;
+}
+
+.attraction-modal-content {
+  background-color: #fff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 800px; /* Increased width for a larger modal */
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+#attraction-modal-image {
+  width: 100%;
+  height: 400px; /* Larger image height */
+  object-fit: cover;
+  border-radius: 16px 16px 0 0; /* Rounded corners only on top */
+}
+
+.attraction-modal-text {
+  padding: 24px 32px;
+}
+
+.attraction-modal-text h2 {
+  font-size: 28px;
+  margin: 0 0 12px 0;
+}
+
+.attraction-modal-text p {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 8px 0;
+}
+
+#attraction-modal-description {
+  margin-top: 16px;
+}
+
+.attraction-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.attraction-modal-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.attractions-header {
+  display: flex;
+  align-items: center;
+  max-width: 1200px;
+  margin: 20px auto 40px;
+  text-align: left;
+}
+
+.icon-container {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background-color: #ffffff;
+  border: 2px solid #ececec;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.icon-container i {
+  font-size: 24px;
+  color: #333333;
+}
+
+.heading-text h2 {
+  font-size: 32px;
+  margin-bottom: 8px;
+  color: #222222;
+}
+
+.heading-text p {
+  font-size: 16px;
+  color: #555555;
+  margin: 0;
+} 

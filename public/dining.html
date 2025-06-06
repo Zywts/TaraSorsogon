@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tara! Sorsogon - Dining</title>
+    <link rel="icon" href="images/head-logo.png" type="image/png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/dining.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Calendar CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">
+                <img src="images/logo.png" alt="Tara! Sorsogon Logo" class="logo">
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="attractions.html">Attractions</a></li>
+            <li><a href="index.html#events">Events</a></li>
+            <li><a href="dining.html">Dining</a></li>
+            <li><a href="index.html#accommodation">Accommodation</a></li>
+            <li><a href="index.html#phrases">Local Phrases</a></li>
+            <li><a href="index.html#emergency">Emergency</a></li>
+            <li><a href="#" id="login-btn">Login</a></li>
+            <li><a href="#" id="signup-btn">Sign Up</a></li>
+        </ul>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+<!-- ==============================
+     Places to Dine Section (14 Cards: Sorsogon City + Donsol)
+================================= -->
+<section id="dining" class="dining-section">
+  <div class="dining-header">
+    <div class="icon-container">
+      <i class="fas fa-coffee"></i>
+    </div>
+    <div class="heading-text">
+      <h2>Places to Dine</h2>
+      <p>Here is the list of places in Sorsogon where you can dine.</p>
+    </div>
+  </div>
+
+  <div class="dining-cards">
+    <!-- Card 1: Marion's Garden -->
+    <div
+      class="dining-card"
+      data-name="Marion's Garden"
+      data-image="images/marions-garden.jpg"
+      data-address="Sorsogon City, Sorsogon, Philippines"
+      data-description="A lush garden-themed restaurant serving fresh local produce and international dishes. Perfect for al fresco dining in a tranquil setting."
+      data-hours="8:00 AM – 10:00 PM"
+      data-best="Garden Salad Bowl, Tuna Poke"
+      data-phone="+63 956 123 4567"
+      data-facebook="https://www.facebook.com/marionsgarden"
+      data-messenger="https://m.me/marionsgarden"
+    >
+      <div class="card-image">
+        <img src="images/marions-garden.jpg" alt="Marion's Garden" />
+      </div>
+      <div class="card-content">
+        <h3>Marion's Garden</h3>
+        <p>Sorsogon City, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Balay Cena Una -->
+    <div
+      class="dining-card"
+      data-name="Balay Cena Una"
+      data-image="images/balay-cena-una.jpg"
+      data-address="Sorsogon City, Sorsogon, Philippines"
+      data-description="A cozy home-style eatery offering classic Filipino comfort food. Known for its warm hospitality and homemade desserts."
+      data-hours="11:00 AM – 9:00 PM"
+      data-best="Lechon Kawali, Halo-Halo"
+      data-phone="+63 917 234 5678"
+      data-facebook="https://www.facebook.com/balaycenauna"
+      data-messenger="https://m.me/balaycenauna"
+    >
+      <div class="card-image">
+        <img src="images/balay-cena-una.jpg" alt="Balay Cena Una" />
+      </div>
+      <div class="card-content">
+        <h3>Balay Cena Una</h3>
+        <p>Sorsogon City, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Kochi Café -->
+    <div
+      class="dining-card"
+      data-name="Kochi Café"
+      data-image="images/kochi-cafe.jpg"
+      data-address="Rizal St. cor. Belen St., Brgy. Centro, Sorsogon City, Sorsogon, Philippines"
+      data-description="A cozy Japanese-inspired café in the heart of Sorsogon City, Kochi Café serves specialty coffee, matcha-based drinks, and handcrafted pastries. Its minimalist décor and relaxed ambiance make it a perfect spot for both work and weekend catch-ups."
+      data-hours="7:00 AM – 10:00 PM"
+      data-best="Kochi Matcha Latte, Ube Cheesecake, Chicken Karaage"
+      data-phone="+63 956 789 0123"
+      data-facebook="https://www.facebook.com/kochicafesorsogon"
+      data-messenger="https://m.me/kochicafesorsogon"
+    >
+      <div class="card-image">
+        <img src="images/kochi-cafe.jpg" alt="Kochi Café" />
+      </div>
+      <div class="card-content">
+        <h3>Kochi Café</h3>
+        <p>Rizal St. cor. Belen St., Brgy. Centro, Sorsogon City, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Victoria's Grille -->
+    <div
+      class="dining-card"
+      data-name="Victoria's Grille"
+      data-image="images/victorias-grille.jpg"
+      data-address="Sorsogon City, Sorsogon, Philippines"
+      data-description="An upscale steakhouse offering premium cuts of meat, signature sauces, and a curated wine list. Perfect for special occasions."
+      data-hours="11:00 AM – 11:00 PM"
+      data-best="US Ribeye Steak, Truffle Fries"
+      data-phone="+63 956 987 6543"
+      data-facebook="https://www.facebook.com/victoriasgrille"
+      data-messenger="https://m.me/victoriasgrille"
+    >
+      <div class="card-image">
+        <img src="images/victorias-grille.jpg" alt="Victoria's Grille" />
+      </div>
+      <div class="card-content">
+        <h3>Victoria's Grille</h3>
+        <p>Sorsogon City, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 5: Casa Dominga -->
+    <div
+      class="dining-card"
+      data-name="Casa Dominga"
+      data-image="images/casa-dominga.jpg"
+      data-address="Sorsogon City, Sorsogon, Philippines"
+      data-description="A charming bistro with a Spanish-inspired menu—tapas, paellas, and sangrias. Rustic interiors and live guitar music on weekends."
+      data-hours="12:00 PM – 10:00 PM"
+      data-best="Seafood Paella, Gambas al Ajillo"
+      data-phone="+63 917 456 7890"
+      data-facebook="https://www.facebook.com/casadominga"
+      data-messenger="https://m.me/casadominga"
+    >
+      <div class="card-image">
+        <img src="images/casa-dominga.jpg" alt="Casa Dominga" />
+      </div>
+      <div class="card-content">
+        <h3>Casa Dominga</h3>
+        <p>Sorsogon City, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 6: Una Pizzeria (updated details) -->
+    <div
+      class="dining-card"
+      data-name="Una Pizzeria"
+      data-image="images/una-pizzeria.jpg"
+      data-address="X2C2+554, Pareja St, Sorsogon City, Sorsogon, Philippines"
+      data-description="Authentic wood-fired pizza with homemade dough, fresh toppings, and a cozy indoor/outdoor seating area."
+      data-hours="10 AM – 8 PM (Hours might differ on holidays)"
+      data-best="Margherita Pizza, Tiramisu"
+      data-phone="+63 915 215 3305"
+      data-facebook="https://www.facebook.com/unapizzeria"
+      data-messenger="https://m.me/unapizzeria"
+    >
+      <div class="card-image">
+        <img src="images/una-pizzeria.jpg" alt="Una Pizzeria" />
+      </div>
+      <div class="card-content">
+        <h3>Una Pizzeria</h3>
+        <p>X2C2+554, Pareja St, Sorsogon City, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 7: Agapito's Cafe (updated address) -->
+    <div
+      class="dining-card"
+      data-name="Agapito's Cafe"
+      data-image="images/agapitos-cafe.jpg"
+      data-address="Marifosque, Pilar, 4714 Sorsogon, Philippines"
+      data-description="A small neighborhood café known for its specialty lattes, homemade cakes, and friendly atmosphere."
+      data-hours="7:00 AM – 8:00 PM"
+      data-best="Cappuccino, Chocolate Fudge Cake"
+      data-phone="+63 928 222 3344"
+      data-facebook="https://www.facebook.com/agapitoscafe"
+      data-messenger="https://m.me/agapitoscafe"
+    >
+      <div class="card-image">
+        <img src="images/agapitos-cafe.jpg" alt="Agapito's Cafe" />
+      </div>
+      <div class="card-content">
+        <h3>Agapito's Cafe</h3>
+        <p>Marifosque, Pilar, 4714 Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 8: Padrino Cafe -->
+    <div
+      class="dining-card"
+      data-name="Padrino Cafe"
+      data-image="images/padrino-cafe.jpg"
+      data-address="Brgy. Pangpang, Sorsogon City, Philippines"
+      data-description="A stylish café serving specialty coffee, smoothies, and artisanal sandwiches. Perfect for a quick bite or study session."
+      data-hours="8:00 AM – 8:00 PM"
+      data-best="Espresso Macchiato, Grilled Panini"
+      data-phone="+63 928 444 5566"
+      data-facebook="https://www.facebook.com/padrinocafe"
+      data-messenger="https://m.me/padrinocafe"
+    >
+      <div class="card-image">
+        <img src="images/padrino-cafe.jpg" alt="Padrino Cafe" />
+      </div>
+      <div class="card-content">
+        <h3>Padrino Cafe</h3>
+        <p>Brgy. Pangpang, Sorsogon City, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 9: Skyview Restobar -->
+    <div
+      class="dining-card"
+      data-name="Skyview Restobar"
+      data-image="images/skyview-restobar.jpg"
+      data-address="Brgy. Rizal (Sitio Toblijon), Sorsogon City, Philippines"
+      data-description="Rooftop bar & restaurant offering 360° views of Sorsogon City. Great cocktails, grilled specialties, and live DJ sets on weekends."
+      data-hours="5:00 PM – 12:00 AM"
+      data-best="Skyview Burger, Margarita"
+      data-phone="+63 917 555 6677"
+      data-facebook="https://www.facebook.com/skyviewrestobar"
+      data-messenger="https://m.me/skyviewrestobar"
+    >
+      <div class="card-image">
+        <img src="images/skyview-restobar.jpg" alt="Skyview Restobar" />
+      </div>
+      <div class="card-content">
+        <h3>Skyview Restobar</h3>
+        <p>Brgy. Rizal (Sitio Toblijon), Sorsogon City, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 10: Que Pasa -->
+    <div
+      class="dining-card"
+      data-name="Que Pasa"
+      data-image="images/que-pasa.jpg"
+      data-address="Sorsogon City, Sorsogon, Philippines"
+      data-description="Casual diner serving a mix of Filipino and Western fare, with daily specials and generous portions."
+      data-hours="10:00 AM – 10:00 PM"
+      data-best="Beef Caldereta, BBQ Ribs"
+      data-phone="+63 956 666 7788"
+      data-facebook="https://www.facebook.com/quepasa"
+      data-messenger="https://m.me/quepasa"
+    >
+      <div class="card-image">
+        <img src="images/que-pasa.jpg" alt="Que Pasa" />
+      </div>
+      <div class="card-content">
+        <h3>Que Pasa</h3>
+        <p>Sorsogon City, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 11: Roberto's Restobar -->
+    <div
+      class="dining-card"
+      data-name="Roberto's Restobar"
+      data-image="images/robertos-restobar.jpg"
+      data-address="Barangay, Donsol, 4715 Sorsogon, Philippines"
+      data-description="A popular restobar in Donsol serving a wide selection of local and international dishes in a cozy, rustic setting. Live music on weekends."
+      data-hours="10:00 AM – 11:00 PM"
+      data-best="Spicy Pork Sisig, Craft Beers"
+      data-phone="+63 976 093 3635"
+      data-facebook="https://www.facebook.com/robertosrestobardonsol"
+      data-messenger="https://m.me/robertosrestobardonsol"
+    >
+      <div class="card-image">
+        <img src="images/robertos-restobar.jpg" alt="Roberto's Restobar" />
+      </div>
+      <div class="card-content">
+        <h3>Roberto's Restobar</h3>
+        <p>Barangay, Donsol, 4715 Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 12: Baracuda Seafood And Cocktail -->
+    <div
+      class="dining-card"
+      data-name="Baracuda Seafood And Cocktail"
+      data-image="images/baracuda-seafood.jpg"
+      data-address="WHGF+8X3, Aplaya Rd, Donsol, Sorsogon, Philippines"
+      data-description="A beachfront seafood restaurant in Donsol, famous for fresh catches grilled to order and its signature cocktails. Perfect spot to watch sunsets."
+      data-hours="5:00 PM – 11:00 PM"
+      data-best="Grilled Lobster, Mango Daiquiri"
+      data-phone="+63 961 588 7474"
+      data-facebook="https://www.facebook.com/baracudaseafoodandcocktail"
+      data-messenger="https://m.me/baracudaseafoodandcocktail"
+    >
+      <div class="card-image">
+        <img src="images/baracuda-seafood.jpg" alt="Baracuda Seafood And Cocktail" />
+      </div>
+      <div class="card-content">
+        <h3>Baracuda Seafood And Cocktail</h3>
+        <p>WHGF+8X3, Aplaya Rd, Donsol, Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 13: Yanina's Snackbite Restaurant and Bar -->
+    <div
+      class="dining-card"
+      data-name="Yanina's Snackbite Restaurant and Bar"
+      data-image="images/yaninas-snackbite.jpg"
+      data-address="Hernandez St., Bororan Barangay 1, Donsol, 4715 Sorsogon, Philippines"
+      data-description="A vibrant eatery and bar in Donsol offering Filipino comfort classics and cold drinks in a casual, friendly atmosphere. Great for late-night snacks."
+      data-hours="9:00 AM – 12:00 AM"
+      data-best="Pork Sisig, Halo-Halo"
+      data-phone="+63 956 977 5105"
+      data-facebook="https://www.facebook.com/yaninassnackbite"
+      data-messenger="https://m.me/yaninassnackbite"
+    >
+      <div class="card-image">
+        <img src="images/yaninas-snackbite.jpg" alt="Yanina's Snackbite Restaurant and Bar" />
+      </div>
+      <div class="card-content">
+        <h3>Yanina's Snackbite Restaurant and Bar</h3>
+        <p>Hernandez St., Bororan Barangay 1, Donsol, 4715 Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <!-- Card 14: Caridad RestoBar -->
+    <div
+      class="dining-card"
+      data-name="Caridad RestoBar"
+      data-image="images/caridad-restobar.jpg"
+      data-address="003, Donsol, Sorsogon, Philippines"
+      data-description="Charming restaurant and bar in central Donsol featuring home-style Filipino dishes and refreshing drinks. Known for friendly service and an open-air dining area."
+      data-hours="10:00 AM – 10:00 PM"
+      data-best="Grilled Fish, Inihaw na Liempo"
+      data-phone="+63 948 983 3349"
+      data-facebook="https://www.facebook.com/caridadrestobar"
+      data-messenger="https://m.me/caridadrestobar"
+    >
+      <div class="card-image">
+        <img src="images/caridad-restobar.jpg" alt="Caridad RestoBar" />
+      </div>
+      <div class="card-content">
+        <h3>Caridad RestoBar</h3>
+        <p>003, Donsol, Sorsogon, Philippines</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ==============================
+     End of Places to Dine Section
+================================= -->
+
+  <!-- =========================================
+       MODAL: Hidden by default; shown on click
+  =========================================== -->
+  <div id="dining-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button id="modal-close" class="modal-close">&times;</button>
+
+      <!-- Image / Title / Address -->
+      <div class="modal-header">
+        <img
+          id="modal-image"
+          src=""
+          alt="Restaurant Image"
+        />
+        <div class="modal-header-text">
+          <h2 id="modal-name">Restaurant Name</h2>
+          <p id="modal-address">Restaurant Address</p>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <p id="modal-description" class="modal-description">
+        Restaurant description goes here.
+      </p>
+
+      <div class="modal-divider"></div>
+
+      <!-- Opens / Best Seller -->
+      <div class="modal-details">
+        <p>
+          <strong>Opens:</strong>
+          <span id="modal-hours">9:00 AM – 10:00 PM</span>
+        </p>
+        <p>
+          <strong>Best Seller / Must Try:</strong>
+          <span id="modal-best">Spare Ribs Steak, Bangus Daing</span>
+        </p>
+      </div>
+
+      <div class="modal-divider"></div>
+
+      <!-- Contact Icons -->
+      <div class="modal-contact">
+        <a id="modal-phone" href="#" target="_blank">
+          <i class="fas fa-phone"></i>
+          <span id="modal-phone-text">0950 885 1019</span>
+        </a>
+        <a id="modal-facebook" href="#" target="_blank">
+          <i class="fab fa-facebook"></i> Facebook
+        </a>
+        <a id="modal-messenger" href="#" target="_blank">
+          <i class="fab fa-facebook-messenger"></i> Messenger
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- ==============================
+       End of Modal
+  ================================= -->
+
+<!-- Footer -->
+<footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Discover Sorsogon is your ultimate guide to exploring the beauty and culture of Sorsogon, Philippines.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="attractions.html">Attractions</a></li>
+                    <li><a href="index.html#events">Events</a></li>
+                    <li><a href="dining.html">Dining</a></li>
+                    <li><a href="index.html#accommodation">Accommodation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: info@discoversorsogon.ph</p>
+                <p>Phone: +63 XXX XXX XXXX</p>
+                <p>Sorsogon, Philippines</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Discover Sorsogon. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-login-modal">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <p class="form-message" id="login-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-signup-modal">&times;</span>
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-username">Username:</label>
+                    <input type="text" id="signup-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email:</label>
+                    <input type="email" id="signup-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password:</label>
+                    <input type="password" id="signup-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password:</label>
+                    <input type="password" id="signup-confirm-password" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+                <p class="form-message" id="signup-message"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="js/dining.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html> 
