@@ -461,66 +461,12 @@ function updateEventsList(selectedDate, fpInstance) {
 }
 
 // Map functionality
-const locations = {
-    attractions: [
-        {
-            name: 'Bulusan Lake',
-            position: { lat: 12.7527, lng: 124.1208 },
-            type: 'attractions',
-            description: 'A serene crater lake surrounded by lush forests'
-        },
-        {
-            name: 'Rizal Beach',
-            position: { lat: 12.9747, lng: 124.0070 },
-            type: 'attractions',
-            description: 'Beautiful beach with crystal clear waters'
-        },
-        {
-            name: 'Barcelona Church',
-            position: { lat: 12.8736, lng: 124.1444 },
-            type: 'attractions',
-            description: 'Historic church with Spanish colonial architecture'
-        }
-    ],
-    dining: [
-        {
-            name: 'First Colonial Grill',
-            position: { lat: 12.9697, lng: 124.0109 },
-            type: 'dining',
-            description: 'Famous for Bicolano cuisine and unique ice cream flavors'
-        },
-        {
-            name: 'Balay Cena Una',
-            position: { lat: 12.9723, lng: 124.0134 },
-            type: 'dining',
-            description: 'Traditional Bicolano restaurant in a heritage house'
-        }
-    ],
-    accommodation: [
-        {
-            name: 'Siama Hotel',
-            position: { lat: 12.9738, lng: 124.0147 },
-            type: 'accommodation',
-            description: 'Modern native-inspired luxury hotel'
-        },
-        {
-            name: 'Bulusan Lake Resort',
-            position: { lat: 12.7529, lng: 124.1210 },
-            type: 'accommodation',
-            description: 'Peaceful lakeside accommodation'
-        }
-    ]
-};
-
 const SUPABASE_URL = 'https://fyzktgorhtbyxpwkrgoi.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5emt0Z29yaHRieXhwd2tyZ29pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkyMDE4OTcsImV4cCI6MjA2NDc3Nzg5N30.gSPpJPpL36mN-vbN-OXJoJElOGCje-Fo3Nq6oQLvp3U'; // Replace with your Supabase public anon key
 
-let supabase;
-try {
-    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch(e) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
+// Initialize Supabase client
+const { createClient } = window.supabase;
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let map;
 let allMarkers = []; // To store all markers for filtering
@@ -543,8 +489,8 @@ async function initMap() {
             map.panInsideBounds(sorsogonBounds, { animate: false });
         });
 
-        // Fetch places from Supabase and add markers
-        await addMarkers('all');
+        // Fetch places from Supabase, create markers, and store them.
+        await fetchAndCreateAllMarkers();
 
         // Setup filter buttons
         const filters = document.querySelectorAll('.map-filter');
@@ -557,6 +503,53 @@ async function initMap() {
             });
         });
     }
+}
+
+async function fetchAndCreateAllMarkers() {
+    if (!supabase) {
+        console.error("Supabase client is not initialized.");
+        return;
+    }
+
+    try {
+        let { data: places, error } = await supabase.from('places').select('*');
+
+        if (error) {
+            console.error('Error fetching places:', error);
+            return;
+        }
+
+        if (places) {
+             allMarkers = places.map(place => {
+                // The position from the DB can be a stringified JSON, so we need to parse it.
+                if (typeof place.position === 'string') {
+                    try {
+                        place.position = JSON.parse(place.position);
+                    } catch (e) {
+                        console.warn(`Could not parse position for place: ${place.name}`);
+                        place.position = null;
+                    }
+                }
+                return createMarker(place);
+            }).filter(marker => marker !== null); // Filter out markers that couldn't be created
+        }
+        filterMarkers('all'); // Initial display of all markers
+    } catch (err) {
+        console.error("An error occurred while fetching and adding markers:", err);
+    }
+}
+
+function filterMarkers(type) {
+    allMarkers.forEach(marker => {
+        // First, remove the marker from the map if it exists
+        if (map.hasLayer(marker)) {
+            map.removeLayer(marker);
+        }
+        // Then, add it back to the map if it matches the filter type
+        if (type === 'all' || marker.options.type === type) {
+            marker.addTo(map);
+        }
+    });
 }
 
 function createMarker(location) {
@@ -601,63 +594,6 @@ function getMarkerIcon(type) {
         iconSize: [30, 42],
         iconAnchor: [15, 42],
         popupAnchor: [0, -35]
-    });
-}
-
-async function addMarkers(type = 'all') {
-    if (!supabase) {
-        console.error("Supabase client is not initialized.");
-        return;
-    }
-
-    clearMarkers();
-    allMarkers = [];
-
-    try {
-        let { data: places, error } = await supabase.from('places').select('*');
-
-        if (error) {
-            console.error('Error fetching places:', error);
-            return;
-        }
-
-        if (places) {
-            places.forEach(place => {
-                // The position from the DB is a stringified JSON, so we need to parse it.
-                if (typeof place.position === 'string') {
-                    try {
-                        place.position = JSON.parse(place.position);
-                    } catch (e) {
-                        console.warn(`Could not parse position for place: ${place.name}`);
-                        place.position = null;
-                    }
-                }
-
-                const marker = createMarker(place);
-                if (marker) {
-                    allMarkers.push(marker);
-                }
-            });
-        }
-        filterMarkers(type); // Initial filter after loading all markers
-    } catch (err) {
-        console.error("An error occurred while fetching and adding markers:", err);
-    }
-}
-
-function clearMarkers() {
-    allMarkers.forEach(marker => {
-        map.removeLayer(marker);
-    });
-    allMarkers = [];
-}
-
-function filterMarkers(type) {
-    clearMarkers();
-    allMarkers.forEach(marker => {
-        if (type === 'all' || marker.options.type === type) {
-            marker.addTo(map);
-        }
     });
 }
 
