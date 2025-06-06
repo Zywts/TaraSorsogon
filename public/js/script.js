@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(signupBtn) signupBtn.parentElement.style.display = 'none';
 
             // Find the logout button's parent li to insert before it
-            const emergencyLi = document.querySelector('a[href="#emergency"]').parentElement;
+            const emergencyLi = document.querySelector('a[href$="#emergency"]').parentElement;
 
             // Add welcome message
             const welcomeLi = document.createElement('li');
