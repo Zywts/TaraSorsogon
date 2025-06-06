@@ -17,41 +17,24 @@ document.addEventListener("DOMContentLoaded", () => {
   // 1) Show Modal with data from clicked card
   document.querySelectorAll(".dining-card").forEach((card) => {
     card.addEventListener("click", () => {
-      // Read data-* attributes from the clicked card
-      const name = card.getAttribute("data-name");
-      const imageUrl = card.getAttribute("data-image");
-      const address = card.getAttribute("data-address");
-      const description = card.getAttribute("data-description");
-      const hours = card.getAttribute("data-hours");
-      const best = card.getAttribute("data-best");
-      const phone = card.getAttribute("data-phone");
-      const facebook = card.getAttribute("data-facebook");
-      const messenger = card.getAttribute("data-messenger");
-
-      // Populate modal fields
-      modalImage.src = imageUrl;
-      modalImage.alt = name;
-      modalName.textContent = name;
-      modalAddress.textContent = address;
-      modalDescription.textContent = description;
-      modalHours.textContent = hours;
-      modalBest.textContent = best;
-
-      // Update phone link
-      modalPhone.href = `tel:${phone.replace(/\s+/g, "")}`;
-      modalPhoneText.textContent = phone;
-
-      // Update Facebook link
-      modalFacebook.href = facebook;
-      // Update Messenger link
-      modalMessenger.href = messenger;
-
-      // Show the modal
-      modalOverlay.classList.add("active");
-      // Prevent background scrolling
-      document.body.style.overflow = "hidden";
+      showModal(card.dataset);
     });
   });
+
+  // Check for a query parameter on page load to auto-trigger a modal
+  const queryParams = new URLSearchParams(window.location.search);
+  const placeName = queryParams.get('name');
+
+  if (placeName) {
+    // Find the card that matches the name and trigger a click
+    const cardToOpen = document.querySelector(`.dining-card[data-name="${placeName}"]`);
+    if (cardToOpen) {
+      // Use a small timeout to ensure all assets are loaded before showing modal
+      setTimeout(() => {
+        showModal(cardToOpen.dataset);
+      }, 100);
+    }
+  }
 
   // 2) Hide Modal when Close button is clicked
   modalCloseBtn.addEventListener("click", () => {

@@ -35,18 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Use the existing card structure for consistency
-        resultsGrid.innerHTML = results.map(place => `
-            <a href="#" class="card-link">
-                <div class="card">
-                    <img src="images/placeholder.jpg" alt="${place.name}">
-                    <div class="card-content">
-                        <h3>${place.name}</h3>
-                        <p>${place.description || 'No description available.'}</p>
-                        <p><i class="fas fa-tag"></i> ${place.type}</p>
+        resultsGrid.innerHTML = results.map(place => {
+            // Use placeholder if image_url is missing
+            const imageUrl = place.image_url || 'images/placeholder.jpg';
+            // Construct the link to the dining page with a query parameter
+            const detailUrl = `dining.html?name=${encodeURIComponent(place.name)}`;
+
+            return `
+                <a href="${detailUrl}" class="card-link">
+                    <div class="card">
+                        <img src="${imageUrl}" alt="${place.name}">
+                        <div class="card-content">
+                            <h3>${place.name}</h3>
+                            <p>${place.description || 'No description available.'}</p>
+                            <p><i class="fas fa-tag"></i> ${place.type}</p>
+                        </div>
                     </div>
-                </div>
-            </a>
-        `).join('');
+                </a>
+            `;
+        }).join('');
     }
 }); 
