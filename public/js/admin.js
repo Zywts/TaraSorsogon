@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch and display feedback
     const loadFeedback = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/admin/feedback', { headers });
+            const response = await fetch('/api/admin/feedback', { headers });
             if (!response.ok) throw new Error('Failed to fetch feedback.');
             
             const feedbackItems = await response.json();
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch and display users
     const loadUsers = async () => {
         try {
-            const response = await fetch('http://localhost:3000/api/admin/users', { headers });
+            const response = await fetch('/api/admin/users', { headers });
             if (!response.ok) throw new Error('Failed to fetch users.');
 
             const users = await response.json();
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make function global to be accessible by onclick attributes
     window.updateFeedbackStatus = async (id, status) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/admin/feedback/${id}`, {
+            const response = await fetch(`/api/admin/feedback/${id}`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify({ status })
