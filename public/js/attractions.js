@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const createAttractionElement = (place) => {
     const attractionEl = document.createElement('div');
     attractionEl.className = 'attraction';
+    attractionEl.dataset.place = JSON.stringify(place);
+    attractionEl.dataset.name = place.name;
     
     const details = place.details || {};
 
@@ -98,6 +100,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         attractionsContainer.appendChild(municipalityEl);
+      }
+
+      // After rendering, check for a query parameter to auto-trigger a modal
+      const queryParams = new URLSearchParams(window.location.search);
+      const attractionName = queryParams.get('name');
+      if (attractionName) {
+        // Find the newly created element by its name in the dataset
+        const attractionToOpen = document.querySelector(`.attraction[data-name="${attractionName}"]`);
+        if (attractionToOpen) {
+          // We need to get the original 'place' object back to pass to openModal
+          const placeData = JSON.parse(attractionToOpen.dataset.place);
+          setTimeout(() => {
+            openModal(placeData);
+          }, 100); // Small delay to ensure smooth rendering
+        }
       }
 
     } catch (error) {

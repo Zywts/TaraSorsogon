@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modalAddress.textContent = data.location || 'Address not available';
     modalDescription.textContent = data.description;
 
-    const details = data.details ? (typeof data.details === 'string' ? JSON.parse(data.details) : data.details) : {};
+    const details = data.details || {};
     
     modalHours.textContent = details.hours || 'Not available';
     modalBest.textContent = details.best_seller || 'Not available';
@@ -60,9 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const card = document.createElement('div');
     card.className = 'dining-card';
 
-    Object.keys(place).forEach(key => {
-        card.dataset[key] = typeof place[key] === 'object' ? JSON.stringify(place[key]) : place[key];
-    });
+    // Store all place data in the dataset for the modal
+    card.dataset.place = JSON.stringify(place);
+    card.dataset.name = place.name; // For the query selector
 
     card.innerHTML = `
         <div class="card-image">
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
     `;
 
-    card.addEventListener('click', () => showModal(card.dataset));
+    card.addEventListener('click', () => showModal(place));
     return card;
   }
 
@@ -95,6 +95,19 @@ document.addEventListener("DOMContentLoaded", () => {
             const card = createDiningCard(place);
             diningCardsContainer.appendChild(card);
         });
+
+        // After rendering, check for a query parameter to auto-trigger a modal
+        const queryParams = new URLSearchParams(window.location.search);
+        const placeName = queryParams.get('name');
+        if (placeName) {
+            const cardToOpen = document.querySelector(`.dining-card[data-name="${placeName}"]`);
+            if (cardToOpen) {
+                const cardData = JSON.parse(cardToOpen.dataset.place);
+                setTimeout(() => {
+                    showModal(cardData);
+                }, 100);
+            }
+        }
 
     } catch (error) {
         console.error('Error loading dining places:', error);
