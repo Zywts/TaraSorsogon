@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadReviews = async (placeId) => {
         reviewsContainer.innerHTML = '<p>Loading reviews...</p>';
         try {
-            const response = await fetch(`/api/reviews?place_id=${placeId}`);
+            const response = await fetch(`/api/reviews/${placeId}`);
             if (!response.ok) throw new Error('Failed to fetch reviews.');
             
             const reviews = await response.json();
@@ -128,16 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 reviewEl.innerHTML = `
                     <div class="review-header">
-                        <span class="review-title">${review.title}</span>
-                        <span class="review-date">Visited: ${visitDate}</span>
+                        <div class="review-rating">${stars}</div>
+                        <h4 class="review-title">${review.title}</h4>
                     </div>
-                    <div class="review-rating">${stars}</div>
-                    <p class="review-text">${review.review}</p>
-                    ${review.photos && review.photos.length > 0 ? `
-                        <div class="review-photos">
-                            ${review.photos.map(photoUrl => `<img src="${photoUrl}" alt="Review photo">`).join('')}
-                        </div>
-                    ` : ''}
+                    <p class="review-author">By ${review.user ? review.user.username : 'Anonymous'} on ${visitDate}</p>
+                    <p class="review-body">${review.review_text}</p>
                 `;
                 reviewsContainer.appendChild(reviewEl);
             });
@@ -151,77 +146,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle Review Form Submission
     reviewForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!supabase) {
-            alert('Supabase client is not initialized.');
-            return;
-        }
-
+        const token = localStorage.getItem('accessToken');
         const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) {
-            alert('You must be logged in to submit a review.');
+
+        if (!user || !token) {
+            document.getElementById('review-login-message').style.display = 'block';
             return;
         }
 
-        const submitButton = reviewForm.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-        submitButton.textContent = 'Submitting...';
+        document.getElementById('review-login-message').style.display = 'none';
+
+        const rating = document.getElementById('rating').value;
+        const visitDate = document.getElementById('visit-date').value;
+        const title = document.getElementById('review-title').value;
+        const reviewText = document.getElementById('review-text').value;
+
+        if (rating === "0") {
+            alert("Please select a star rating.");
+            return;
+        }
+
+        const reviewData = {
+            place_id: currentPlace.id,
+            rating: parseInt(rating, 10),
+            visit_date: visitDate,
+            title: title,
+            review_text: reviewText,
+            photo_urls: []
+        };
 
         try {
-            // 1. Upload photos to Supabase Storage
-            const photoFiles = document.getElementById('review-photos').files;
-            const photoUrls = [];
-            if (photoFiles.length > 0) {
-                for (const file of photoFiles) {
-                    const fileName = `${user.id}/${Date.now()}-${file.name}`;
-                    const { data, error } = await supabase.storage
-                        .from('review_photos')
-                        .upload(fileName, file);
-
-                    if (error) throw new Error(`Photo upload failed: ${error.message}`);
-                    
-                    // Get public URL
-                    const { data: { publicUrl } } = supabase.storage
-                        .from('review_photos')
-                        .getPublicUrl(fileName);
-                    photoUrls.push(publicUrl);
-                }
-            }
-            
-            // 2. Submit review to your backend
-            const reviewData = {
-                user_id: user.id,
-                place_id: currentPlace.id,
-                rating: parseInt(ratingInput.value, 10),
-                visit_date: document.getElementById('visit-date').value,
-                title: document.getElementById('review-title').value,
-                review: document.getElementById('review-text').value,
-                photos: photoUrls
-            };
-            
             const response = await fetch('/api/reviews', {
                 method: 'POST',
-                headers: {
+                headers: { 
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(reviewData)
             });
 
             if (!response.ok) {
-                const result = await response.json();
-                throw new Error(result.error || 'Failed to submit review.');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to submit review.');
             }
-            
-            alert('Review submitted successfully!');
-            closeReviewModal();
-            await openModal(currentPlace); // Re-open the main modal to show the new review
 
+            alert('Review submitted successfully!');
+            reviewModal.style.display = 'none';
+            reviewForm.reset();
+            // Reset stars
+            document.querySelectorAll('.star-rating .fa-star').forEach(s => {
+                s.classList.remove('fas');
+                s.classList.add('far');
+            });
+            fetchReviews(currentPlace.id); // Refresh reviews
         } catch (error) {
             console.error('Error submitting review:', error);
             alert(`Error: ${error.message}`);
-        } finally {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Submit Review';
         }
     });
 
@@ -335,4 +315,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial Load
     initializeSupabase();
     loadAttractions();
-}); 
+});
+
+// Function to get user from local storage
+async function getUser() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    return user;
+}
+
+async function fetchReviews(placeId) {
+    const reviewsList = document.getElementById('reviews-list');
+    try {
+        const response = await fetch(`/api/reviews/${placeId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch reviews.');
+        }
+        const reviews = await response.json();
+        reviewsList.innerHTML = ''; // Clear previous reviews or messages
+        if (reviews.length === 0) {
+            reviewsList.innerHTML = '<p>No reviews yet. Be the first to write one!</p>';
+        } else {
+            reviews.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+                // Render stars based on rating
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    stars += `<i class="fa-star ${i <= review.rating ? 'fas' : 'far'}"></i>`;
+                }
+                reviewCard.innerHTML = `
+                    <div class="review-header">
+                        <div class="review-rating">${stars}</div>
+                        <h4 class="review-title">${review.title}</h4>
+                    </div>
+                    <p class="review-author">By <strong>${review.user ? review.user.username : 'Anonymous'}</strong> on ${new Date(review.visit_date).toLocaleDateString()}</p>
+                    <p class="review-body">${review.review_text}</p>
+                `;
+                reviewsList.appendChild(reviewCard);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        reviewsList.innerHTML = '<p style="color: red;">Could not load reviews.</p>';
+    }
+}

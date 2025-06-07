@@ -314,8 +314,8 @@ app.get('/api/places/attractions', async (req, res) => {
 // --- REVIEW ROUTES ---
 
 // Get reviews for a specific place
-app.get('/api/reviews', async (req, res) => {
-    const { place_id } = req.query;
+app.get('/api/reviews/:place_id', async (req, res) => {
+    const { place_id } = req.params;
 
     if (!place_id) {
         return res.status(400).json({ error: 'A place_id is required.' });
@@ -324,7 +324,10 @@ app.get('/api/reviews', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('reviews')
-            .select('*, "users"(*)')
+            .select(`
+                *,
+                user:users(username)
+            `)
             .eq('place_id', place_id)
             .order('created_at', { ascending: false });
 
@@ -340,47 +343,46 @@ app.get('/api/reviews', async (req, res) => {
 const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Authorization token required' });
+        return res.status(401).json({ message: 'Authentication token required.' });
     }
     const token = authHeader.split(' ')[1];
     try {
         const { data: { user }, error } = await supabase.auth.getUser(token);
-        if (error) throw error;
+        if (error || !user) {
+            return res.status(401).json({ message: 'Invalid or expired token.' });
+        }
         req.user = user;
         next();
     } catch (error) {
-        res.status(401).json({ error: 'Invalid or expired token.' });
+        return res.status(401).json({ message: 'Authentication error.' });
     }
 };
 
-// Add a new review
+// Add a new review (requires authentication)
 app.post('/api/reviews', authMiddleware, async (req, res) => {
-    const { user_id, place_id, rating, visit_date, title, review, photos } = req.body;
+    const { place_id, rating, visit_date, title, review_text } = req.body;
+    const user_id = req.user.id;
 
-    // Basic validation
-    if (req.user.id !== user_id) {
-        return res.status(403).json({ error: 'You can only submit reviews for yourself.' });
-    }
-    if (!rating || !visit_date || !title) {
+    if (!place_id || !rating || !visit_date || !title || !review_text) {
         return res.status(400).json({ error: 'Missing required fields for review.' });
     }
 
     try {
         const { data, error } = await supabaseAdmin
             .from('reviews')
-            .insert([{ 
+            .insert([{
                 user_id,
                 place_id,
                 rating,
                 visit_date,
                 title,
-                review,
-                photos
+                review_text,
+                photo_urls: [] // Set empty array as photos are removed
             }])
             .select();
         
         if (error) {
-            console.error('Error inserting review:', error);
+            console.error('Error inserting review with admin client:', error);
             throw error;
         }
         res.status(201).json({ message: 'Review added successfully.', data: data[0] });
