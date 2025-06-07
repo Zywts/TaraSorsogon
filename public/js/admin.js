@@ -141,4 +141,93 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial data load
     loadFeedback();
     loadUsers();
-}); 
+});
+
+function addAttraction() {
+    const name = prompt("Enter attraction name:");
+    if (!name) return;
+    const description = prompt("Enter attraction description:");
+    const imageUrl = prompt("Enter image URL:");
+    const location = prompt("Enter location:");
+
+    fetch('/api/attractions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({ name, description, imageUrl, location })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+        } else {
+            alert('Attraction added successfully!');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding attraction:', error);
+        alert('Failed to add attraction.');
+    });
+}
+
+function addDining() {
+    const name = prompt("Enter dining place name:");
+    if (!name) return;
+    const description = prompt("Enter dining place description:");
+    const imageUrl = prompt("Enter image URL:");
+    const location = prompt("Enter location:");
+    const cuisine = prompt("Enter cuisine type:");
+
+    fetch('/api/dining', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({ name, description, imageUrl, location, cuisine })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+        } else {
+            alert('Dining place added successfully!');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding dining place:', error);
+        alert('Failed to add dining place.');
+    });
+}
+
+function addStay() {
+    const name = prompt("Enter place to stay name:");
+    if (!name) return;
+    const description = prompt("Enter place to stay description:");
+    const imageUrl = prompt("Enter image URL:");
+    const location = prompt("Enter location:");
+    const category = prompt("Enter category (e.g., Hotel, Resort):");
+
+    fetch('/api/stays', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({ name, description, imageUrl, location, category })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+        } else {
+            alert('Place to stay added successfully!');
+        }
+    })
+    .catch(error => {
+        console.error('Error adding place to stay:', error);
+        alert('Failed to add place to stay.');
+    });
+} 

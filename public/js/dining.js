@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const modalOverlay = document.getElementById("dining-modal");
   const modalCloseBtn = document.getElementById("modal-close");
+  const diningCardsContainer = document.getElementById("dining-cards-container");
 
   // Modal fields
   const modalImage = document.getElementById("modal-image");
@@ -15,58 +16,97 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalMessenger = document.getElementById("modal-messenger");
 
   function showModal(data) {
-    // Populate modal fields from the dataset
-    modalImage.src = data.image;
+    modalImage.src = data.image_url || 'images/default-dining.jpg';
     modalImage.alt = data.name;
     modalName.textContent = data.name;
-    modalAddress.textContent = data.address;
+    modalAddress.textContent = data.location || 'Address not available';
     modalDescription.textContent = data.description;
-    modalHours.textContent = data.hours;
-    modalBest.textContent = data.best;
 
-    // Update phone link
-    modalPhone.href = `tel:${data.phone.replace(/\s+/g, "")}`;
-    modalPhoneText.textContent = data.phone;
+    const details = data.details ? (typeof data.details === 'string' ? JSON.parse(data.details) : data.details) : {};
+    
+    modalHours.textContent = details.hours || 'Not available';
+    modalBest.textContent = details.best_seller || 'Not available';
 
-    // Update Facebook and Messenger links
-    modalFacebook.href = data.facebook;
-    modalMessenger.href = data.messenger;
+    const phone = details.phone || '';
+    if (phone) {
+        modalPhone.href = `tel:${phone.replace(/\s+/g, "")}`;
+        modalPhoneText.textContent = phone;
+        modalPhone.parentElement.style.display = 'inline-block';
+    } else {
+        modalPhone.parentElement.style.display = 'none';
+    }
 
-    // Show the modal
+    const facebookUrl = details.facebook || '';
+    if (facebookUrl) {
+        modalFacebook.href = facebookUrl;
+        modalFacebook.style.display = 'inline-block';
+    } else {
+        modalFacebook.style.display = 'none';
+    }
+
+    const messengerUrl = details.messenger || '';
+    if (messengerUrl) {
+        modalMessenger.href = messengerUrl;
+        modalMessenger.style.display = 'inline-block';
+    } else {
+        modalMessenger.style.display = 'none';
+    }
+
     modalOverlay.classList.add("active");
-    // Prevent background scrolling
     document.body.style.overflow = "hidden";
   }
 
-  // 1) Show Modal with data from clicked card
-  document.querySelectorAll(".dining-card").forEach((card) => {
-    card.addEventListener("click", () => {
-      showModal(card.dataset);
+  function createDiningCard(place) {
+    const card = document.createElement('div');
+    card.className = 'dining-card';
+
+    Object.keys(place).forEach(key => {
+        card.dataset[key] = typeof place[key] === 'object' ? JSON.stringify(place[key]) : place[key];
     });
-  });
 
-  // Check for a query parameter on page load to auto-trigger a modal
-  const queryParams = new URLSearchParams(window.location.search);
-  const placeName = queryParams.get('name');
+    card.innerHTML = `
+        <div class="card-image">
+            <img src="${place.image_url || 'images/default-dining.jpg'}" alt="${place.name}" />
+        </div>
+        <div class="card-content">
+            <h3>${place.name}</h3>
+            <p>${place.location || 'Sorsogon, Philippines'}</p>
+        </div>
+    `;
 
-  if (placeName) {
-    // Find the card that matches the name and trigger its modal
-    const cardToOpen = document.querySelector(`.dining-card[data-name="${placeName}"]`);
-    if (cardToOpen) {
-      // Use a small timeout to ensure all assets are loaded before showing modal
-      setTimeout(() => {
-        showModal(cardToOpen.dataset);
-      }, 100);
+    card.addEventListener('click', () => showModal(card.dataset));
+    return card;
+  }
+
+  async function loadDiningPlaces() {
+    try {
+        const response = await fetch('/api/places/dining');
+        if (!response.ok) throw new Error('Failed to fetch dining places.');
+        
+        const places = await response.json();
+        
+        diningCardsContainer.innerHTML = '';
+        if (places.length === 0) {
+            diningCardsContainer.innerHTML = '<p>No dining places found.</p>';
+            return;
+        }
+
+        places.forEach(place => {
+            const card = createDiningCard(place);
+            diningCardsContainer.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error('Error loading dining places:', error);
+        diningCardsContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
     }
   }
 
-  // 2) Hide Modal when Close button is clicked
   modalCloseBtn.addEventListener("click", () => {
     modalOverlay.classList.remove("active");
-    document.body.style.overflow = ""; // restore scrolling
+    document.body.style.overflow = "";
   });
 
-  // 3) Hide Modal when clicking outside .modal-content
   modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) {
       modalOverlay.classList.remove("active");
@@ -74,11 +114,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // (Optional) Close with Escape key
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modalOverlay.classList.contains("active")) {
       modalOverlay.classList.remove("active");
       document.body.style.overflow = "";
     }
   });
+
+  loadDiningPlaces();
 }); 

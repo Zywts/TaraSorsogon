@@ -271,6 +271,85 @@ app.get('/api/admin/users', adminMiddleware, async (req, res) => {
     }
 });
 
+// --- PUBLIC CONTENT ROUTES ---
+
+// Get all dining places
+app.get('/api/places/dining', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('places')
+            .select('*')
+            .eq('type', 'dining');
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch dining places.' });
+    }
+});
+
+// --- CONTENT MANAGEMENT ROUTES (ADMIN ONLY) ---
+
+// Add a new attraction
+app.post('/api/attractions', adminMiddleware, async (req, res) => {
+    const { name, description, imageUrl, location } = req.body;
+
+    if (!name || !description || !imageUrl || !location) {
+        return res.status(400).json({ error: 'Missing required fields for attraction.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('places')
+            .insert([{ name, description, image_url: imageUrl, location, type: 'attraction' }]);
+        
+        if (error) throw error;
+        res.status(201).json({ message: 'Attraction added successfully.', data });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to add attraction.' });
+    }
+});
+
+// Add a new dining place
+app.post('/api/dining', adminMiddleware, async (req, res) => {
+    const { name, description, imageUrl, location, cuisine } = req.body;
+
+    if (!name || !description || !imageUrl || !location || !cuisine) {
+        return res.status(400).json({ error: 'Missing required fields for dining place.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('places')
+            .insert([{ name, description, image_url: imageUrl, location, type: 'dining', details: { cuisine } }]);
+        
+        if (error) throw error;
+        res.status(201).json({ message: 'Dining place added successfully.', data });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to add dining place.' });
+    }
+});
+
+// Add a new place to stay
+app.post('/api/stays', adminMiddleware, async (req, res) => {
+    const { name, description, imageUrl, location, category } = req.body;
+
+    if (!name || !description || !imageUrl || !location || !category) {
+        return res.status(400).json({ error: 'Missing required fields for place to stay.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('places')
+            .insert([{ name, description, image_url: imageUrl, location, type: 'stay', details: { category } }]);
+        
+        if (error) throw error;
+        res.status(201).json({ message: 'Place to stay added successfully.', data });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to add place to stay.' });
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
