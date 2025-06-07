@@ -83,21 +83,20 @@ app.post('/api/signup', async (req, res) => {
     }
 
     try {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await supabaseAdmin.auth.admin.createUser({
             email,
             password,
-            options: {
-                data: {
-                    username: username,
-                    role: 'user' // Default role
-                }
+            email_confirm: true,
+            user_metadata: {
+                username: username,
+                role: 'user' // Default role
             }
         });
 
         if (error) throw error;
 
         // The trigger we created in SQL will handle inserting into the public.users table.
-        res.status(201).json({ message: 'Signup successful! Please check your email to verify your account.', user: data.user });
+        res.status(201).json({ message: 'Signup successful!', user: data.user });
 
     } catch (error) {
         // Handle specific errors, e.g., user already exists
