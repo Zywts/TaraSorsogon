@@ -251,40 +251,6 @@
         </div>
     </section>
 
-    <!-- Visitor Feedback -->
-    <!-- 
-    <section id="feedback" class="section">
-        <h2>Share Your Experience</h2>
-        <form id="feedback-form" class="feedback-form">
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="rating">Rating:</label>
-                <div class="star-rating">
-                    <i class="far fa-star" data-rating="1"></i>
-                    <i class="far fa-star" data-rating="2"></i>
-                    <i class="far fa-star" data-rating="3"></i>
-                    <i class="far fa-star" data-rating="4"></i>
-                    <i class="far fa-star" data-rating="5"></i>
-                </div>
-                <input type="hidden" name="rating" id="rating-value" value="0">
-            </div>
-            <div class="form-group">
-                <label for="comments">Comments:</label>
-                <textarea id="comments" name="comments" required></textarea>
-            </div>
-            <button type="submit">Submit Feedback</button>
-            <p class="form-message" id="feedback-message"></p>
-        </form>
-    </section>
-    -->
-
     <!-- Interactive Map -->
     <section id="map" class="section reveal-on-scroll">
         <h2>Explore Sorsogon</h2>
@@ -498,5 +464,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Your Custom Scripts -->
     <script src="js/script.js"></script>
+    <script>
+        // Set a CSS variable for the viewport height
+        function setVhVariable() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        // Set the variable on initial load and on window resize
+        setVhVariable();
+        window.addEventListener('resize', setVhVariable);
+    </script>
 </body>
 </html> 

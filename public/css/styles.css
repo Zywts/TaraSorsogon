@@ -132,7 +132,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Hero Section */
 .hero {
-    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     background: linear-gradient(rgba(255, 255, 255, 0.781), rgba(0, 0, 0, 0.5)),
                 url('../images/hero-bg.jpg');
     background-size: cover;
@@ -847,7 +847,6 @@ button[type="submit"]:hover {
 
     .hero {
         padding: 4rem 1rem;
-        height: 100vh;
         background-attachment: scroll;
     }
 
