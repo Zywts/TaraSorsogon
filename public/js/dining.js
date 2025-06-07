@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('detail-modal');
-    const modalClose = document.querySelector('.modal-close');
+    const modal = document.getElementById('dining-modal');
+    const modalClose = document.querySelector('#modal-close');
     const writeReviewBtn = document.getElementById('write-review-btn');
     const reviewForm = document.getElementById('review-form');
     const reviewLoginLink = document.getElementById('review-login-link');
     const stars = document.querySelectorAll('.star-rating .star');
-    const diningContainer = document.getElementById('dining-container');
+    const diningContainer = document.getElementById('dining-cards-container');
     window.allPlaces = []; // To store all places for URL lookup
 
     // --- EVENT LISTENERS (Setup Once) ---
@@ -204,9 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createCard(place) {
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'dining-card';
         card.innerHTML = `
-            <img src="${place.details.photo || 'img/placeholder.jpg'}" alt="${place.name}">
+             <div class="card-image">
+                <img src="${place.details.photo || 'img/placeholder.jpg'}" alt="${place.name}">
+            </div>
             <div class="card-content">
                 <h3>${place.name}</h3>
                 <p>${place.location || 'Sorsogon'}</p>
