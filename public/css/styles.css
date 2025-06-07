@@ -850,6 +850,15 @@ button[type="submit"]:hover {
         height: auto;
     }
 
+    .hero-content {
+        padding: 0 1rem;
+    }
+
+    .hero-logo-img {
+        width: 90%;
+        max-width: 350px;
+    }
+
     .hero-content h1 {
         font-size: 2.5rem;
     }
