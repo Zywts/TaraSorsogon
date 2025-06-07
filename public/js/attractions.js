@@ -54,13 +54,19 @@ document.addEventListener('DOMContentLoaded', () => {
         await loadReviews(place.id, 'attraction_id');
     };
 
-    const closeModal = () => {
+    const hideModal = () => {
         modalOverlay.classList.remove('active');
         document.body.style.overflow = '';
+    }
+
+    const closeModal = () => {
+        hideModal();
         currentPlace = null;
     };
 
     const openReviewModal = () => {
+        hideModal(); // Close the main modal first
+
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) {
             reviewLoginMessage.style.display = 'block';
@@ -208,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             alert('Review submitted successfully!');
             closeReviewModal();
-            await loadReviews(currentPlace.id, 'attraction_id'); // Refresh reviews
+            await openModal(currentPlace); // Re-open the main modal to show the new review
 
         } catch (error) {
             console.error('Error submitting review:', error);

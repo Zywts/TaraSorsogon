@@ -86,10 +86,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function hideModal() {
     modalOverlay.classList.remove("active");
     document.body.style.overflow = "";
-    currentPlace = null;
+  }
+
+  function closeModal() {
+      hideModal();
+      currentPlace = null;
   }
 
   const openReviewModal = () => {
+    hideModal(); // Close the main modal first
+
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
         reviewLoginMessage.style.display = 'block';
@@ -237,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         alert('Review submitted successfully!');
         closeReviewModal();
-        await loadReviews(currentPlace.id, 'dining_id'); // Refresh reviews
+        await showModal(currentPlace); // Re-open the main modal to show the new review
 
     } catch (error) {
         console.error('Error submitting review:', error);
@@ -307,17 +313,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  modalCloseBtn.addEventListener("click", hideModal);
+  modalCloseBtn.addEventListener("click", closeModal);
 
   modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) {
-      hideModal();
+      closeModal();
     }
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modalOverlay.classList.contains("active")) {
-      hideModal();
+      closeModal();
     }
   });
 
