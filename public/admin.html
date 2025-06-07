@@ -69,6 +69,48 @@
         }
         .btn-approve { background-color: #5cb85c; }
         .btn-reject { background-color: #d9534f; }
+
+        /* Styles for the new form */
+        .form-container {
+            margin-top: 2rem;
+            padding: 2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fdfdfd;
+        }
+        .form-container h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Important */
+        }
+        .form-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .form-actions button {
+            padding: 0.6rem 1.2rem;
+        }
     </style>
 </head>
 <body>
@@ -94,9 +136,63 @@
 
         <section id="content-management" style="margin-top: 3rem;">
             <h2>Content Management</h2>
-            <button onclick="addAttraction()">Add Attraction</button>
-            <button onclick="addDining()">Add Place to Dine</button>
-            <button onclick="addStay()">Add Place to Stay</button>
+            <div class="content-buttons">
+                <button onclick="showAddForm('attraction')">Add Attraction</button>
+                <button onclick="showAddForm('dining')">Add Place to Dine</button>
+                <button onclick="showAddForm('stay')">Add Place to Stay</button>
+            </div>
+
+            <!-- Form for Adding a Dining Place (hidden by default) -->
+            <div id="add-dining-form-container" class="form-container" style="display: none;">
+                <h3>Add New Place to Dine</h3>
+                <form id="add-dining-form">
+                    <div class="form-group">
+                        <label for="dining-name">Name</label>
+                        <input type="text" id="dining-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-description">Description</label>
+                        <textarea id="dining-description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-image-url">Image URL</label>
+                        <input type="text" id="dining-image-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-location">Location / Address</label>
+                        <input type="text" id="dining-location" required>
+                    </div>
+                    <h4>Details</h4>
+                    <div class="form-group">
+                        <label for="dining-cuisine">Cuisine Type</label>
+                        <input type="text" id="dining-cuisine">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-hours">Operating Hours (e.g., 9:00 AM – 10:00 PM)</label>
+                        <input type="text" id="dining-hours">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-best-seller">Best Sellers</label>
+                        <input type="text" id="dining-best-seller">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-phone">Phone Number</label>
+                        <input type="text" id="dining-phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-facebook">Facebook URL</label>
+                        <input type="url" id="dining-facebook">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-messenger">Messenger URL</label>
+                        <input type="url" id="dining-messenger">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-approve">Save Place</button>
+                        <button type="button" onclick="hideAddForm('dining')" class="btn-reject">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </section>
     </div>
 

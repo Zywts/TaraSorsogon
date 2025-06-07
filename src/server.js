@@ -312,16 +312,23 @@ app.post('/api/attractions', adminMiddleware, async (req, res) => {
 
 // Add a new dining place
 app.post('/api/dining', adminMiddleware, async (req, res) => {
-    const { name, description, imageUrl, location, cuisine } = req.body;
+    const { name, description, imageUrl, location, details } = req.body;
 
-    if (!name || !description || !imageUrl || !location || !cuisine) {
+    if (!name || !description || !imageUrl || !location) {
         return res.status(400).json({ error: 'Missing required fields for dining place.' });
     }
 
     try {
         const { data, error } = await supabaseAdmin
             .from('places')
-            .insert([{ name, description, image_url: imageUrl, location, type: 'dining', details: { cuisine } }]);
+            .insert([{ 
+                name, 
+                description, 
+                image_url: imageUrl, 
+                location, 
+                type: 'dining', 
+                details 
+            }]);
         
         if (error) throw error;
         res.status(201).json({ message: 'Dining place added successfully.', data });

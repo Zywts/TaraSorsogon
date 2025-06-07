@@ -143,6 +143,65 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUsers();
 });
 
+// Show the appropriate form based on the type ('dining', 'attraction', etc.)
+function showAddForm(type) {
+    if (type === 'dining') {
+        document.getElementById('add-dining-form-container').style.display = 'block';
+    }
+    // Future forms for 'attraction' and 'stay' can be handled here
+}
+
+// Hide the form
+function hideAddForm(type) {
+    if (type === 'dining') {
+        document.getElementById('add-dining-form-container').style.display = 'none';
+    }
+}
+
+// Handle the form submission for adding a new dining place
+document.getElementById('add-dining-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const name = document.getElementById('dining-name').value;
+    const description = document.getElementById('dining-description').value;
+    const imageUrl = document.getElementById('dining-image-url').value;
+    const location = document.getElementById('dining-location').value;
+
+    const details = {
+        cuisine: document.getElementById('dining-cuisine').value,
+        hours: document.getElementById('dining-hours').value,
+        best_seller: document.getElementById('dining-best-seller').value,
+        phone: document.getElementById('dining-phone').value,
+        facebook: document.getElementById('dining-facebook').value,
+        messenger: document.getElementById('dining-messenger').value,
+    };
+
+    try {
+        const response = await fetch('/api/dining', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            },
+            body: JSON.stringify({ name, description, imageUrl, location, details })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Failed to add dining place.');
+        }
+
+        alert('Dining place added successfully!');
+        document.getElementById('add-dining-form').reset(); // Clear the form
+        hideAddForm('dining'); // Hide the form
+
+    } catch (error) {
+        console.error('Error adding dining place:', error);
+        alert(`Error: ${error.message}`);
+    }
+});
+
 function addAttraction() {
     const name = prompt("Enter attraction name:");
     if (!name) return;
@@ -169,36 +228,6 @@ function addAttraction() {
     .catch(error => {
         console.error('Error adding attraction:', error);
         alert('Failed to add attraction.');
-    });
-}
-
-function addDining() {
-    const name = prompt("Enter dining place name:");
-    if (!name) return;
-    const description = prompt("Enter dining place description:");
-    const imageUrl = prompt("Enter image URL:");
-    const location = prompt("Enter location:");
-    const cuisine = prompt("Enter cuisine type:");
-
-    fetch('/api/dining', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify({ name, description, imageUrl, location, cuisine })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(data.message);
-        } else {
-            alert('Dining place added successfully!');
-        }
-    })
-    .catch(error => {
-        console.error('Error adding dining place:', error);
-        alert('Failed to add dining place.');
     });
 }
 
