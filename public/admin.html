@@ -114,27 +114,59 @@
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <div class="dashboard-header">
+    <div class="sidebar">
+        <h2>Admin</h2>
+        <a href="#" class="nav-link active" data-target="dashboard-view"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="#" class="nav-link" data-target="review-management-view"><i class="fas fa-comments"></i> Review Management</a>
+        <a href="#" class="nav-link" data-target="user-management-view"><i class="fas fa-users"></i> User Management</a>
+        <a href="#" class="nav-link" data-target="content-management-view"><i class="fas fa-edit"></i> Content Management</a>
+        <a href="/" class="nav-link back-to-site"><i class="fas fa-arrow-left"></i> Back to Main Site</a>
+    </div>
+
+    <div class="main-content">
+        <header>
             <h1>Admin Dashboard</h1>
-            <a href="index.html" class="home-link">Back to Main Site</a>
+        </header>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view active">
+            <h2>Dashboard</h2>
+            <p>Welcome to the admin panel. Here you can manage users, reviews, and site content.</p>
+            <!-- Add some stats or summary cards here later -->
         </div>
 
-        <section id="feedback-management">
-            <h2>Feedback Management</h2>
-            <div id="feedback-table-container">
-                <p>Loading feedback...</p>
+        <!-- Review Management View -->
+        <div id="review-management-view" class="view">
+            <h2>Review Management</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Place Name</th>
+                            <th>User</th>
+                            <th>Rating</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviews-table-body">
+                        <!-- Review rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
             </div>
-        </section>
+        </div>
 
-        <section id="user-management" style="margin-top: 3rem;">
+        <!-- User Management View -->
+        <div id="user-management-view" class="view">
             <h2>User Management</h2>
             <div id="users-table-container">
                 <p>Loading users...</p>
             </div>
-        </section>
+        </div>
 
-        <section id="content-management" style="margin-top: 3rem;">
+        <!-- Content Management View -->
+        <div id="content-management-view" class="view">
             <h2>Content Management</h2>
             <div class="content-buttons">
                 <button onclick="showAddForm('attraction')">Add Attraction</button>
@@ -225,9 +257,10 @@
                     </div>
                 </form>
             </div>
-        </section>
+        </div>
     </div>
 
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
     <script src="js/admin.js"></script>
 </body>
 </html> 

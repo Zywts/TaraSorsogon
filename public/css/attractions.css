@@ -234,9 +234,32 @@ h1 {
 
 /* Review Styles */
 .attraction-modal-actions {
+  text-align: center;
   margin-top: 20px;
-  border-top: 1px solid #eee;
   padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+#write-review-btn {
+  background-color: #007BFF; /* A more inviting blue */
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px; /* Rounded corners */
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-bottom: 20px; /* Space below the button */
+}
+
+#write-review-btn:hover,
+#write-review-btn:focus {
+  background-color: #0056b3; /* Darker blue on hover */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px); /* Slight lift effect */
+  outline: none;
 }
 
 #reviews-container {

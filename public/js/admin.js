@@ -1,244 +1,94 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const views = document.querySelectorAll('.view');
+    const reviewsTableBody = document.getElementById('reviews-table-body');
     const token = localStorage.getItem('accessToken');
-    const user = JSON.parse(localStorage.getItem('user'));
 
-    if (!token || !user || user.role !== 'admin') {
-        window.location.href = 'index.html';
-        alert('Access Denied. You must be an admin to view this page.');
+    if (!token) {
+        window.location.href = '/'; // Redirect to home if not logged in
+        alert('You must be an admin to view this page.');
         return;
     }
 
-    // --- DOM Elements ---
-    const feedbackContainer = document.getElementById('feedback-table-container');
-    const usersContainer = document.getElementById('users-table-container');
-    const addDiningForm = document.getElementById('add-dining-form');
-    const addDiningFormContainer = document.getElementById('add-dining-form-container');
-    const addAttractionForm = document.getElementById('add-attraction-form');
-    const addAttractionFormContainer = document.getElementById('add-attraction-form-container');
+    // Navigation logic
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = link.getAttribute('data-target');
 
-    // --- Centralized API Request Handler ---
-    const fetchWithAuth = async (url, options = {}) => {
-        const currentToken = localStorage.getItem('accessToken');
-        if (!currentToken) {
-            handleAuthError();
-            return { ok: false, status: 401 };
-        }
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${currentToken}`,
-            ...options.headers,
-        };
-        const response = await fetch(url, { ...options, headers });
-        if (response.status === 401) {
-            handleAuthError();
-        }
-        return response;
-    };
-
-    const handleAuthError = () => {
-        alert('Your session has expired. Please log in again.');
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
-        window.location.href = 'index.html';
-    };
-
-    // --- Data Loading Functions ---
-    const loadFeedback = async () => {
-        try {
-            const response = await fetchWithAuth('/api/admin/feedback');
-            if (!response.ok) throw new Error('Failed to fetch feedback.');
-            const feedbackItems = await response.json();
-            renderFeedbackTable(feedbackItems);
-        } catch (error) {
-            feedbackContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
-        }
-    };
-
-    const loadUsers = async () => {
-        try {
-            const response = await fetchWithAuth('/api/admin/users');
-            if (!response.ok) throw new Error('Failed to fetch users.');
-            const users = await response.json();
-            renderUsersTable(users);
-        } catch (error) {
-            usersContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
-        }
-    };
-
-    // --- Rendering Functions ---
-    const renderFeedbackTable = (items) => {
-        if (!items || items.length === 0) {
-            feedbackContainer.innerHTML = '<p>No feedback submissions yet.</p>';
-            return;
-        }
-        const table = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Rating</th>
-                        <th>Comments</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${items.map(item => `
-                        <tr data-id="${item.id}">
-                            <td>${item.name}</td>
-                            <td>${item.email}</td>
-                            <td>${item.rating || 'N/A'}</td>
-                            <td>${item.comments}</td>
-                            <td><span class="status-${item.status}">${item.status}</span></td>
-                            <td class="actions">
-                                ${item.status === 'pending' ? `
-                                    <button class="btn-approve" onclick="updateFeedbackStatus(${item.id}, 'approved')">Approve</button>
-                                    <button class="btn-reject" onclick="updateFeedbackStatus(${item.id}, 'rejected')">Reject</button>
-                                ` : 'Processed'}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-        feedbackContainer.innerHTML = table;
-    };
-
-    const renderUsersTable = (users) => {
-        if (!users || users.length === 0) {
-            usersContainer.innerHTML = '<p>No users found.</p>';
-            return;
-        }
-        const table = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Joined On</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${users.map(user => `
-                        <tr>
-                            <td>${user.username}</td>
-                            <td>${user.email}</td>
-                            <td>${user.role}</td>
-                            <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-        usersContainer.innerHTML = table;
-    };
-    
-    // --- Global Functions (for onclick attributes) ---
-    window.updateFeedbackStatus = async (id, status) => {
-        try {
-            const response = await fetchWithAuth(`/api/admin/feedback/${id}`, {
-                method: 'PUT',
-                body: JSON.stringify({ status })
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to update status.');
-            }
-            loadFeedback();
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-        }
-    };
-
-    window.showAddForm = (type) => {
-        // Hide all forms first
-        addDiningFormContainer.style.display = 'none';
-        addAttractionFormContainer.style.display = 'none';
-        
-        if (type === 'dining') {
-            addDiningFormContainer.style.display = 'block';
-        } else if (type === 'attraction') {
-            addAttractionFormContainer.style.display = 'block';
-        }
-    };
-
-    window.hideAddForm = (type) => {
-        if (type === 'dining') {
-            addDiningFormContainer.style.display = 'none';
-        } else if (type === 'attraction') {
-            addAttractionFormContainer.style.display = 'none';
-        }
-    };
-
-    // --- Event Listeners ---
-    addDiningForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const name = document.getElementById('dining-name').value;
-        const description = document.getElementById('dining-description').value;
-        const imageUrl = document.getElementById('dining-image-url').value;
-        const location = document.getElementById('dining-location').value;
-        const details = {
-            cuisine: document.getElementById('dining-cuisine').value,
-            hours: document.getElementById('dining-hours').value,
-            best_seller: document.getElementById('dining-best-seller').value,
-            phone: document.getElementById('dining-phone').value,
-            facebook: document.getElementById('dining-facebook').value,
-            messenger: document.getElementById('dining-messenger').value,
-        };
-
-        try {
-            const response = await fetchWithAuth('/api/dining', {
-                method: 'POST',
-                body: JSON.stringify({ name, description, imageUrl, location, details })
+            views.forEach(view => {
+                view.classList.toggle('active', view.id === target);
             });
 
-            if (!response.ok) {
-                const result = await response.json();
-                throw new Error(result.error || 'Failed to add dining place.');
-            }
+            navLinks.forEach(navLink => {
+                navLink.classList.toggle('active', navLink === link);
+            });
 
-            alert('Dining place added successfully!');
-            addDiningForm.reset();
-            hideAddForm('dining');
+            if (target === 'review-management-view') {
+                loadReviews();
+            }
+        });
+    });
+
+    // --- Review Management ---
+    const loadReviews = async () => {
+        reviewsTableBody.innerHTML = '<tr><td colspan="6">Loading reviews...</td></tr>';
+        try {
+            const response = await fetch('/api/admin/reviews', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch reviews.');
+
+            const reviews = await response.json();
+            renderReviews(reviews);
         } catch (error) {
-            console.error('Error adding dining place:', error);
-            alert(`Error: ${error.message}`);
+            reviewsTableBody.innerHTML = `<tr><td colspan="6" class="error">${error.message}</td></tr>`;
+        }
+    };
+
+    const renderReviews = (reviews) => {
+        reviewsTableBody.innerHTML = '';
+        if (reviews.length === 0) {
+            reviewsTableBody.innerHTML = '<tr><td colspan="6">No reviews found.</td></tr>';
+            return;
+        }
+
+        reviews.forEach(review => {
+            const row = document.createElement('tr');
+            const ratingStars = '⭐'.repeat(review.rating);
+            row.innerHTML = `
+                <td>${review.place ? review.place.name : 'N/A'}</td>
+                <td>${review.user ? review.user.username : 'Anonymous'}</td>
+                <td class="rating">${ratingStars} (${review.rating})</td>
+                <td>${review.title}</td>
+                <td>${new Date(review.created_at).toLocaleDateString()}</td>
+                <td><button class="delete-btn" data-id="${review.id}">Delete</button></td>
+            `;
+            reviewsTableBody.appendChild(row);
+        });
+    };
+
+    // Event delegation for delete buttons
+    reviewsTableBody.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('delete-btn')) {
+            const reviewId = e.target.dataset.id;
+            if (confirm('Are you sure you want to delete this review?')) {
+                try {
+                    const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) throw new Error('Failed to delete review.');
+
+                    alert('Review deleted successfully.');
+                    loadReviews(); // Refresh the list
+                } catch (error) {
+                    alert(`Error: ${error.message}`);
+                }
+            }
         }
     });
 
-    addAttractionForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const name = document.getElementById('attraction-name').value;
-        const description = document.getElementById('attraction-description').value;
-        const imageUrl = document.getElementById('attraction-image-url').value;
-        const location = document.getElementById('attraction-location').value;
-        const details = {
-            hours: document.getElementById('attraction-hours').value,
-        };
-
-        try {
-            const response = await fetchWithAuth('/api/attractions', {
-                method: 'POST',
-                body: JSON.stringify({ name, description, imageUrl, location, details })
-            });
-
-            if (!response.ok) {
-                const result = await response.json();
-                throw new Error(result.error || 'Failed to add attraction.');
-            }
-
-            alert('Attraction added successfully!');
-            addAttractionForm.reset();
-            hideAddForm('attraction');
-        } catch (error) {
-            console.error('Error adding attraction:', error);
-            alert(`Error: ${error.message}`);
-        }
-    });
-
-    // --- Initial Load ---
-    loadFeedback();
-    loadUsers();
+    // Initial load
+    loadReviews(); // Load reviews on initial page load if that view is active
 }); 
