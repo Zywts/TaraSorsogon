@@ -328,9 +328,42 @@ h1, h2, h3, h4, h5, h6 {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 2rem;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
     color: var(--white);
+    padding: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.see-more-carousel {
+    background: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.see-more-carousel:hover {
+    background-color: var(--secondary-color);
+    color: var(--white);
+}
+
+.see-more-carousel i {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.see-more-carousel:hover i {
+    transform: translateX(5px);
+}
+
+.carousel-item:hover .carousel-caption {
+    transform: translateY(0);
 }
 
 .carousel-btn {

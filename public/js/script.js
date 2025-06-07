@@ -248,6 +248,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check login status on page load
     updateUIAfterLogin();
 
+    // "Coming Soon" link handler
+    document.body.addEventListener('click', (e) => {
+        // Find the closest ancestor anchor tag with the 'coming-soon' class
+        const comingSoonLink = e.target.closest('a.coming-soon');
+        if (comingSoonLink) {
+            e.preventDefault(); // Prevent the link from navigating
+            alert('This feature is coming soon!');
+        }
+    });
+
     // Handle Feedback Form
     const feedbackForm = document.getElementById('feedback-form');
     if(feedbackForm) {
@@ -480,7 +490,7 @@ async function initMap() {
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            minZoom: 9,
+            minZoom: 10,
         }).addTo(map);
 
         map.setMaxBounds(sorsogonBounds);
