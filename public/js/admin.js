@@ -2,28 +2,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('accessToken');
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // Check if user is an admin
     if (!token || !user || user.role !== 'admin') {
-        // Redirect non-admins to the homepage
         window.location.href = 'index.html';
         alert('Access Denied. You must be an admin to view this page.');
         return;
     }
 
-    const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+    // --- Centralized API Request Handler ---
+    const fetchWithAuth = async (url, options = {}) => {
+        const currentToken = localStorage.getItem('accessToken');
+        if (!currentToken) {
+            handleAuthError();
+            return;
+        }
+
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentToken}`,
+            ...options.headers,
+        };
+
+        const response = await fetch(url, { ...options, headers });
+
+        if (response.status === 401) {
+            handleAuthError();
+            return; // Stop further execution
+        }
+
+        return response;
+    };
+
+    const handleAuthError = () => {
+        alert('Your session has expired. Please log in again.');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
     };
 
     const feedbackContainer = document.getElementById('feedback-table-container');
     const usersContainer = document.getElementById('users-table-container');
 
-    // Fetch and display feedback
     const loadFeedback = async () => {
         try {
-            const response = await fetch('/api/admin/feedback', { headers });
-            if (!response.ok) throw new Error('Failed to fetch feedback.');
-            
+            const response = await fetchWithAuth('/api/admin/feedback');
+            if (!response || !response.ok) throw new Error('Failed to fetch feedback.');
             const feedbackItems = await response.json();
             renderFeedbackTable(feedbackItems);
         } catch (error) {
@@ -31,106 +53,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Fetch and display users
     const loadUsers = async () => {
         try {
-            const response = await fetch('/api/admin/users', { headers });
-            if (!response.ok) throw new Error('Failed to fetch users.');
-
+            const response = await fetchWithAuth('/api/admin/users');
+            if (!response || !response.ok) throw new Error('Failed to fetch users.');
             const users = await response.json();
             renderUsersTable(users);
         } catch (error) {
             usersContainer.innerHTML = `<p style="color: red;">${error.message}</p>`;
         }
     };
-
-    // Render the feedback table HTML
-    const renderFeedbackTable = (items) => {
-        if (items.length === 0) {
-            feedbackContainer.innerHTML = '<p>No feedback submissions yet.</p>';
-            return;
-        }
-
-        const table = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Rating</th>
-                        <th>Comments</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${items.map(item => `
-                        <tr data-id="${item.id}">
-                            <td>${item.name}</td>
-                            <td>${item.email}</td>
-                            <td>${item.rating || 'N/A'}</td>
-                            <td>${item.comments}</td>
-                            <td><span class="status-${item.status}">${item.status}</span></td>
-                            <td class="actions">
-                                ${item.status === 'pending' ? `
-                                    <button class="btn-approve" onclick="updateFeedbackStatus(${item.id}, 'approved')">Approve</button>
-                                    <button class="btn-reject" onclick="updateFeedbackStatus(${item.id}, 'rejected')">Reject</button>
-                                ` : 'Processed'}
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-        feedbackContainer.innerHTML = table;
-    };
-
-    // Render the users table HTML
-    const renderUsersTable = (users) => {
-        if (users.length === 0) {
-            usersContainer.innerHTML = '<p>No users found.</p>';
-            return;
-        }
-        const table = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Joined On</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${users.map(user => `
-                        <tr>
-                            <td>${user.username}</td>
-                            <td>${user.email}</td>
-                            <td>${user.role}</td>
-                            <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-        usersContainer.innerHTML = table;
-    };
     
-    // Make function global to be accessible by onclick attributes
     window.updateFeedbackStatus = async (id, status) => {
         try {
-            const response = await fetch(`/api/admin/feedback/${id}`, {
+            const response = await fetchWithAuth(`/api/admin/feedback/${id}`, {
                 method: 'PUT',
-                headers,
                 body: JSON.stringify({ status })
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
+            if (!response || !response.ok) {
+                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to update status.');
             }
             
-            // Refresh the feedback list to show the change
             loadFeedback();
 
         } catch (error) {
@@ -138,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Initial data load
     loadFeedback();
     loadUsers();
 });
@@ -177,24 +121,19 @@ document.getElementById('add-dining-form').addEventListener('submit', async (eve
     };
 
     try {
-        const response = await fetch('/api/dining', {
+        const response = await fetchWithAuth('/api/dining', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-            },
             body: JSON.stringify({ name, description, imageUrl, location, details })
         });
 
-        const result = await response.json();
-
-        if (!response.ok) {
+        if (!response || !response.ok) {
+            const result = await response.json();
             throw new Error(result.error || 'Failed to add dining place.');
         }
 
         alert('Dining place added successfully!');
-        document.getElementById('add-dining-form').reset(); // Clear the form
-        hideAddForm('dining'); // Hide the form
+        document.getElementById('add-dining-form').reset();
+        hideAddForm('dining');
 
     } catch (error) {
         console.error('Error adding dining place:', error);
@@ -259,4 +198,76 @@ function addStay() {
         console.error('Error adding place to stay:', error);
         alert('Failed to add place to stay.');
     });
-} 
+}
+
+// Render the feedback table HTML
+const renderFeedbackTable = (items) => {
+    if (items.length === 0) {
+        feedbackContainer.innerHTML = '<p>No feedback submissions yet.</p>';
+        return;
+    }
+
+    const table = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Rating</th>
+                    <th>Comments</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${items.map(item => `
+                    <tr data-id="${item.id}">
+                        <td>${item.name}</td>
+                        <td>${item.email}</td>
+                        <td>${item.rating || 'N/A'}</td>
+                        <td>${item.comments}</td>
+                        <td><span class="status-${item.status}">${item.status}</span></td>
+                        <td class="actions">
+                            ${item.status === 'pending' ? `
+                                <button class="btn-approve" onclick="updateFeedbackStatus(${item.id}, 'approved')">Approve</button>
+                                <button class="btn-reject" onclick="updateFeedbackStatus(${item.id}, 'rejected')">Reject</button>
+                            ` : 'Processed'}
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    feedbackContainer.innerHTML = table;
+};
+
+// Render the users table HTML
+const renderUsersTable = (users) => {
+    if (users.length === 0) {
+        usersContainer.innerHTML = '<p>No users found.</p>';
+        return;
+    }
+    const table = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined On</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${users.map(user => `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    usersContainer.innerHTML = table;
+}; 
