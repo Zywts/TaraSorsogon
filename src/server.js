@@ -72,22 +72,6 @@ const adminMiddleware = async (req, res, next) => {
     }
 };
 
-const authMiddleware = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Authorization token required' });
-    }
-    const token = authHeader.split(' ')[1];
-    try {
-        const { data: { user }, error } = await supabase.auth.getUser(token);
-        if (error || !user) throw new Error('Invalid or expired token.');
-        req.user = user;
-        next();
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid or expired token.' });
-    }
-};
-
 // --- API ROUTES ---
 
 // Signup Route
@@ -316,67 +300,6 @@ app.get('/api/places/attractions', async (req, res) => {
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch attraction places.' });
-    }
-});
-
-// --- REVIEW ROUTES ---
-
-// Submit a new review (Authenticated users only)
-app.post('/api/reviews', authMiddleware, async (req, res) => { // Using authMiddleware now
-    const { place_id, rating, visit_date, title, review_text, photo_urls } = req.body;
-    const user_id = req.user.id;
-
-    if (!place_id || !rating || !visit_date || !title) {
-        return res.status(400).json({ error: 'Missing required fields for review.' });
-    }
-
-    try {
-        const { data, error } = await supabaseAdmin
-            .from('reviews')
-            .insert([{
-                place_id,
-                user_id,
-                rating,
-                visit_date,
-                title,
-                review_text,
-                photo_urls: photo_urls || []
-            }]);
-
-        if (error) throw error;
-        res.status(201).json({ message: 'Review submitted successfully and is pending approval.', data });
-    } catch (error) {
-        console.error('Error submitting review:', error);
-        res.status(500).json({ error: 'Failed to submit review.' });
-    }
-});
-
-// Get all reviews for a specific place
-app.get('/api/reviews/place/:place_id', async (req, res) => {
-    const { place_id } = req.params;
-
-    try {
-        // We join with the public.users table to get the reviewer's username
-        const { data, error } = await supabaseAdmin
-            .from('reviews')
-            .select(`
-                *,
-                user:users ( username )
-            `)
-            .eq('place_id', place_id)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        
-        const reviews = data.map(r => ({
-            ...r,
-            username: r.user ? r.user.username : 'Anonymous' // Fallback for safety
-        }));
-        
-        res.status(200).json(reviews);
-    } catch (error) {
-        console.error('Error fetching reviews:', error);
-        res.status(500).json({ error: 'Failed to fetch reviews.' });
     }
 });
 
