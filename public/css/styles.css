@@ -833,7 +833,7 @@ button[type="submit"]:hover {
     }
 
     .search-container {
-        padding: 0 2rem;
+        padding: 0;
     }
 
     .search-input {
@@ -851,6 +851,7 @@ button[type="submit"]:hover {
     }
 
     .hero-content {
+        width: 100%;
         padding: 0 1rem;
     }
 
