@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const usersContainer = document.getElementById('users-table-container');
     const addDiningForm = document.getElementById('add-dining-form');
     const addDiningFormContainer = document.getElementById('add-dining-form-container');
+    const addAttractionForm = document.getElementById('add-attraction-form');
+    const addAttractionFormContainer = document.getElementById('add-attraction-form-container');
 
     // --- Centralized API Request Handler ---
     const fetchWithAuth = async (url, options = {}) => {
@@ -151,14 +153,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.showAddForm = (type) => {
+        // Hide all forms first
+        addDiningFormContainer.style.display = 'none';
+        addAttractionFormContainer.style.display = 'none';
+        
         if (type === 'dining') {
             addDiningFormContainer.style.display = 'block';
+        } else if (type === 'attraction') {
+            addAttractionFormContainer.style.display = 'block';
         }
     };
 
     window.hideAddForm = (type) => {
         if (type === 'dining') {
             addDiningFormContainer.style.display = 'none';
+        } else if (type === 'attraction') {
+            addAttractionFormContainer.style.display = 'none';
         }
     };
 
@@ -194,6 +204,36 @@ document.addEventListener('DOMContentLoaded', () => {
             hideAddForm('dining');
         } catch (error) {
             console.error('Error adding dining place:', error);
+            alert(`Error: ${error.message}`);
+        }
+    });
+
+    addAttractionForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const name = document.getElementById('attraction-name').value;
+        const description = document.getElementById('attraction-description').value;
+        const imageUrl = document.getElementById('attraction-image-url').value;
+        const location = document.getElementById('attraction-location').value;
+        const details = {
+            hours: document.getElementById('attraction-hours').value,
+        };
+
+        try {
+            const response = await fetchWithAuth('/api/attractions', {
+                method: 'POST',
+                body: JSON.stringify({ name, description, imageUrl, location, details })
+            });
+
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.error || 'Failed to add attraction.');
+            }
+
+            alert('Attraction added successfully!');
+            addAttractionForm.reset();
+            hideAddForm('attraction');
+        } catch (error) {
+            console.error('Error adding attraction:', error);
             alert(`Error: ${error.message}`);
         }
     });

@@ -288,11 +288,26 @@ app.get('/api/places/dining', async (req, res) => {
     }
 });
 
+// Get all attraction places
+app.get('/api/places/attractions', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('places')
+            .select('*')
+            .eq('type', 'attraction');
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch attraction places.' });
+    }
+});
+
 // --- CONTENT MANAGEMENT ROUTES (ADMIN ONLY) ---
 
 // Add a new attraction
 app.post('/api/attractions', adminMiddleware, async (req, res) => {
-    const { name, description, imageUrl, location } = req.body;
+    const { name, description, imageUrl, location, details } = req.body;
 
     if (!name || !description || !imageUrl || !location) {
         return res.status(400).json({ error: 'Missing required fields for attraction.' });
@@ -301,7 +316,14 @@ app.post('/api/attractions', adminMiddleware, async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin
             .from('places')
-            .insert([{ name, description, image_url: imageUrl, location, type: 'attraction' }]);
+            .insert([{ 
+                name, 
+                description, 
+                image_url: imageUrl, 
+                location, 
+                type: 'attraction',
+                details
+            }]);
         
         if (error) throw error;
         res.status(201).json({ message: 'Attraction added successfully.', data });
