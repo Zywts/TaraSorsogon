@@ -398,9 +398,9 @@ app.post('/api/reviews', authMiddleware, async (req, res) => {
 
 // Add a new attraction
 app.post('/api/attractions', adminMiddleware, async (req, res) => {
-    const { name, description, imageUrl, location, details } = req.body;
+    const { name, description, image_url, location, details } = req.body;
 
-    if (!name || !description || !imageUrl || !location) {
+    if (!name || !description || !image_url || !location) {
         return res.status(400).json({ error: 'Missing required fields for attraction.' });
     }
 
@@ -410,7 +410,7 @@ app.post('/api/attractions', adminMiddleware, async (req, res) => {
             .insert([{ 
                 name, 
                 description, 
-                image_url: imageUrl, 
+                image_url, 
                 location, 
                 type: 'attraction',
                 details
@@ -425,9 +425,9 @@ app.post('/api/attractions', adminMiddleware, async (req, res) => {
 
 // Add a new dining place
 app.post('/api/dining', adminMiddleware, async (req, res) => {
-    const { name, description, imageUrl, location, details } = req.body;
+    const { name, description, image_url, location, details } = req.body;
 
-    if (!name || !description || !imageUrl || !location) {
+    if (!name || !description || !image_url || !location) {
         return res.status(400).json({ error: 'Missing required fields for dining place.' });
     }
 
@@ -437,7 +437,7 @@ app.post('/api/dining', adminMiddleware, async (req, res) => {
             .insert([{ 
                 name, 
                 description, 
-                image_url: imageUrl, 
+                image_url, 
                 location, 
                 type: 'dining', 
                 details 
@@ -452,16 +452,16 @@ app.post('/api/dining', adminMiddleware, async (req, res) => {
 
 // Add a new place to stay
 app.post('/api/stays', adminMiddleware, async (req, res) => {
-    const { name, description, imageUrl, location, category } = req.body;
+    const { name, description, image_url, location, category } = req.body;
 
-    if (!name || !description || !imageUrl || !location || !category) {
+    if (!name || !description || !image_url || !location || !category) {
         return res.status(400).json({ error: 'Missing required fields for place to stay.' });
     }
 
     try {
         const { data, error } = await supabaseAdmin
             .from('places')
-            .insert([{ name, description, image_url: imageUrl, location, type: 'stay', details: { category } }]);
+            .insert([{ name, description, image_url, location, type: 'stay', details: { category } }]);
         
         if (error) throw error;
         res.status(201).json({ message: 'Place to stay added successfully.', data });
