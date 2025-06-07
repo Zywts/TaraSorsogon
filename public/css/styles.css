@@ -1152,6 +1152,22 @@ button[type="submit"]:hover {
     text-decoration: underline;
 }
 
+.terms-message {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.terms-message a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.terms-message a:hover {
+    text-decoration: underline;
+}
+
 /* Modal Styles */
 .modal {
     display: none;
@@ -1201,4 +1217,10 @@ button[type="submit"]:hover {
     margin-top: 15px;
     text-align: center;
     font-size: 0.9em;
+}
+
+.modal-content .btn {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 } 
