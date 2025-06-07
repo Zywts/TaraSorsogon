@@ -322,7 +322,9 @@ app.get('/api/reviews/:place_id', async (req, res) => {
     }
 
     try {
-        const { data, error } = await supabase
+        // Use the admin client to bypass RLS and join with the users table.
+        // This is secure because this endpoint only reads and returns non-sensitive data.
+        const { data, error } = await supabaseAdmin
             .from('reviews')
             .select(`
                 *,
@@ -331,7 +333,10 @@ app.get('/api/reviews/:place_id', async (req, res) => {
             .eq('place_id', place_id)
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+            console.error('Error fetching reviews with admin client:', error);
+            throw error;
+        }
         res.status(200).json(data);
 
     } catch (error) {

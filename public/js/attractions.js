@@ -171,8 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             rating: parseInt(rating, 10),
             visit_date: visitDate,
             title: title,
-            review_text: reviewText,
-            photo_urls: []
+            review_text: reviewText
         };
 
         try {
