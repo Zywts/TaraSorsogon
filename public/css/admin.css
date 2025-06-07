@@ -13,6 +13,8 @@
     --text-light: #666;
     --border-color: #e0e0e0;
     --shadow-color: rgba(0, 0, 0, 0.1);
+    --danger-color: #d9534f;
+    --danger-hover-color: #c9302c;
 }
 
 body {
@@ -20,25 +22,30 @@ body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     display: flex;
+    height: 100vh;
 }
 
 .sidebar {
     width: 250px;
     background: var(--bg-white);
     padding: 20px;
-    height: 100vh;
+    height: 100%;
     position: fixed;
     box-shadow: 2px 0 5px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
 }
 
 .sidebar h2 {
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 30px;
+    font-size: 24px;
 }
 
 .sidebar .nav-link {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 12px 15px;
     color: var(--text-dark);
     text-decoration: none;
@@ -48,7 +55,9 @@ body {
 }
 
 .sidebar .nav-link i {
-    margin-right: 10px;
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
 }
 
 .sidebar .nav-link:hover,
@@ -58,21 +67,24 @@ body {
 }
 
 .sidebar .back-to-site {
-    position: absolute;
-    bottom: 20px;
-    width: calc(100% - 40px);
+    margin-top: auto; /* Pushes to the bottom */
 }
 
 .main-content {
     margin-left: 250px;
     flex-grow: 1;
     padding: 20px 40px;
+    overflow-y: auto;
 }
 
 header {
     padding-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
     margin-bottom: 20px;
+}
+
+header h1 {
+    margin: 0;
 }
 
 .view {
@@ -85,6 +97,10 @@ header {
 
 .view.active {
     display: block;
+}
+
+.view h2 {
+    margin-top: 0;
 }
 
 table {
@@ -106,11 +122,11 @@ th {
 }
 
 tr:nth-of-type(even) {
-    background-color: #f9f9f9;
+    background-color: #fdfdfd;
 }
 
 .delete-btn {
-    background-color: #d9534f;
+    background-color: var(--danger-color);
     color: white;
     padding: 8px 15px;
     border: none;
@@ -120,7 +136,7 @@ tr:nth-of-type(even) {
 }
 
 .delete-btn:hover {
-    background-color: #c9302c;
+    background-color: var(--danger-hover-color);
 }
 
 .content-buttons button {
@@ -132,6 +148,7 @@ tr:nth-of-type(even) {
     cursor: pointer;
     margin-right: 10px;
     transition: background-color 0.3s;
+    font-size: 14px;
 }
 
 .content-buttons button:hover {
@@ -186,6 +203,7 @@ tr:nth-of-type(even) {
     border-radius: 5px;
     cursor: pointer;
     color: white;
+    font-weight: 600;
     transition: background-color 0.3s;
 }
 
@@ -204,6 +222,6 @@ tr:nth-of-type(even) {
 }
 
 .error {
-    color: #d9534f;
+    color: var(--danger-color);
     font-weight: bold;
 } 

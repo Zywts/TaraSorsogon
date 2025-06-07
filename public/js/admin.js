@@ -116,6 +116,108 @@ document.addEventListener('DOMContentLoaded', () => {
         usersTableContainer.appendChild(table);
     };
 
+    // --- Content Management ---
+    const addDiningFormContainer = document.getElementById('add-dining-form-container');
+    const addAttractionFormContainer = document.getElementById('add-attraction-form-container');
+    const addStayFormContainer = document.getElementById('add-stay-form-container');
+
+    window.showAddForm = (type) => {
+        // Hide all forms first
+        addDiningFormContainer.style.display = 'none';
+        addAttractionFormContainer.style.display = 'none';
+        addStayFormContainer.style.display = 'none';
+        
+        if (type === 'dining') {
+            addDiningFormContainer.style.display = 'block';
+        } else if (type === 'attraction') {
+            addAttractionFormContainer.style.display = 'block';
+        } else if (type === 'stay') {
+            addStayFormContainer.style.display = 'block';
+        }
+    };
+
+    window.hideAddForm = (type) => {
+        if (type === 'dining') {
+            addDiningFormContainer.style.display = 'none';
+        } else if (type === 'attraction') {
+            addAttractionFormContainer.style.display = 'none';
+        } else if (type === 'stay') {
+            addStayFormContainer.style.display = 'none';
+        }
+    };
+    
+    // --- Form Submission Handlers ---
+    const handleContentFormSubmit = async (endpoint, formData, formElement, formType) => {
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.error || `Failed to add ${formType}.`);
+            }
+            alert(`${formType.charAt(0).toUpperCase() + formType.slice(1)} added successfully!`);
+            formElement.reset();
+            window.hideAddForm(formType);
+        } catch (error) {
+            console.error(`Error adding ${formType}:`, error);
+            alert(`Error: ${error.message}`);
+        }
+    };
+
+    document.getElementById('add-dining-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+            name: form.elements['dining-name'].value,
+            description: form.elements['dining-description'].value,
+            image_url: form.elements['dining-image-url'].value,
+            location: form.elements['dining-location'].value,
+            details: {
+                hours: form.elements['dining-hours'].value,
+                best_seller: form.elements['dining-best-seller'].value,
+                phone: form.elements['dining-phone'].value,
+                facebook: form.elements['dining-facebook'].value,
+                messenger: form.elements['dining-messenger'].value
+            }
+        };
+        handleContentFormSubmit('/api/dining', formData, form, 'dining');
+    });
+
+    document.getElementById('add-attraction-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+            name: form.elements['attraction-name'].value,
+            description: form.elements['attraction-description'].value,
+            image_url: form.elements['attraction-image-url'].value,
+            location: form.elements['attraction-location'].value,
+            details: {
+                hours: form.elements['attraction-hours'].value
+            }
+        };
+        handleContentFormSubmit('/api/attractions', formData, form, 'attraction');
+    });
+
+    document.getElementById('add-stay-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+            name: form.elements['stay-name'].value,
+            description: form.elements['stay-description'].value,
+            image_url: form.elements['stay-image-url'].value,
+            location: form.elements['stay-location'].value,
+            category: form.elements['stay-category'].value
+        };
+        handleContentFormSubmit('/api/stays', formData, form, 'stay');
+    });
+
     // Event delegation for delete buttons
     reviewsTableBody.addEventListener('click', async (e) => {
         if (e.target.classList.contains('delete-btn')) {
