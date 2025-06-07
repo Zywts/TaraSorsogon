@@ -190,14 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             alert('Review submitted successfully!');
-            reviewModal.style.display = 'none';
-            reviewForm.reset();
-            // Reset stars
-            document.querySelectorAll('.star-rating .fa-star').forEach(s => {
-                s.classList.remove('fas');
-                s.classList.add('far');
-            });
-            fetchReviews(currentPlace.id); // Refresh reviews
+            closeReviewModal(); // Close and reset the review form
+            openModal(currentPlace); // Re-open the main modal to show the new review
+
         } catch (error) {
             console.error('Error submitting review:', error);
             alert(`Error: ${error.message}`);
