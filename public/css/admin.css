@@ -1,0 +1,209 @@
+/* 
+    ==============================
+    Admin Dashboard Styles
+    ==============================
+*/
+
+:root {
+    --primary-color: #2e7d32;
+    --secondary-color: #4CAF50;
+    --bg-light: #f4f7f6;
+    --bg-white: #ffffff;
+    --text-dark: #333;
+    --text-light: #666;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: var(--bg-light);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    display: flex;
+}
+
+.sidebar {
+    width: 250px;
+    background: var(--bg-white);
+    padding: 20px;
+    height: 100vh;
+    position: fixed;
+    box-shadow: 2px 0 5px var(--shadow-color);
+}
+
+.sidebar h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
+.sidebar .nav-link {
+    display: block;
+    padding: 12px 15px;
+    color: var(--text-dark);
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+}
+
+.sidebar .back-to-site {
+    position: absolute;
+    bottom: 20px;
+    width: calc(100% - 40px);
+}
+
+.main-content {
+    margin-left: 250px;
+    flex-grow: 1;
+    padding: 20px 40px;
+}
+
+header {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.view {
+    display: none;
+    background: var(--bg-white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+}
+
+.view.active {
+    display: block;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+tr:nth-of-type(even) {
+    background-color: #f9f9f9;
+}
+
+.delete-btn {
+    background-color: #d9534f;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+    background-color: #c9302c;
+}
+
+.content-buttons button {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+.content-buttons button:hover {
+    background-color: #45a049;
+}
+
+.form-container {
+    margin-top: 2rem;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #fdfdfd;
+}
+
+.form-container h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-actions button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.form-actions .btn-approve {
+    background-color: var(--primary-color);
+}
+.form-actions .btn-approve:hover {
+    background-color: #256628;
+}
+
+.form-actions .btn-reject {
+    background-color: #6c757d;
+}
+.form-actions .btn-reject:hover {
+    background-color: #5a6268;
+}
+
+.error {
+    color: #d9534f;
+    font-weight: bold;
+} 

@@ -5,113 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Tara! Sorsogon</title>
     <link rel="icon" href="images/head-logo.png" type="image/png">
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        /* Basic dashboard styles */
-        body {
-            background-color: #f4f7f6;
-        }
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .dashboard-header {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 1rem;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .dashboard-header h1 {
-            color: var(--primary-color);
-        }
-        .home-link {
-            text-decoration: none;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-        .home-link:hover {
-            background-color: var(--secondary-color);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
-            vertical-align: middle;
-        }
-        th {
-            background-color: #f2f2f2;
-            font-weight: 600;
-        }
-        .status-pending { color: #f0ad4e; }
-        .status-approved { color: #5cb85c; }
-        .status-rejected { color: #d9534f; }
-        .actions button {
-            margin-right: 5px;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: white;
-        }
-        .btn-approve { background-color: #5cb85c; }
-        .btn-reject { background-color: #d9534f; }
-
-        /* Styles for the new form */
-        .form-container {
-            margin-top: 2rem;
-            padding: 2rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fdfdfd;
-        }
-        .form-container h3 {
-            margin-top: 0;
-            color: var(--primary-color);
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.8rem;
-            margin-bottom: 1.5rem;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Important */
-        }
-        .form-actions {
-            margin-top: 1.5rem;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        .form-actions button {
-            padding: 0.6rem 1.2rem;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
     <div class="sidebar">
@@ -260,7 +158,6 @@
         </div>
     </div>
 
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
     <script src="js/admin.js"></script>
 </body>
 </html> 
