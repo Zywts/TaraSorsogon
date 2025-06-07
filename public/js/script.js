@@ -1,4 +1,3 @@
-// Navigation
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -575,21 +574,33 @@ function createMarker(location) {
 }
 
 function getMarkerIcon(type) {
-    let icon = 'fas fa-map-marker'; // Default icon
+    let innerIconClass = '';
     let color = '#3498db'; // Default blue for 'all' or others
 
-    if (type === 'attractions') {
-        icon = 'fas fa-hiking'; // Or your preferred icon for attractions
+    if (type === 'attraction') {
+        innerIconClass = 'fas fa-hiking';
+        color = '#3498db'; // Blue for attractions
     } else if (type === 'dining') {
-        icon = 'fas fa-utensils';
+        innerIconClass = 'fas fa-utensils';
         color = '#e74c3c'; // Red for dining
     } else if (type === 'accommodation') {
-        icon = 'fas fa-hotel';
+        innerIconClass = 'fas fa-hotel';
         color = '#2ecc71'; // Green for accommodation
     }
 
+    let markerHtml;
+    if (innerIconClass) {
+        markerHtml = `<span class="fa-stack">
+                        <i class="fas fa-map-marker fa-stack-2x" style="color: ${color};"></i>
+                        <i class="${innerIconClass} fa-stack-1x fa-inverse"></i>
+                      </span>`;
+    } else {
+        // Default marker for 'all' or other types
+        markerHtml = `<i class="fas fa-map-marker fa-2x" style="color: ${color};"></i>`;
+    }
+
     return L.divIcon({
-        html: `<i class="fas ${icon} fa-2x" style="color: ${color};"></i>`,
+        html: markerHtml,
         className: 'map-marker-icon',
         iconSize: [30, 42],
         iconAnchor: [15, 42],
