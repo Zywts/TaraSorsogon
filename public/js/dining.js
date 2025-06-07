@@ -15,7 +15,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalFacebook = document.getElementById("modal-facebook");
   const modalMessenger = document.getElementById("modal-messenger");
 
-  function showModal(data) {
+  // Review Modal Elements
+  const reviewModal = document.getElementById('review-modal');
+  const closeReviewModalBtn = document.getElementById('close-review-modal');
+  const writeReviewBtn = document.getElementById('write-review-btn');
+  const reviewForm = document.getElementById('review-form');
+  const ratingStars = document.querySelectorAll('.star-rating .fa-star');
+  const ratingInput = document.getElementById('rating');
+  const reviewsContainer = document.getElementById('reviews-list');
+  const reviewLoginMessage = document.getElementById('review-login-message');
+
+  let currentPlace = null;
+  let supabase = null;
+
+  // Initialize Supabase Client
+  const initializeSupabase = async () => {
+      try {
+          const response = await fetch('/api/config');
+          const config = await response.json();
+          supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+      } catch (error) {
+          console.error('Error initializing Supabase client:', error);
+      }
+  };
+
+  async function showModal(data) {
+    currentPlace = data; // Store current place
     modalImage.src = data.image_url || 'images/default-dining.jpg';
     modalImage.alt = data.name;
     modalName.textContent = data.name;
@@ -54,7 +79,174 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modalOverlay.classList.add("active");
     document.body.style.overflow = "hidden";
+
+    await loadReviews(data.id, 'dining_id');
   }
+
+  function hideModal() {
+    modalOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+    currentPlace = null;
+  }
+
+  const openReviewModal = () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+        reviewLoginMessage.style.display = 'block';
+        reviewForm.querySelector('button[type="submit"]').disabled = true;
+    } else {
+        reviewLoginMessage.style.display = 'none';
+        reviewForm.querySelector('button[type="submit"]').disabled = false;
+    }
+    reviewModal.style.display = 'block';
+  };
+
+  const closeReviewModal = () => {
+      reviewModal.style.display = 'none';
+      reviewForm.reset();
+      resetStars();
+  };
+
+  // Star Rating Logic
+  const resetStars = () => {
+      ratingStars.forEach(star => star.classList.remove('filled'));
+      ratingInput.value = '0';
+  };
+
+  ratingStars.forEach(star => {
+      star.addEventListener('click', () => {
+          const value = star.dataset.value;
+          ratingInput.value = value;
+          ratingStars.forEach(s => {
+              s.classList.toggle('filled', s.dataset.value <= value);
+          });
+      });
+  });
+
+  // Load and Display Reviews
+  const loadReviews = async (placeId, type) => {
+    reviewsContainer.innerHTML = '<p>Loading reviews...</p>';
+    try {
+        const response = await fetch(`/api/reviews?${type}=${placeId}`);
+        if (!response.ok) throw new Error('Failed to fetch reviews.');
+        
+        const reviews = await response.json();
+
+        if (reviews.length === 0) {
+            reviewsContainer.innerHTML = '<p>No reviews yet. Be the first to write one!</p>';
+            return;
+        }
+
+        reviewsContainer.innerHTML = '';
+        reviews.forEach(review => {
+            const reviewEl = document.createElement('div');
+            reviewEl.className = 'review-card';
+            
+            const visitDate = new Date(review.visit_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+            
+            let stars = '';
+            for(let i = 1; i <= 5; i++) {
+                stars += `<i class="fa-star ${i <= review.rating ? 'fas' : 'far'}"></i>`;
+            }
+
+            reviewEl.innerHTML = `
+                <div class="review-header">
+                    <span class="review-title">${review.title}</span>
+                    <span class="review-date">Visited: ${visitDate}</span>
+                </div>
+                <div class="review-rating">${stars}</div>
+                <p class="review-text">${review.review}</p>
+                ${review.photos && review.photos.length > 0 ? `
+                    <div class="review-photos">
+                        ${review.photos.map(photoUrl => `<img src="${photoUrl}" alt="Review photo">`).join('')}
+                    </div>
+                ` : ''}
+            `;
+            reviewsContainer.appendChild(reviewEl);
+        });
+
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        reviewsContainer.innerHTML = '<p style="color: red;">Could not load reviews.</p>';
+    }
+  };
+
+  // Handle Review Form Submission
+  reviewForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!supabase) {
+        alert('Supabase client is not initialized.');
+        return;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+        alert('You must be logged in to submit a review.');
+        return;
+    }
+
+    const submitButton = reviewForm.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
+
+    try {
+        // 1. Upload photos to Supabase Storage
+        const photoFiles = document.getElementById('review-photos').files;
+        const photoUrls = [];
+        if (photoFiles.length > 0) {
+            for (const file of photoFiles) {
+                const fileName = `${user.id}/${Date.now()}-${file.name}`;
+                const { data, error } = await supabase.storage
+                    .from('review_photos')
+                    .upload(fileName, file);
+
+                if (error) throw new Error(`Photo upload failed: ${error.message}`);
+                
+                // Get public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('review_photos')
+                    .getPublicUrl(fileName);
+                photoUrls.push(publicUrl);
+            }
+        }
+        
+        // 2. Submit review to your backend
+        const reviewData = {
+            user_id: user.id,
+            dining_id: currentPlace.id,
+            rating: parseInt(ratingInput.value, 10),
+            visit_date: document.getElementById('visit-date').value,
+            title: document.getElementById('review-title').value,
+            review: document.getElementById('review-text').value,
+            photos: photoUrls
+        };
+        
+        const response = await fetch('/api/reviews', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            },
+            body: JSON.stringify(reviewData)
+        });
+
+        if (!response.ok) {
+            const result = await response.json();
+            throw new Error(result.error || 'Failed to submit review.');
+        }
+        
+        alert('Review submitted successfully!');
+        closeReviewModal();
+        await loadReviews(currentPlace.id, 'dining_id'); // Refresh reviews
+
+    } catch (error) {
+        console.error('Error submitting review:', error);
+        alert(`Error: ${error.message}`);
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit Review';
+    }
+  });
 
   function createDiningCard(place) {
     const card = document.createElement('div');
@@ -115,24 +307,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  modalCloseBtn.addEventListener("click", () => {
-    modalOverlay.classList.remove("active");
-    document.body.style.overflow = "";
-  });
+  modalCloseBtn.addEventListener("click", hideModal);
 
   modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) {
-      modalOverlay.classList.remove("active");
-      document.body.style.overflow = "";
+      hideModal();
     }
   });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modalOverlay.classList.contains("active")) {
-      modalOverlay.classList.remove("active");
-      document.body.style.overflow = "";
+      hideModal();
     }
   });
 
+  // Review Modal events
+  if (writeReviewBtn) writeReviewBtn.addEventListener('click', openReviewModal);
+  if (closeReviewModalBtn) closeReviewModalBtn.addEventListener('click', closeReviewModal);
+  window.addEventListener('click', (event) => {
+      if (event.target === reviewModal) closeReviewModal();
+  });
+
+  initializeSupabase();
   loadDiningPlaces();
 }); 

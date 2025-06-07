@@ -258,22 +258,106 @@
 
 #dining-modal .modal-contact i {
   font-size: 18px;
+  color: #555555;
 }
 
-/* Small Scrollbar Styling (optional) */
+/* Custom Scrollbar (optional but nice) */
 #dining-modal .modal-content::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
-
 #dining-modal .modal-content::-webkit-scrollbar-track {
   background: #f1f1f1;
+  border-radius: 10px;
 }
-
 #dining-modal .modal-content::-webkit-scrollbar-thumb {
   background: #cccccc;
-  border-radius: 3px;
+  border-radius: 10px;
 }
-
 #dining-modal .modal-content::-webkit-scrollbar-thumb:hover {
   background: #aaaaaa;
+}
+
+/* Review Styles */
+.dining-modal-actions {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+#reviews-container {
+  margin-top: 20px;
+}
+
+#reviews-container h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+#reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.review-card {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #eee;
+}
+
+.review-card .review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.review-card .review-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.review-card .review-date {
+  font-size: 12px;
+  color: #888;
+}
+
+.review-card .review-rating {
+  color: #f5b32e;
+  margin-bottom: 10px;
+}
+
+.review-card .review-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.review-card .review-photos {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.review-card .review-photos img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.star-rating {
+  cursor: pointer;
+}
+
+.star-rating .fa-star {
+  font-size: 24px;
+  color: #ddd;
+  transition: color 0.2s;
+}
+
+.star-rating .fa-star.filled {
+  color: #f5b32e;
 } 

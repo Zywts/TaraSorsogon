@@ -74,6 +74,14 @@ const adminMiddleware = async (req, res, next) => {
 
 // --- API ROUTES ---
 
+// Expose public Supabase config
+app.get('/api/config', (req, res) => {
+    res.json({
+        supabaseUrl: process.env.SUPABASE_URL,
+        supabaseKey: process.env.SUPABASE_KEY
+    });
+});
+
 // Signup Route
 app.post('/api/signup', async (req, res) => {
     const { username, email, password } = req.body;
@@ -300,6 +308,84 @@ app.get('/api/places/attractions', async (req, res) => {
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch attraction places.' });
+    }
+});
+
+// --- REVIEW ROUTES ---
+
+// Get reviews for a specific place
+app.get('/api/reviews', async (req, res) => {
+    const { attraction_id, dining_id } = req.query;
+
+    if (!attraction_id && !dining_id) {
+        return res.status(400).json({ error: 'An attraction_id or dining_id is required.' });
+    }
+
+    try {
+        let query = supabase.from('reviews').select('*');
+        if (attraction_id) {
+            query = query.eq('attraction_id', attraction_id);
+        } else if (dining_id) {
+            query = query.eq('dining_id', dining_id);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+
+        if (error) throw error;
+        res.status(200).json(data);
+
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch reviews.' });
+    }
+});
+
+// Middleware to verify JWT token for authenticated routes
+const authMiddleware = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authorization token required' });
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error) throw error;
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(401).json({ error: 'Invalid or expired token.' });
+    }
+};
+
+// Add a new review
+app.post('/api/reviews', authMiddleware, async (req, res) => {
+    const { user_id, attraction_id, dining_id, rating, visit_date, title, review, photos } = req.body;
+
+    // Basic validation
+    if (req.user.id !== user_id) {
+        return res.status(403).json({ error: 'You can only submit reviews for yourself.' });
+    }
+    if (!rating || !visit_date || !title) {
+        return res.status(400).json({ error: 'Missing required fields for review.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('reviews')
+            .insert([{ 
+                user_id,
+                attraction_id,
+                dining_id,
+                rating,
+                visit_date,
+                title,
+                review,
+                photos
+            }]);
+        
+        if (error) throw error;
+        res.status(201).json({ message: 'Review added successfully.', data });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to add review: ${error.message}` });
     }
 });
 
