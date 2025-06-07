@@ -847,7 +847,8 @@ button[type="submit"]:hover {
 
     .hero {
         padding: 4rem 1rem;
-        height: auto;
+        height: 100vh;
+        background-attachment: scroll;
     }
 
     .hero-content {
