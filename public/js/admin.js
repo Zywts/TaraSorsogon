@@ -240,10 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initial View Logic
-    // Activate the dashboard view by default
-    document.getElementById('dashboard-view').classList.add('active');
-    document.querySelector('.nav-link[data-target="dashboard-view"]').classList.add('active');
-    
-    // Pre-load reviews in the background so it's ready if the user clicks the tab
+    // Activate the Review Management view by default as it's the first tab
     loadReviews();
+    // Pre-load users in the background so the tab is ready when clicked
+    loadUsers();
 }); 
