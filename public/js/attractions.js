@@ -56,9 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const groupAttractionsByMunicipality = (places) => {
     return places.reduce((acc, place) => {
-      // Extract municipality from the location string (e.g., "Osiao, Bacon District, Sorsogon City")
-      const parts = place.location.split(',').map(p => p.trim());
-      const municipality = parts.length > 1 ? parts[parts.length - 2] : 'Uncategorized';
+      let municipality = 'Uncategorized';
+
+      if (place.location && typeof place.location === 'string' && place.location.trim() !== '') {
+        const parts = place.location.split(',').map(p => p.trim());
+        municipality = parts.length > 1 ? parts[parts.length - 2] : parts[0];
+      }
       
       if (!acc[municipality]) {
         acc[municipality] = [];
