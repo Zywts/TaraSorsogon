@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const navLinks = document.querySelectorAll('.nav-link');
+    const navLinks = document.querySelectorAll('.nav-link[data-target]');
     const views = document.querySelectorAll('.view');
     const reviewsTableBody = document.getElementById('reviews-table-body');
     const usersTableContainer = document.getElementById('users-table-container');
