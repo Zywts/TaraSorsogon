@@ -315,27 +315,24 @@ app.get('/api/places/attractions', async (req, res) => {
 
 // Get reviews for a specific place
 app.get('/api/reviews', async (req, res) => {
-    const { attraction_id, dining_id } = req.query;
+    const { place_id } = req.query;
 
-    if (!attraction_id && !dining_id) {
-        return res.status(400).json({ error: 'An attraction_id or dining_id is required.' });
+    if (!place_id) {
+        return res.status(400).json({ error: 'A place_id is required.' });
     }
 
     try {
-        let query = supabase.from('reviews').select('*');
-        if (attraction_id) {
-            query = query.eq('attraction_id', attraction_id);
-        } else if (dining_id) {
-            query = query.eq('dining_id', dining_id);
-        }
-
-        const { data, error } = await query.order('created_at', { ascending: false });
+        const { data, error } = await supabase
+            .from('reviews')
+            .select('*, "users"(*)')
+            .eq('place_id', place_id)
+            .order('created_at', { ascending: false });
 
         if (error) throw error;
         res.status(200).json(data);
 
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch reviews.' });
+        res.status(500).json({ error: `Failed to fetch reviews: ${error.message}` });
     }
 });
 
@@ -358,7 +355,7 @@ const authMiddleware = async (req, res, next) => {
 
 // Add a new review
 app.post('/api/reviews', authMiddleware, async (req, res) => {
-    const { user_id, attraction_id, dining_id, rating, visit_date, title, review, photos } = req.body;
+    const { user_id, place_id, rating, visit_date, title, review, photos } = req.body;
 
     // Basic validation
     if (req.user.id !== user_id) {
@@ -373,17 +370,20 @@ app.post('/api/reviews', authMiddleware, async (req, res) => {
             .from('reviews')
             .insert([{ 
                 user_id,
-                attraction_id,
-                dining_id,
+                place_id,
                 rating,
                 visit_date,
                 title,
                 review,
                 photos
-            }]);
+            }])
+            .select();
         
-        if (error) throw error;
-        res.status(201).json({ message: 'Review added successfully.', data });
+        if (error) {
+            console.error('Error inserting review:', error);
+            throw error;
+        }
+        res.status(201).json({ message: 'Review added successfully.', data: data[0] });
     } catch (error) {
         res.status(500).json({ error: `Failed to add review: ${error.message}` });
     }

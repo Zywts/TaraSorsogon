@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalOverlay.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        await loadReviews(place.id, 'attraction_id');
+        await loadReviews(place.id);
     };
 
     const hideModal = () => {
@@ -101,10 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Load and Display Reviews
-    const loadReviews = async (placeId, type) => {
+    const loadReviews = async (placeId) => {
         reviewsContainer.innerHTML = '<p>Loading reviews...</p>';
         try {
-            const response = await fetch(`/api/reviews?${type}=${placeId}`);
+            const response = await fetch(`/api/reviews?place_id=${placeId}`);
             if (!response.ok) throw new Error('Failed to fetch reviews.');
             
             const reviews = await response.json();
@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 2. Submit review to your backend
             const reviewData = {
                 user_id: user.id,
-                attraction_id: currentPlace.id,
+                place_id: currentPlace.id,
                 rating: parseInt(ratingInput.value, 10),
                 visit_date: document.getElementById('visit-date').value,
                 title: document.getElementById('review-title').value,
