@@ -133,4 +133,96 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   loadAttractions();
+
+  // --- FUNCTIONS ---
+  async function loadReviews(placeId) {
+    const reviewsContainer = document.getElementById('reviews-container');
+    reviewsContainer.innerHTML = '<p>Loading reviews...</p>';
+
+    try {
+      const response = await fetch(`/api/reviews/place/${placeId}`);
+      if (!response.ok) throw new Error('Failed to load reviews.');
+
+      const reviews = await response.json();
+
+      if (reviews.length === 0) {
+        reviewsContainer.innerHTML = '<p>Be the first to write a review!</p>';
+        return;
+      }
+
+      reviewsContainer.innerHTML = ''; // Clear container
+      reviews.forEach(review => {
+        const reviewCard = document.createElement('div');
+        reviewCard.className = 'review-card';
+
+        const visitDate = new Date(review.visit_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+        const reviewDate = new Date(review.created_at).toLocaleDateString();
+
+        let starsHTML = '';
+        for (let i = 0; i < 5; i++) {
+          starsHTML += `<span class="star">${i < review.rating ? '&#9733;' : '&#9734;'}</span>`;
+        }
+        
+        let photosHTML = '';
+        if(review.photo_urls && review.photo_urls.length > 0){
+          photosHTML += '<div class="review-photos">';
+          review.photo_urls.forEach(url => {
+            if(url) photosHTML += `<img src="${url}" alt="Review photo">`;
+          })
+          photosHTML += '</div>';
+        }
+
+        reviewCard.innerHTML = `
+          <div class="review-header">
+            <span class="username">${review.username}</span>
+            <div class="review-stars">${starsHTML}</div>
+            <span class="review-date">Reviewed on ${reviewDate}</span>
+          </div>
+          <div class="review-body">
+            <h5>${review.title}</h5>
+            <p><strong>Date of visit:</strong> ${visitDate}</p>
+            <p>${review.review_text || ''}</p>
+            ${photosHTML}
+          </div>
+        `;
+        reviewsContainer.appendChild(reviewCard);
+      });
+
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      reviewsContainer.innerHTML = '<p style="color: red;">Could not load reviews.</p>';
+    }
+  }
+
+  function showModal(place) {
+    document.getElementById('attraction-modal-title').textContent = place.name;
+    document.getElementById('attraction-modal-location').textContent = place.location || 'Location not specified.';
+    reviewForm.dataset.placeId = place.id;
+    reviewForm.reset();
+    document.getElementById('review-rating').value = '0';
+    stars.forEach(s => s.dataset.rated = false);
+    
+    loadReviews(place.id);
+  }
+
+  function createAttractionCard(place) {
+    const card = document.createElement('div');
+    card.className = 'attraction-card';
+    card.dataset.placeId = place.id;
+
+    const details = place.details || {};
+
+    card.innerHTML = `
+      <img src="${place.image_url || 'images/default-attraction.jpg'}" alt="${place.name}">
+      <div class="attraction-info">
+        <h3>${place.name}</h3>
+        <p><strong>Location:</strong> ${place.location || 'Location not specified.'}</p>
+        <p><strong>Operating Hours:</strong> ${details.hours || 'Not available'}</p>
+        <p>${place.description || 'No description available.'}</p>
+      </div>
+    `;
+
+    card.addEventListener('click', () => showModal(place));
+    return card;
+  }
 }); 

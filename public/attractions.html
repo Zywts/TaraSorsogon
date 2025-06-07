@@ -66,6 +66,56 @@
       <p id="attraction-modal-hours"></p>
       <p id="attraction-modal-description"></p>
     </div>
+
+    <div class="modal-divider"></div>
+
+    <!-- Review Section -->
+    <div id="review-section" class="review-section">
+        <h4>Write a Review</h4>
+        <p class="review-login-prompt" style="display: none;">You must be <a href="#" id="review-login-link">logged in</a> to write a review.</p>
+        
+        <div class="review-form-container">
+            <button id="write-review-btn" class="btn" style="display: none;">Write a Review</button>
+            <form id="review-form" style="display: none;">
+                <div class="star-rating">
+                    <span class="star" data-value="5">&#9733;</span>
+                    <span class="star" data-value="4">&#9733;</span>
+                    <span class="star" data-value="3">&#9733;</span>
+                    <span class="star" data-value="2">&#9733;</span>
+                    <span class="star" data-value="1">&#9733;</span>
+                </div>
+                <input type="hidden" id="review-rating" name="rating" value="0">
+                
+                <div class="form-group">
+                    <label for="review-visit-date">When did you visit?</label>
+                    <input type="month" id="review-visit-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="review-title">Title of your review</label>
+                    <input type="text" id="review-title" placeholder="What's most important to know?" required>
+                </div>
+                <div class="form-group">
+                    <label for="review-text">Your review</label>
+                    <textarea id="review-text" rows="4" placeholder="Tell people about your experience"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="review-photos">Photo URLs (optional, comma-separated)</label>
+                    <input type="text" id="review-photos" placeholder="e.g., https://url.com/photo1.jpg, https://url.com/photo2.jpg">
+                </div>
+                <button type="submit" class="btn">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-divider"></div>
+
+    <!-- Existing Reviews Section -->
+    <div id="existing-reviews-section">
+        <h4>What other visitors are saying</h4>
+        <div id="reviews-container">
+            <!-- Reviews will be loaded here -->
+        </div>
+    </div>
   </div>
 </div>
 
@@ -148,5 +198,85 @@
 
 <script src="js/attractions.js"></script>
 <script src="js/script.js"></script>
+<style>
+/* ... existing styles ... */
+.star-rating {
+    direction: rtl;
+    display: inline-block;
+    padding: 10px 0;
+}
+.star-rating .star {
+    font-size: 2.5rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.star-rating .star:hover,
+.star-rating .star:hover ~ .star {
+    color: #ffc107;
+}
+.star-rating .star[data-rated="true"],
+.star-rating .star[data-rated="true"] ~ .star {
+    color: #ffc107;
+}
+
+#reviews-container {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 15px;
+    padding-right: 10px; /* For scrollbar spacing */
+}
+.review-card {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+.review-card:last-child {
+    border-bottom: none;
+}
+.review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.review-header .username {
+    font-weight: bold;
+    margin-right: 15px;
+}
+.review-stars {
+    color: #ffc107;
+}
+.review-stars .star {
+    font-size: 1rem;
+}
+.review-date {
+    font-size: 0.8em;
+    color: #777;
+    margin-left: auto;
+}
+.review-body h5 {
+    margin: 0 0 5px;
+    font-size: 1.1em;
+}
+.review-body p {
+    margin: 5px 0;
+    line-height: 1.5;
+}
+.review-photos {
+    margin-top: 10px;
+}
+.review-photos img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.review-photos img:hover {
+    transform: scale(1.05);
+}
+</style>
 </body>
 </html>
