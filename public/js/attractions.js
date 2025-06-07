@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showModal(place) {
         document.getElementById('attraction-modal-name').textContent = place.name;
-        document.getElementById('attraction-modal-address').textContent = `Address: ${place.location || 'Not available'}`;
+        document.getElementById('attraction-modal-address').textContent = place.location || 'Not available';
         document.getElementById('attraction-modal-description').textContent = place.description || 'No description available.';
         
         const details = place.details || {};
@@ -192,15 +192,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createAttractionCard(place) {
         const card = document.createElement('div');
-        card.className = 'attraction';
+        card.className = 'attraction-card';
         card.dataset.name = place.name; // For URL lookup
         card.innerHTML = `
-            <div class="image-wrapper">
-                <img src="${place.image_url || 'img/placeholder.jpg'}" alt="${place.name}">
-            </div>
-            <div class="attraction-text">
-                 <h3>${place.name}</h3>
-                 <p>${place.location || 'Location not available'}</p>
+            <img src="${place.image_url || 'img/placeholder.jpg'}" alt="${place.name}">
+            <div class="attraction-card-content">
+                <h4>${place.name}</h4>
                  <button class="details-btn">See Details</button>
             </div>
         `;
@@ -230,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
             for (const municipality in attractionsByMunicipality) {
                 const section = document.createElement('div');
                 section.className = 'municipality-section';
-                section.innerHTML = `<div class="municipality-header"><h2>${municipality}</h2></div>`;
+                section.innerHTML = `<h2>${municipality}</h2>`;
                 const grid = document.createElement('div');
                 grid.className = 'attractions-grid';
                 attractionsByMunicipality[municipality].forEach(place => {

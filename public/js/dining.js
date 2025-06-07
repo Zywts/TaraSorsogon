@@ -206,12 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'dining-card';
         card.innerHTML = `
-             <div class="card-image">
-                <img src="${place.details.photo || 'img/placeholder.jpg'}" alt="${place.name}">
+            <div class="card-image">
+                <img src="${place.image_url || 'img/placeholder.jpg'}" alt="${place.name}">
             </div>
             <div class="card-content">
                 <h3>${place.name}</h3>
-                <p>${place.location || 'Sorsogon'}</p>
+                <p>${place.location || 'Sorsogon, Philippines'}</p>
                 <button class="details-btn">See Details</button>
             </div>
         `;
