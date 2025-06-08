@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tara! Sorsogon - Accommodation</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="images/head-logo.png" type="image/png" />
+
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/accommodations.css" />
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+  <!-- Third-party libraries -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" /> <!-- Flatpickr date-picker -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="" /> <!-- Leaflet interactive maps -->
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+
+  <!-- ===============================================================
+       PRIMARY NAVIGATION BAR
+       =============================================================== -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <a href="index.html">
+        <img src="images/logo.png" alt="Tara! Sorsogon Logo" class="logo" />
+      </a>
+    </div>
+
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="attractions.html">Attractions</a></li>
+      <li><a href="index.html#events">Events</a></li>
+      <li><a href="dining.html">Dining</a></li>
+      <li><a href="accommodations.html">Accommodation</a></li>
+      <li><a href="index.html#emergency">Emergency</a></li>
+      <li><a href="#" id="login-btn">Login</a></li>
+      <li><a href="#" id="signup-btn">Sign Up</a></li>
+    </ul>
+
+    <div class="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+
+  <!-- ===============================================================
+       ACCOMMODATION GRID
+       Populated dynamically by accommodations.js
+       =============================================================== -->
+  <section class="acc-section">
+    <header class="acc-head">
+      <div class="icon-container"><i class="fas fa-bed"></i></div>
+      <div class="heading-text">
+        <h2>Places to Stay</h2>
+        <p>A curated list of Sorsogon accommodations.</p>
+      </div>
+    </header>
+
+    <div id="cards-wrapper" class="cards-grid"></div>
+  </section>
+
+  <!-- Dynamic modal shell (content injected via JS) -->
+  <div id="acc-modal" class="modal-overlay">
+    <div class="modal-content"></div>
+  </div>
+
+  <!-- ===============================================================
+       USER REVIEW SUBMISSION MODAL
+       =============================================================== -->
+  <div id="review-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="close-review-modal">&times;</span>
+      <h2>Submit a Review</h2>
+
+      <form id="review-form">
+        <div class="form-group">
+          <label>Rating:</label>
+          <div class="star-rating">
+            <i class="far fa-star" data-value="1"></i>
+            <i class="far fa-star" data-value="2"></i>
+            <i class="far fa-star" data-value="3"></i>
+            <i class="far fa-star" data-value="4"></i>
+            <i class="far fa-star" data-value="5"></i>
+          </div>
+          <input type="hidden" id="rating" name="rating" value="0" />
+        </div>
+
+        <div class="form-group">
+          <label for="visit-date">When did you go?</label>
+          <input type="date" id="visit-date" name="visit-date" required />
+        </div>
+
+        <div class="form-group">
+          <label for="review-title">Title of your review</label>
+          <input type="text" id="review-title" name="review-title" required />
+        </div>
+
+        <div class="form-group">
+          <label for="review-text">Your review</label>
+          <textarea id="review-text" name="review-text" rows="5" required></textarea>
+        </div>
+
+        <p id="review-login-message" style="display:none;color:red;">
+          You must be logged in to submit a review.
+        </p>
+
+        <button type="submit" class="btn">Submit Review</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===============================================================
+       FOOTER: ABOUT | LINKS | CONTACT
+       =============================================================== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>About Us</h3>
+        <p>Discover Sorsogon is your guide to the province's beauty and culture.</p>
+      </div>
+
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="attractions.html">Attractions</a></li>
+          <li><a href="index.html#events">Events</a></li>
+          <li><a href="dining.html">Dining</a></li>
+          <li><a href="accommodations.html">Accommodation</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <p>Email: info@discoversorsogon.ph</p>
+        <p>Phone: +63 XXX XXX XXXX</p>
+        <p>Sorsogon, Philippines</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 Discover Sorsogon. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="close-login-modal">&times;</span>
+      <h2>Login</h2>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email:</label>
+          <input type="email" id="login-email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password:</label>
+          <input type="password" id="login-password" name="password" required />
+        </div>
+
+        <button type="submit" class="btn">Login</button>
+        <p class="form-message" id="login-message"></p>
+        <p class="terms-message">
+          By proceeding, you agree to our
+          <a href="/terms.html">Terms of Use</a> and
+          <a href="/privacy.html">Privacy Policy</a>.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="close-signup-modal">&times;</span>
+      <h2>Sign Up</h2>
+
+      <form id="signup-form">
+        <div class="form-group">
+          <label for="signup-username">Username:</label>
+          <input type="text" id="signup-username" name="username" required />
+        </div>
+
+        <div class="form-group">
+          <label for="signup-email">Email:</label>
+          <input type="email" id="signup-email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="signup-password">Password:</label>
+          <input type="password" id="signup-password" name="password" required />
+        </div>
+
+        <div class="form-group">
+          <label for="signup-confirm-password">Confirm Password:</label>
+          <input type="password" id="signup-confirm-password" name="confirmPassword" required />
+        </div>
+
+        <button type="submit" class="btn">Sign Up</button>
+        <p class="form-message" id="signup-message"></p>
+        <p class="terms-message">
+          By proceeding, you agree to our
+          <a href="/terms.html">Terms of Use</a> and
+          <a href="/privacy.html">Privacy Policy</a>.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===============================================================
+       EXTERNAL SCRIPTS
+       =============================================================== -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="js/accommodations.js" defer></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
