@@ -45,8 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 detailUrl = `dining.html?name=${encodeURIComponent(place.name)}`;
             } else if (placeType === 'attraction' || placeType === 'tourist spot') {
                 detailUrl = `attractions.html?name=${encodeURIComponent(place.name)}`;
+            } else if (placeType === 'accommodation') {
+                detailUrl = `accommodations.html?name=${encodeURIComponent(place.name)}`;
             }
-            // Add more else-if blocks for other types like 'accommodation' if needed
 
             return `
                 <a href="${detailUrl}" class="card-link">
