@@ -214,6 +214,12 @@
   .modal-image{flex:0 0 auto;height:220px}
 }
 
+/* Specific styling for login/signup modals on this page */
+#login-modal .modal-content,
+#signup-modal .modal-content {
+  max-width: 500px;
+}
+
 /* ==================================================================
    Review Section Styles (copied from dining.css for consistency)
    ================================================================== */
