@@ -532,8 +532,8 @@ app.post('/api/attractions', adminMiddleware, async (req, res) => {
             location, 
             type: 'attraction',
             details,
-            position: `POINT(${position.longitude} ${position.latitude})`
-        }]);
+            position: position && position.latitude && position.longitude ? { lat: position.latitude, lon: position.longitude } : null
+        }]).select();
         if (error) throw error;
         res.status(201).json({ message: 'Attraction added successfully.', data: data[0] });
     } catch (error) {
@@ -555,8 +555,8 @@ app.post('/api/dining', adminMiddleware, async (req, res) => {
             location, 
             type: 'dining',
             details,
-            position: `POINT(${position.longitude} ${position.latitude})`
-        }]);
+            position: position && position.latitude && position.longitude ? { lat: position.latitude, lon: position.longitude } : null
+        }]).select();
         if (error) throw error;
         res.status(201).json({ message: 'Dining place added successfully.', data: data[0] });
     } catch (error) {
@@ -578,8 +578,8 @@ app.post('/api/accommodations', adminMiddleware, async (req, res) => {
             location, 
             type: 'accommodation',
             details,
-            position: `POINT(${position.longitude} ${position.latitude})`
-        }]);
+            position: position && position.latitude && position.longitude ? { lat: position.latitude, lon: position.longitude } : null
+        }]).select();
         if (error) throw error;
         res.status(201).json({ message: 'Accommodation added successfully.', data: data[0] });
     } catch (error) {
