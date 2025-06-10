@@ -237,6 +237,53 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
+// Add a new event (Admin only)
+app.post('/api/events', adminMiddleware, async (req, res) => {
+    // The adminMiddleware has already verified the user is an admin
+    // and attached the user object to the request.
+    const adminUserId = req.user.id; 
+
+    const { 
+        name, 
+        description, 
+        start_date, 
+        end_date, 
+        location, 
+        place_id, 
+        image_url 
+    } = req.body;
+
+    // Basic validation
+    if (!name || !description || !start_date || !location) {
+        return res.status(400).json({ error: 'Missing required event fields.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('events')
+            .insert([{ 
+                name, 
+                description, 
+                start_date, 
+                end_date: end_date || null, 
+                location, 
+                place_id: place_id || null, 
+                image_url: image_url || null,
+                user_id: adminUserId // Log which admin created the event
+            }])
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.status(201).json({ message: 'Event created successfully!', event: data });
+
+    } catch (error) {
+        console.error('Error creating event:', error);
+        res.status(500).json({ error: 'Failed to create event.' });
+    }
+});
+
 // --- ADMIN ROUTES ---
 
 // Get all reviews for admin
@@ -289,6 +336,37 @@ app.get('/api/admin/users', adminMiddleware, async (req, res) => {
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch users.' });
+    }
+});
+
+// Delete a place (Admin only)
+app.delete('/api/places/:id', adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ error: 'Place ID is required.' });
+    }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from('places')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            // Handle cases where the place might have dependent records,
+            // e.g., reviews or events that reference it.
+            if (error.code === '23503') { // foreign key violation
+                return res.status(409).json({ error: 'Cannot delete this place because it is referenced by other records (e.g., events or reviews).' });
+            }
+            throw error;
+        }
+
+        res.status(200).json({ message: 'Place deleted successfully.' });
+
+    } catch (error) {
+        console.error('Error deleting place:', error);
+        res.status(500).json({ error: 'Failed to delete place.' });
     }
 });
 
@@ -488,4 +566,4 @@ app.post('/api/stays', adminMiddleware, async (req, res) => {
 // Start the server
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
-}); 
+});

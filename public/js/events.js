@@ -164,17 +164,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Transform event data for FullCalendar
     const calendarEvents = events.map(event => {
-      // FullCalendar's end date is exclusive, so we need to add one day if it exists
-      let endDate = event.end_date ? new Date(event.end_date) : null;
-      if (endDate) {
-          endDate.setDate(endDate.getDate() + 1);
+      // By using string manipulation, we avoid timezone conversions by the browser's Date object.
+      // We treat the dates as "floating" dates, which is what we want for all-day events.
+      const startDateString = event.start_date.slice(0, 10); // "YYYY-MM-DD"
+
+      let endDateString = null;
+      if (event.end_date) {
+        // FullCalendar's end date is exclusive. If an event ends on the 13th,
+        // we need to provide the 14th as the end date. We create a UTC date to do math,
+        // which prevents the user's local timezone from affecting the calculation.
+        const endDate = new Date(event.end_date.slice(0, 10) + 'T12:00:00Z');
+        endDate.setUTCDate(endDate.getUTCDate() + 1);
+        endDateString = endDate.toISOString().slice(0, 10);
       }
 
       return {
         title: event.name,
-        start: event.start_date,
-        end: endDate ? endDate.toISOString().split('T')[0] : null, // Format as YYYY-MM-DD
-        allDay: true, // This tells the calendar it's an all-day event, removing the time
+        start: startDateString,
+        end: endDateString,
+        allDay: true,
         extendedProps: {
           eventId: event.id
         }
@@ -184,14 +192,14 @@ document.addEventListener("DOMContentLoaded", () => {
     calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
       headerToolbar: {
-        left: 'prev,next today',
+        left: 'prev,next',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,listWeek'
       },
       events: calendarEvents,
       dateClick: function(info) {
         // When a date is clicked, filter the cards shown on the right
-        filterEventsByDate(info.date);
+        filterEventsByDate(info.date, events);
         calendar.gotoDate(info.date); // Center the calendar on the clicked date
       },
       eventClick: function(info) {
@@ -217,11 +225,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   
-  // 2. Filter event cards based on the date clicked on the calendar
-  function filterEventsByDate(selectedDate) {
-    // This function now needs access to the full list of events.
-    // We'll handle this in the main fetch function.
-    console.warn("filterEventsByDate needs to be connected to the fetched events list.");
+  // Filter event cards based on the date clicked on the calendar
+  function filterEventsByDate(selectedDate, events) {
+    if (!events) {
+        console.error("Event list not provided to filter function.");
+        return;
+    }
+     // Helper to get a YYYY-MM-DD string from a Date object in its local timezone
+     const toLocalISOString = (date) => {
+         const year = date.getFullYear();
+         const month = (date.getMonth() + 1).toString().padStart(2, '0');
+         const day = date.getDate().toString().padStart(2, '0');
+         return `${year}-${month}-${day}`;
+     };
+     
+     const selectedDateString = toLocalISOString(selectedDate);
+
+     const filteredEvents = events.filter(event => {
+         const eventStartDateString = event.start_date.slice(0, 10);
+         
+         if (event.end_date) {
+             const eventEndDateString = event.end_date.slice(0, 10);
+             // Compare strings directly. e.g. "2025-06-05" is >= "2025-06-01"
+             return selectedDateString >= eventStartDateString && selectedDateString <= eventEndDateString;
+         } else {
+             return selectedDateString === eventStartDateString;
+         }
+     });
+     loadEvents(filteredEvents);
   }
 
   // --- Calendar Size Toggle ---
@@ -262,21 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // 3. Re-implement the filter function to use the fetched events
         window.filterEventsByDate = (selectedDate) => {
-            const selectedDateTime = selectedDate.getTime();
-            const filteredEvents = events.filter(event => {
-                const startDate = new Date(event.start_date);
-                // Reset time to midnight for accurate date-only comparison
-                startDate.setUTCHours(0, 0, 0, 0);
-                
-                if (event.end_date) {
-                    const endDate = new Date(event.end_date);
-                    endDate.setUTCHours(0, 0, 0, 0);
-                    return selectedDateTime >= startDate.getTime() && selectedDateTime <= endDate.getTime();
-        } else {
-                    return selectedDateTime === startDate.getTime();
-        }
-    });
-    loadEvents(filteredEvents);
+             filterEventsByDate(selectedDate, events);
         };
         
         // 4. Check for eventId in URL and open modal automatically
