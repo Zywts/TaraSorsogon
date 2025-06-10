@@ -572,18 +572,25 @@ app.post('/api/dining', adminMiddleware, async (req, res) => {
     }
 });
 
-// Add a new place to stay
-app.post('/api/stays', adminMiddleware, async (req, res) => {
-    const { name, description, image_url, location, category } = req.body;
+// Add a new place to stay (replaces the old '/api/stays')
+app.post('/api/accommodations', adminMiddleware, async (req, res) => {
+    const { name, description, image_url, location, details } = req.body;
 
-    if (!name || !description || !image_url || !location || !category) {
+    if (!name || !description || !image_url || !location) {
         return res.status(400).json({ error: 'Missing required fields for place to stay.' });
     }
 
     try {
         const { data, error } = await supabaseAdmin
             .from('places')
-            .insert([{ name, description, image_url, location, type: 'stay', details: { category } }]);
+            .insert([{ 
+                name, 
+                description, 
+                image_url, 
+                location, 
+                type: 'accommodation', 
+                details 
+            }]);
         
         if (error) throw error;
         res.status(201).json({ message: 'Place to stay added successfully.', data });

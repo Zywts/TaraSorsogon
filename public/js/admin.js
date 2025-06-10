@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderStays = (data, tbody) => {
         tbody.innerHTML = '';
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4">No items found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3">No items found.</td></tr>';
             return;
         }
         data.forEach(item => {
@@ -172,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `
                 <td>${item.name}</td>
                 <td>${item.location}</td>
-                <td>${item.category || 'N/A'}</td>
                 <td><button class="delete-btn delete-place-btn" data-id="${item.id}">Delete</button></td>
             `;
             tbody.appendChild(row);
@@ -264,64 +263,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    document.getElementById('add-dining-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = {
-            name: form.elements['dining-name'].value,
-            description: form.elements['dining-description'].value,
-            image_url: form.elements['dining-image-url'].value,
-            location: form.elements['dining-location'].value,
-            details: {
-                hours: form.elements['dining-hours'].value,
-                best_seller: form.elements['dining-best-seller'].value,
-                phone: form.elements['dining-phone'].value,
-                facebook: form.elements['dining-facebook'].value,
-                messenger: form.elements['dining-messenger'].value
-            }
-        };
-        handleContentFormSubmit('/api/dining', formData, form, 'dining');
-    });
+    const addDiningForm = document.getElementById('add-dining-form');
+    if (addDiningForm) {
+        addDiningForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = {
+                name: form.elements['dining-name'].value,
+                description: form.elements['dining-description'].value,
+                image_url: form.elements['dining-image-url'].value,
+                location: form.elements['dining-location'].value,
+                details: {
+                    hours: form.elements['dining-hours'].value,
+                    best_seller: form.elements['dining-best-seller'].value,
+                    phone: form.elements['dining-phone'].value,
+                    facebook: form.elements['dining-facebook'].value,
+                    messenger: form.elements['dining-messenger'].value
+                }
+            };
+            handleContentFormSubmit('/api/dining', formData, addDiningForm, 'dining');
+        });
+    }
 
-    document.getElementById('add-attraction-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = {
-            name: form.elements['attraction-name'].value,
-            description: form.elements['attraction-description'].value,
-            image_url: form.elements['attraction-image-url'].value,
-            location: form.elements['attraction-location'].value,
-            details: {
-                hours: form.elements['attraction-hours'].value
-            }
-        };
-        handleContentFormSubmit('/api/attractions', formData, form, 'attraction');
-    });
+    const addStayForm = document.getElementById('add-stay-form');
+    if (addStayForm) {
+        addStayForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = {
+                name: document.getElementById('stay-name').value,
+                description: document.getElementById('stay-description').value,
+                image_url: document.getElementById('stay-image-url').value,
+                location: document.getElementById('stay-location').value,
+                details: {
+                    hours: document.getElementById('stay-hours').value,
+                    phone: document.getElementById('stay-phone').value,
+                    fb: document.getElementById('stay-facebook').value,
+                    msg: document.getElementById('stay-messenger').value
+                }
+            };
+            handleContentFormSubmit('/api/accommodations', formData, addStayForm, 'stay');
+        });
+    }
 
-    document.getElementById('add-stay-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = {
-            name: form.elements['stay-name'].value,
-            description: form.elements['stay-description'].value,
-            image_url: form.elements['stay-image-url'].value,
-            location: form.elements['stay-location'].value,
-            category: form.elements['stay-category'].value
-        };
-        handleContentFormSubmit('/api/stays', formData, form, 'stay');
-    });
-
-    document.getElementById('add-event-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = {
-            name: form.elements['event-name'].value,
-            description: form.elements['event-description'].value,
-            start_date: form.elements['event-start-date'].value,
-            image_url: form.elements['event-image-url'].value
-        };
-        handleContentFormSubmit('/api/events', formData, form, 'event');
-    });
+    const addEventForm = document.getElementById('add-event-form');
+    if (addEventForm) {
+        addEventForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = {
+                name: form.elements['event-name'].value,
+                description: form.elements['event-description'].value,
+                start_date: form.elements['event-start-date'].value,
+                image_url: form.elements['event-image-url'].value
+            };
+            handleContentFormSubmit('/api/events', formData, form, 'event');
+        });
+    }
 
     // --- Delete Logic ---
     const handleDelete = async (e) => {
