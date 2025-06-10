@@ -33,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
       card.className = 'acc-card';
       card.innerHTML = `
         <div class="card-image">
-          <img src="${item.img || 'images/default-placeholder.png'}" alt="${item.name}">
+          <img src="${item.image_url || 'images/default-placeholder.png'}" alt="${item.name}">
         </div>
         <div class="acc-card-body">
           <h3>${item.name}</h3>
-          <p>${item.address}</p>
+          <p>${item.location}</p>
         </div>`;
       card.addEventListener('click', () => openModal(item));
       grid.appendChild(card);
@@ -53,22 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
   function openModal(data) {
     const markup = `
       <div class="modal-header">
-        <img src="${data.img || 'images/default-placeholder.png'}" alt="${data.name}">
+        <img src="${data.image_url || 'images/default-placeholder.png'}" alt="${data.name}">
         <div class="modal-header-text">
           <h3>${data.name}</h3>
-          <p>${data.address}</p>
+          <p>${data.location}</p>
         </div>
       </div>
-      <p class="modal-description">${data.desc || 'No description available.'}</p>
+      <p class="modal-description">${data.description || 'No description available.'}</p>
       <div class="modal-divider"></div>
       <div class="modal-details">
-        <p><strong>Opens:</strong> ${data.hours || 'N/A'}</p>
+        <p><strong>Opens:</strong> ${data.details.hours || 'N/A'}</p>
       </div>
       <div class="modal-divider"></div>
       <div class="modal-contact">
-        ${data.phone ? `<a href="tel:${data.phone.replace(/\s|-/g, '')}"><i class="fas fa-phone"></i>${data.phone}</a>` : ''}
-        ${data.fb ? `<a href="${data.fb}" target="_blank"><i class="fab fa-facebook"></i>Facebook</a>` : ''}
-        ${data.msg ? `<a href="${data.msg}" target="_blank"><i class="fab fa-facebook-messenger"></i>Messenger</a>` : ''}
+        ${data.details.phone ? `<a href="tel:${data.details.phone.replace(/\s|-/g, '')}"><i class="fas fa-phone"></i>${data.details.phone}</a>` : ''}
+        ${data.details.fb ? `<a href="${data.details.fb}" target="_blank"><i class="fab fa-facebook"></i>Facebook</a>` : ''}
+        ${data.details.msg ? `<a href="${data.details.msg}" target="_blank"><i class="fab fa-facebook-messenger"></i>Messenger</a>` : ''}
       </div>
       <div style="text-align:center;margin:20px 0">
         <button class="review-btn">Write a Review</button>
