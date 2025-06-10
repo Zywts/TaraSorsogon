@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const eventCardsContainer = document.getElementById("events-cards-container");
   const calendarEl = document.getElementById('calendar');
   const resetViewBtn = document.getElementById('reset-view-btn');
+  const toggleCalendarBtn = document.getElementById('toggle-calendar-size-btn');
+  const eventsBodyContainer = document.querySelector('.events-body-container');
 
   // Modal fields
   const modalImage = document.getElementById("modal-image");
@@ -168,15 +170,16 @@ document.addEventListener("DOMContentLoaded", () => {
           endDate.setDate(endDate.getDate() + 1);
       }
 
-    return {
-      title: event.name,
+      return {
+        title: event.name,
         start: event.start_date,
         end: endDate ? endDate.toISOString().split('T')[0] : null, // Format as YYYY-MM-DD
-      extendedProps: {
-        eventId: event.id
-      }
-    };
-  });
+        allDay: true, // This tells the calendar it's an all-day event, removing the time
+        extendedProps: {
+          eventId: event.id
+        }
+      };
+    });
 
     calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
@@ -219,6 +222,27 @@ document.addEventListener("DOMContentLoaded", () => {
     // This function now needs access to the full list of events.
     // We'll handle this in the main fetch function.
     console.warn("filterEventsByDate needs to be connected to the fetched events list.");
+  }
+
+  // --- Calendar Size Toggle ---
+  if (toggleCalendarBtn && eventsBodyContainer) {
+    toggleCalendarBtn.addEventListener('click', () => {
+      eventsBodyContainer.classList.toggle('calendar-expanded');
+      
+      if (eventsBodyContainer.classList.contains('calendar-expanded')) {
+        toggleCalendarBtn.textContent = 'Collapse Calendar';
+      } else {
+        toggleCalendarBtn.textContent = 'Expand Calendar';
+      }
+
+      // This is crucial to make FullCalendar redraw itself correctly
+      // after its container's size has changed.
+      if (calendar) {
+        setTimeout(() => {
+          calendar.updateSize();
+        }, 200); // A small delay allows CSS transitions to start
+      }
+    });
   }
 
   // Main function to fetch events and render everything

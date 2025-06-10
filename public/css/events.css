@@ -405,3 +405,26 @@
 #reset-view-btn {
     display: none;
 }
+
+/* New styles for the calendar toggle functionality */
+
+.calendar-controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.calendar-controls .btn {
+  flex: 1;
+}
+
+.events-body-container.calendar-expanded .events-cards,
+.events-body-container.calendar-expanded .separator {
+  display: none;
+}
+
+.events-body-container.calendar-expanded .calendar-area-container {
+  flex-basis: 100%;
+  max-width: 100%;
+  transition: flex-basis 0.4s ease-in-out;
+}

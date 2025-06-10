@@ -1021,27 +1021,24 @@ button[type="submit"]:hover {
 
 .contact-list i {
     color: var(--primary-color);
-    margin-right: 1rem;
-    font-size: 1.2rem;
-    width: 20px;
-    text-align: center;
+    margin-right: 10px;
 }
 
-/* Flatpickr Event Day Styling */
+/* === Calendar Specific Styles === */
 .flatpickr-day.event-day {
-    background-color: var(--accent-color);
+    background: var(--primary-color);
     color: var(--white);
     border-radius: 50%;
     font-weight: bold;
 }
-
 .flatpickr-day.event-day:hover {
-    background-color: #d8575b;
+    background: var(--secondary-color);
+    color: var(--white);
 }
 
 .flatpickr-day.event-in-range {
-    background-color: var(--secondary-color);
-    color: var(--white);
+    background: #e9f5ea;
+    color: var(--text-color);
     box-shadow: -5px 0 0 var(--secondary-color), 5px 0 0 var(--secondary-color);
     border-radius: 0;
 }
