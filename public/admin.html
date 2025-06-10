@@ -36,6 +36,7 @@
                             <th>User</th>
                             <th>Rating</th>
                             <th>Title</th>
+                            <th>Comment</th>
                             <th>Date</th>
                             <th>Actions</th>
                         </tr>
@@ -200,17 +201,80 @@
                         <label for="event-image-url">Image URL</label>
                         <input type="url" id="event-image-url" placeholder="https://example.com/image.png" required>
                     </div>
-                    <div class="form-group">
-                        <label for="event-place">Related Place</label>
-                        <select id="event-place" required>
-                            <option value="">Loading places...</option>
-                        </select>
-                    </div>
                     <div class="form-actions">
                         <button type="submit" class="btn-approve">Save Event</button>
                         <button type="button" onclick="hideAddForm('event')" class="btn-reject">Cancel</button>
                     </div>
                 </form>
+            </div>
+
+            <div class="content-section">
+                <h3>Manage Attractions</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attractions-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>Manage Places to Dine</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dining-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>Manage Places to Stay</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stays-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>Manage Events</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Start Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-table-body">
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

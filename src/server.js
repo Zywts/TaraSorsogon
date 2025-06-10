@@ -254,17 +254,17 @@ app.get('/api/places', adminMiddleware, async (req, res) => {
 
 // Add a new event
 app.post('/api/events', adminMiddleware, async (req, res) => {
-    const { name, description, start_date, place_id, image_url } = req.body;
+    const { name, description, start_date, image_url } = req.body;
     const user_id = req.user.id; 
 
-    if (!name || !description || !start_date || !place_id || !image_url) {
-        return res.status(400).json({ error: 'All fields are required.' });
+    if (!name || !description || !start_date || !image_url) {
+        return res.status(400).json({ error: 'Name, description, start date, and image URL are required.' });
     }
 
     try {
         const { data, error } = await supabaseAdmin
             .from('events')
-            .insert([{ name, description, start_date, place_id, user_id, image_url }]);
+            .insert([{ name, description, start_date, user_id, image_url }]);
 
         if (error) {
             console.error('Error inserting event:', error);
@@ -367,6 +367,21 @@ app.get('/api/places/attractions', async (req, res) => {
     }
 });
 
+// Get all stay places
+app.get('/api/places/stays', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('places')
+            .select('*')
+            .eq('type', 'stay');
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch places to stay.' });
+    }
+});
+
 // --- REVIEW ROUTES ---
 
 // Get reviews for a specific place
@@ -449,6 +464,38 @@ app.post('/api/reviews', authMiddleware, async (req, res) => {
         res.status(201).json({ message: 'Review added successfully.', data: data[0] });
     } catch (error) {
         res.status(500).json({ error: `Failed to add review: ${error.message}` });
+    }
+});
+
+// Delete a place (Admin Only)
+app.delete('/api/places/:id', adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { error } = await supabaseAdmin
+            .from('places')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        res.status(200).json({ message: 'Place deleted successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete place.' });
+    }
+});
+
+// Delete an event (Admin Only)
+app.delete('/api/events/:id', adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const { error } = await supabaseAdmin
+            .from('events')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        res.status(200).json({ message: 'Event deleted successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete event.' });
     }
 });
 

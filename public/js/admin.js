@@ -29,13 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadReviews();
             } else if (target === 'user-management-view') {
                 loadUsers();
+            } else if (target === 'content-management-view') {
+                loadAllContent();
             }
         });
     });
 
     // --- Review Management ---
     const loadReviews = async () => {
-        reviewsTableBody.innerHTML = '<tr><td colspan="6">Loading reviews...</td></tr>';
+        reviewsTableBody.innerHTML = '<tr><td colspan="7">Loading reviews...</td></tr>';
         try {
             const response = await fetch('/api/admin/reviews', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -45,14 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const reviews = await response.json();
             renderReviews(reviews);
         } catch (error) {
-            reviewsTableBody.innerHTML = `<tr><td colspan="6" class="error">${error.message}</td></tr>`;
+            reviewsTableBody.innerHTML = `<tr><td colspan="7" class="error">${error.message}</td></tr>`;
         }
     };
 
     const renderReviews = (reviews) => {
         reviewsTableBody.innerHTML = '';
         if (reviews.length === 0) {
-            reviewsTableBody.innerHTML = '<tr><td colspan="6">No reviews found.</td></tr>';
+            reviewsTableBody.innerHTML = '<tr><td colspan="7">No reviews found.</td></tr>';
             return;
         }
 
@@ -60,10 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr');
             const ratingStars = '⭐'.repeat(review.rating);
             row.innerHTML = `
-                <td>${review.place ? review.place.name : 'N/A'}</td>
-                <td>${review.user ? review.user.username : 'Anonymous'}</td>
+                <td>${review.places ? review.places.name : 'N/A'}</td>
+                <td>${review.users ? review.users.username : 'Anonymous'}</td>
                 <td class="rating">${ratingStars} (${review.rating})</td>
                 <td>${review.title}</td>
+                <td>${review.comment || ''}</td>
                 <td>${new Date(review.created_at).toLocaleDateString()}</td>
                 <td><button class="delete-btn" data-id="${review.id}">Delete</button></td>
             `;
@@ -117,38 +120,94 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Content Management ---
+
+    // Get table body elements
+    const attractionsTableBody = document.getElementById('attractions-table-body');
+    const diningTableBody = document.getElementById('dining-table-body');
+    const staysTableBody = document.getElementById('stays-table-body');
+    const eventsTableBody = document.getElementById('events-table-body');
+
+    // Generic function to load and render content
+    const loadAndRenderContent = async (endpoint, tbody, renderer) => {
+        tbody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
+        try {
+            const response = await fetch(endpoint, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error(`Failed to fetch from ${endpoint}`);
+            const data = await response.json();
+            renderer(data, tbody);
+        } catch (error) {
+            tbody.innerHTML = `<tr><td colspan="3" class="error">${error.message}</td></tr>`;
+        }
+    };
+
+    // Renderer for places (Attractions, Dining)
+    const renderPlaces = (data, tbody) => {
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3">No items found.</td></tr>';
+            return;
+        }
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.location}</td>
+                <td><button class="delete-btn delete-place-btn" data-id="${item.id}">Delete</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    };
+    
+    // Renderer for stays
+    const renderStays = (data, tbody) => {
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4">No items found.</td></tr>';
+            return;
+        }
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.location}</td>
+                <td>${item.category || 'N/A'}</td>
+                <td><button class="delete-btn delete-place-btn" data-id="${item.id}">Delete</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    };
+
+    // Renderer for events
+    const renderEvents = (data, tbody) => {
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3">No items found.</td></tr>';
+            return;
+        }
+        data.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${new Date(item.start_date).toLocaleDateString()}</td>
+                <td><button class="delete-btn delete-event-btn" data-id="${item.id}">Delete</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    };
+
+    const loadAllContent = () => {
+        loadAndRenderContent('/api/places/attractions', attractionsTableBody, renderPlaces);
+        loadAndRenderContent('/api/places/dining', diningTableBody, renderPlaces);
+        loadAndRenderContent('/api/places/stays', staysTableBody, renderStays);
+        loadAndRenderContent('/api/events', eventsTableBody, renderEvents);
+    };
+
     const addDiningFormContainer = document.getElementById('add-dining-form-container');
     const addAttractionFormContainer = document.getElementById('add-attraction-form-container');
     const addStayFormContainer = document.getElementById('add-stay-form-container');
     const addEventFormContainer = document.getElementById('add-event-form-container');
-
-    const loadPlaces = async () => {
-        const selectElement = document.getElementById('event-place');
-        selectElement.innerHTML = '<option value="">Loading places...</option>';
-        try {
-            const response = await fetch('/api/places', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!response.ok) throw new Error('Failed to fetch places.');
-
-            const places = await response.json();
-            
-            selectElement.innerHTML = '<option value="">Select a place</option>';
-            if (places.length > 0) {
-                places.forEach(place => {
-                    const option = document.createElement('option');
-                    option.value = place.id;
-                    option.textContent = place.name;
-                    selectElement.appendChild(option);
-                });
-            } else {
-                 selectElement.innerHTML = '<option value="">No places found. Add one first!</option>';
-            }
-        } catch (error) {
-            console.error('Error loading places:', error);
-            selectElement.innerHTML = `<option value="">Error loading places</option>`;
-        }
-    };
 
     window.showAddForm = (type) => {
         // Hide all forms first
@@ -165,7 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addStayFormContainer.style.display = 'block';
         } else if (type === 'event') {
             addEventFormContainer.style.display = 'block';
-            loadPlaces(); // Load places when the event form is shown
         }
     };
 
@@ -260,13 +318,40 @@ document.addEventListener('DOMContentLoaded', () => {
             name: form.elements['event-name'].value,
             description: form.elements['event-description'].value,
             start_date: form.elements['event-start-date'].value,
-            image_url: form.elements['event-image-url'].value,
-            place_id: form.elements['event-place'].value
+            image_url: form.elements['event-image-url'].value
         };
         handleContentFormSubmit('/api/events', formData, form, 'event');
     });
 
-    // Event delegation for delete buttons
+    // --- Delete Logic ---
+    const handleDelete = async (e) => {
+        const isPlaceDelete = e.target.classList.contains('delete-place-btn');
+        const isEventDelete = e.target.classList.contains('delete-event-btn');
+
+        if (!isPlaceDelete && !isEventDelete) return;
+
+        const id = e.target.dataset.id;
+        const type = isPlaceDelete ? 'place' : 'event';
+        const endpoint = isPlaceDelete ? `/api/places/${id}` : `/api/events/${id}`;
+
+        if (confirm(`Are you sure you want to delete this ${type}?`)) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error(`Failed to delete ${type}.`);
+
+                alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`);
+                loadAllContent(); // Refresh all content lists
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+    };
+    
+    // Event delegation for all delete buttons
+    document.querySelector('.main-content').addEventListener('click', handleDelete);
     reviewsTableBody.addEventListener('click', async (e) => {
         if (e.target.classList.contains('delete-btn')) {
             const reviewId = e.target.dataset.id;
@@ -292,4 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadReviews();
     // Pre-load users in the background so the tab is ready when clicked
     loadUsers();
+    // Load content if the content tab is active on page load
+    if (document.querySelector('.nav-link[data-target="content-management-view"]').classList.contains('active')) {
+        loadAllContent();
+    }
 }); 
