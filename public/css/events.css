@@ -124,10 +124,28 @@
   margin: 0;
 }
 
+@media (max-width: 992px) {
+    .events-body-container {
+        flex-direction: column;
+    }
+
+    .separator {
+        display: none;
+    }
+
+    .event-card {
+        width: calc(50% - 15px);
+    }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .events-cards {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .event-card {
+    width: 100%;
   }
 
   #event-modal .modal-header {

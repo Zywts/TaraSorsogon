@@ -288,7 +288,7 @@ app.get('/api/admin/reviews', adminMiddleware, async (req, res) => {
                 id,
                 rating,
                 title,
-                comment,
+                comment: review_text,
                 created_at,
                 place_id,
                 user_id,
@@ -399,6 +399,7 @@ app.get('/api/reviews/:place_id', async (req, res) => {
             .from('reviews')
             .select(`
                 *,
+                comment: review_text,
                 user:users(username)
             `)
             .eq('place_id', place_id)
@@ -436,10 +437,10 @@ const authMiddleware = async (req, res, next) => {
 
 // Add a new review (requires authentication)
 app.post('/api/reviews', authMiddleware, async (req, res) => {
-    const { place_id, rating, visit_date, title, review_text } = req.body;
+    const { place_id, rating, visit_date, title, comment } = req.body;
     const user_id = req.user.id;
 
-    if (!place_id || !rating || !visit_date || !title || !review_text) {
+    if (!place_id || !rating || !visit_date || !title || !comment) {
         return res.status(400).json({ error: 'Missing required fields for review.' });
     }
 
@@ -452,7 +453,7 @@ app.post('/api/reviews', authMiddleware, async (req, res) => {
                 rating,
                 visit_date,
                 title,
-                review_text,
+                review_text: comment,
                 photo_urls: [] // Set empty array as photos are removed
             }])
             .select();
