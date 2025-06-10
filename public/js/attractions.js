@@ -27,6 +27,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPlace = null;
     let supabase = null;
 
+    // Function to show toast messages
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.className = 'toast-message';
+      document.body.appendChild(toast);
+
+      // Animate in
+      setTimeout(() => {
+          toast.classList.add('show');
+      }, 100);
+
+      // Animate out and remove after 3 seconds
+      setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => {
+              document.body.removeChild(toast);
+          }, 500); // Wait for transition to finish
+      }, 3000);
+    }
+
     // Initialize Supabase Client
     const initializeSupabase = async () => {
         try {
@@ -189,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errorData.message || 'Failed to submit review.');
             }
 
-            alert('Review submitted successfully!');
+            showToast('Review submitted successfully!');
             closeReviewModal(); // Close and reset the review form
             openModal(currentPlace); // Re-open the main modal to show the new review
 

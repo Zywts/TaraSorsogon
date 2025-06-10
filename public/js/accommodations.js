@@ -19,6 +19,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const ratingInput = document.getElementById('rating');
   const reviewLoginMessage = document.getElementById('review-login-message');
 
+  // Function to show toast messages
+  function showToast(message) {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.className = 'toast-message';
+    document.body.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+
+    // Animate out and remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 500); // Wait for transition to finish
+    }, 3000);
+  }
+
   /* ─── FETCH AND BUILD PAGE ────────────────────────────────── */
   async function initializeAccommodations() {
     try {
@@ -253,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         visit_date: visitDate,
         title: title,
         comment: comment,
+        place_type: 'accommodation'
     };
 
     try {
@@ -270,9 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error(errorData.message || 'Failed to submit review.');
         }
 
-        alert('Review submitted successfully!');
+        showToast('Review submitted successfully!');
         closeReviewModal();
-        openModal(currentPlace); // Re-open the main modal to show the new review
+        openModal(currentPlace); // Re-open main modal to show new review
 
     } catch (error) {
         console.error('Error submitting review:', error);
