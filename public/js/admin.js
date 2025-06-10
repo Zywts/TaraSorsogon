@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
              // Show admin content if authorized
             adminWrapper.style.display = 'flex';
             document.body.classList.add('admin-body');
-            populatePlacesDropdown();
+            // populatePlacesDropdown();
         }
     };
     
