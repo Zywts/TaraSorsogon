@@ -48,10 +48,37 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     async function checkAdminRole(user) {
-        // Check the user's role from the metadata populated at signup/login.
-        // The server-side adminMiddleware provides the definitive server-side check.
-        // This client-side check is for UI purposes.
-        return user && user.user_metadata && user.user_metadata.role === 'admin';
+        if (!user) {
+            console.log("No user object provided to checkAdminRole.");
+            return false;
+        }
+
+        // This client-side check is for UI purposes. The definitive check is the server-side middleware on API routes.
+        // We fetch the user's profile directly from the 'users' table to ensure it's the
+        // authoritative source for the role, not the potentially stale user_metadata.
+        try {
+            const { data: userProfile, error } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', user.id)
+                .single();
+
+            if (error) {
+                console.error("Error fetching user profile for role check:", error.message);
+                // This can happen if RLS policies prevent the user from reading their own profile.
+                alert("Could not verify user role. Please ensure you are logged in and have permissions to view your profile. Check the developer console for details.");
+                return false;
+            }
+            
+            // For debugging: show what the database returned.
+            console.log("User profile from DB for role check:", userProfile);
+            
+            return userProfile && userProfile.role === 'admin';
+
+        } catch (e) {
+            console.error("An unexpected error occurred during role check:", e);
+            return false;
+        }
     }
 
     // Sidebar navigation
