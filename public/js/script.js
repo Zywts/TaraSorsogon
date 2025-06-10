@@ -1,3 +1,6 @@
+// This file has been updated to remove hardcoded event data and calendar logic,
+// and instead, fetches event data dynamically from the server.
+
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -31,37 +34,88 @@ document.addEventListener('DOMContentLoaded', () => {
         revealOnScroll(); // Initial check
     }
 
-    // Calendar functionality
-    const calendarElement = document.getElementById('calendar');
-    let calendarInstance = null; // To store the flatpickr instance
+    // Dynamic Event Loading for Homepage
+    async function loadUpcomingEvents() {
+        const eventsListContainer = document.querySelector('.events-list');
+        if (!eventsListContainer) {
+            console.warn('Events list container not found on this page.');
+            return;
+        }
 
-    if (calendarElement) {
-        const eventDates = events.map(event => event.date);
-
-        calendarInstance = flatpickr(calendarElement, {
-            inline: true,
-            mode: 'single',
-            dateFormat: 'Y-m-d',
-            onDayCreate: function(dObj, dStr, fp, dayElem){
-                const dateString = fp.formatDate(dayElem.dateObj, "Y-m-d");
-                if (events.some(event => event.date === dateString)) {
-                    dayElem.classList.add("event-day");
-                }
-                events.forEach(event => {
-                    if (event.endDate && dayElem.dateObj >= fp.parseDate(event.date, "Y-m-d") && dayElem.dateObj <= fp.parseDate(event.endDate, "Y-m-d")) {
-                        dayElem.classList.add("event-in-range");
-                    }
-                });
-            },
-            onChange: function(selectedDates, dateStr, instance) {
-                updateEventsList(selectedDates[0], instance);
+        try {
+            const response = await fetch('/api/events');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-        });
+            const allEvents = await response.json();
 
-        if (calendarInstance) {
-             updateEventsList(null, calendarInstance);
+            const now = new Date();
+            const upcomingEvents = allEvents.filter(event => {
+                const eventDate = new Date(event.end_date || event.start_date);
+                return eventDate >= now;
+            }).sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+
+            const eventsToShow = upcomingEvents.slice(0, 3);
+
+            const existingEvents = eventsListContainer.querySelectorAll('.event-item-card, .no-events-message');
+            existingEvents.forEach(el => el.remove());
+
+            if (eventsToShow.length === 0) {
+                const noEventsMessage = document.createElement('p');
+                noEventsMessage.className = 'no-events-message';
+                noEventsMessage.textContent = 'No upcoming events at the moment. Please check back later!';
+                eventsListContainer.appendChild(noEventsMessage);
+                return;
+            }
+
+            eventsToShow.forEach(event => {
+                const eventCard = createEventItemCard(event);
+                eventsListContainer.appendChild(eventCard);
+            });
+
+        } catch (error) {
+            console.error('Failed to load upcoming events:', error);
+            const errorMessage = document.createElement('p');
+            errorMessage.className = 'no-events-message';
+            errorMessage.textContent = 'Could not load events.';
+            eventsListContainer.appendChild(errorMessage);
         }
     }
+
+    function createEventItemCard(event) {
+        const card = document.createElement('div');
+        card.className = 'event-item-card';
+        const eventDate = formatDateRange(event.start_date, event.end_date);
+        card.innerHTML = `
+            <div class="event-item-date">
+                <span class="month">${new Date(event.start_date).toLocaleString('en-US', { month: 'short' })}</span>
+                <span class="day">${new Date(event.start_date).getDate()}</span>
+            </div>
+            <div class="event-item-details">
+                <h4>${event.name}</h4>
+                <p><i class="far fa-calendar-alt"></i> ${eventDate}</p>
+                <p><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
+            </div>
+            <a href="events.html?eventId=${event.id}" class="event-item-link" aria-label="View details for ${event.name}">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        `;
+        return card;
+    }
+
+    function formatDateRange(start, end) {
+        if (!start) return 'TBD';
+        const startDate = new Date(start);
+        const options = { month: 'long', day: 'numeric' };
+        if (!end || startDate.toDateString() === new Date(end).toDateString()) {
+            return startDate.toLocaleDateString('en-US', options);
+        }
+        const endDate = new Date(end);
+        return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+    }
+
+    // Initial call to load events
+    loadUpcomingEvents();
 
     // Modal Functionality
     // Get modal elements
@@ -186,10 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hero Search form submission
     if (heroSearchForm) {
-        heroSearchForm.addEventListener('submit', (e) => {
+        heroSearchForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            const searchInput = heroSearchForm.querySelector('.search-input');
-            const searchTerm = searchInput ? searchInput.value.trim() : '';
+            const searchInput = heroSearchForm.querySelector(".search-input");
+            const searchTerm = searchInput ? searchInput.value.trim() : "";
             if (searchTerm) {
                 // Redirect to the search results page with the term as a query parameter
                 window.location.href = `search.html?term=${encodeURIComponent(searchTerm)}`;
@@ -374,99 +428,6 @@ class Carousel {
 // Initialize carousel if it exists
 if (document.querySelector('.carousel')) {
     new Carousel();
-}
-
-// Updated Events Data
-const events = [
-    {
-        date: '2025-06-08',
-        endDate: '2025-06-08',
-        title: 'Grand Santacruzan 2025',
-        description: 'A traditional religious-historical parade marking the culmination of Flores de Mayo, featuring beautifully adorned participants in a grand procession.',
-        displayDate: 'June 8, 2025'
-    },
-    {
-        date: '2025-06-19',
-        endDate: '2025-06-29',
-        title: 'Pili Festival',
-        description: 'Sorsogon City\'s major festival honoring the Pili tree and its significance to the region. The celebration includes street dancing, cooking competitions, fireworks displays, and various cultural activities',
-        displayDate: 'June 19-29, 2025'
-    },
-    {
-        date: '2024-05-01',
-        endDate: '2024-05-05',
-        title: 'Parau Festival',
-        description: 'Traditional boat racing festival in Donsol showcasing local maritime culture and seafaring traditions.',
-        displayDate: 'May 1-5, 2024'
-    },
-    {
-        date: '2024-07-10',
-        endDate: '2024-07-12',
-        title: 'Coastal Art Workshop',
-        description: 'Join us for a 3-day art workshop focusing on Sorsogon\'s beautiful coastal landscapes. Materials provided.',
-        displayDate: 'July 10-12, 2024'
-    }
-];
-
-function updateEventsList(selectedDate, fpInstance) {
-    const eventsList = document.querySelector('.events-list');
-    if (!eventsList || !fpInstance) return;
-
-    let buttonHtml = ''; // Initialize button HTML as empty
-    if (selectedDate) {
-        // Only create button HTML if a specific date is selected
-        buttonHtml = '<button id="all-events-btn" class="all-events-button">Reset to All Events</button>';
-    }
-
-    let listTitle = '<h3>Upcoming Events</h3>';
-    let html = '';
-    let filteredEvents = [];
-    const today = fpInstance.formatDate(new Date(), "Y-m-d");
-
-    if (selectedDate) {
-        const formattedSelectedDate = fpInstance.formatDate(selectedDate, "Y-m-d");
-        listTitle = `<h3>Events on ${fpInstance.formatDate(selectedDate, "F j, Y")}</h3>`;
-        filteredEvents = events.filter(event => {
-            const eventStart = event.date;
-            const eventEnd = event.endDate || event.date;
-            return formattedSelectedDate >= eventStart && formattedSelectedDate <= eventEnd;
-        });
-    } else {
-        listTitle = '<h3>Upcoming Events</h3>'; // Ensure title is correct for all upcoming
-        filteredEvents = events.filter(event => (event.endDate || event.date) >= today)
-                               .sort((a,b) => new Date(a.date) - new Date(b.date));
-    }
-
-    if (filteredEvents.length > 0) {
-        filteredEvents.forEach(event => {
-            html += `
-                <div class="event-item">
-                    <h4>${event.title}</h4>
-                    <p><strong>Date:</strong> ${event.displayDate}</p>
-                    <p>${event.description}</p>
-                </div>
-            `;
-        });
-    } else {
-        if (selectedDate) {
-            html = '<p>No events scheduled for this date.</p>';
-        } else {
-            html = '<p>No upcoming events found. Please select a date on the calendar to see details.</p>';
-        }
-    }
-    // Prepend buttonHtml (it will be empty if no date selected)
-    eventsList.innerHTML = buttonHtml + listTitle + html;
-
-    // If the button was added (i.e., a date was selected), attach its event listener
-    if (selectedDate) {
-        const newAllEventsBtn = document.getElementById('all-events-btn');
-        if (newAllEventsBtn) {
-            newAllEventsBtn.addEventListener('click', () => {
-                fpInstance.clear(); // Clear selected date in Flatpickr
-                updateEventsList(null, fpInstance); // Refresh list (button will not be created this time)
-            });
-        }
-    }
 }
 
 // Map functionality

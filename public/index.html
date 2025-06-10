@@ -241,13 +241,19 @@
 
     <!-- Event Calendar -->
     <section id="events" class="section reveal-on-scroll">
-        <h2>Event Calendar</h2>
+        <div class="section-header">
+            <h2>Event Calendar</h2>
+            <a href="events.html" class="view-all">View All Events <i class="fas fa-arrow-right"></i></a>
+        </div>
         <div class="calendar-container">
             <div class="events-list">
                 <h3>Upcoming Events</h3>
-                <p>Loading events...</p> 
+                <!-- Event items will be dynamically inserted here by js/main.js -->
             </div>
-            <div id="calendar"></div>
+            <div id="calendar-placeholder">
+                <!-- This could be a static image or a mini-calendar -->
+                <img src="images/CALENDAR-PLACEHOLDER.png" alt="Calendar with marked dates">
+            </div>
         </div>
     </section>
 
@@ -462,8 +468,11 @@
      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <!-- Your Custom Scripts -->
     <script src="js/script.js"></script>
+    <script src="js/auth.js"></script>
+
     <script>
         // Set a CSS variable for the viewport height
         function setVhVariable() {

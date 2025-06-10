@@ -222,6 +222,21 @@ app.post('/api/feedback', async (req, res) => {
     }
 });
 
+// Get all events
+app.get('/api/events', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('events')
+            .select('*')
+            .order('start_date', { ascending: true });
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch events.' });
+    }
+});
+
 // --- ADMIN ROUTES ---
 
 // Get all reviews for admin

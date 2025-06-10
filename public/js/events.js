@@ -1,0 +1,292 @@
+// This file will contain the JavaScript code for the events page.
+document.addEventListener("DOMContentLoaded", () => {
+  const modalOverlay = document.getElementById("event-modal");
+  const modalCloseBtn = document.getElementById("modal-close");
+  const eventCardsContainer = document.getElementById("events-cards-container");
+  const calendarEl = document.getElementById('calendar');
+  const resetViewBtn = document.getElementById('reset-view-btn');
+
+  // Modal fields
+  const modalImage = document.getElementById("modal-image");
+  const modalName = document.getElementById("modal-name");
+  const modalAddress = document.getElementById("modal-address");
+  const modalDescription = document.getElementById("modal-description");
+  const modalDate = document.getElementById("modal-date");
+  const modalTime = document.getElementById("modal-time");
+  const modalPhone = document.getElementById("modal-phone");
+  const modalPhoneText = document.getElementById("modal-phone-text");
+  const modalFacebook = document.getElementById("modal-facebook");
+  const modalMessenger = document.getElementById("modal-messenger");
+
+  let currentPlace = null;
+  let supabase = null;
+  let calendar = null;
+
+  // This function formats the date range for display in the modal.
+  function formatEventDate(start, end) {
+      if (!start) return 'Date not available';
+
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const startDate = new Date(start);
+
+      if (!end) {
+          return startDate.toLocaleDateString('en-US', options);
+      }
+
+      const endDate = new Date(end);
+      
+      // If the event is on the same day, just show one date.
+      if (startDate.toDateString() === endDate.toDateString()) {
+          return startDate.toLocaleDateString('en-US', options);
+      }
+      
+      // If the event spans different months, show both.
+      if (startDate.getMonth() !== endDate.getMonth()) {
+          return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+      }
+      
+      // If in the same month, format as "Month Day1–Day2, Year".
+      const startDay = startDate.getDate();
+      const endDay = endDate.getDate();
+      const month = startDate.toLocaleDateString('en-US', { month: 'long' });
+      const year = startDate.getFullYear();
+      
+      return `${month} ${startDay}–${endDay}, ${year}`;
+  }
+
+  // Initialize Supabase Client
+  const initializeSupabase = async () => {
+      try {
+          const response = await fetch('/api/config');
+          const config = await response.json();
+          supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+      } catch (error) {
+          console.error('Error initializing Supabase client:', error);
+      }
+  };
+
+  async function showModal(data) {
+    currentPlace = data; // Store current place
+    modalImage.src = data.image_url || 'images/default-event.jpg';
+    modalImage.alt = data.name;
+    modalName.textContent = data.name;
+    modalAddress.textContent = data.location || 'Address not available';
+    modalDescription.textContent = data.description;
+    
+    // Use the new date formatting function
+    modalDate.textContent = formatEventDate(data.start_date, data.end_date);
+    modalTime.textContent = 'Not specified'; // Time is not in the DB yet
+
+    const details = data.details || {};
+
+    const phone = details.phone || '';
+    if (phone) {
+        modalPhone.href = `tel:${phone.replace(/\s+/g, "")}`;
+        modalPhoneText.textContent = phone;
+        modalPhone.parentElement.style.display = 'inline-block';
+    } else {
+        modalPhone.parentElement.style.display = 'none';
+    }
+
+    const facebookUrl = details.facebook || '';
+    if (facebookUrl) {
+        modalFacebook.href = facebookUrl;
+        modalFacebook.style.display = 'inline-block';
+    } else {
+        modalFacebook.style.display = 'none';
+    }
+
+    const messengerUrl = details.messenger || '';
+    if (messengerUrl) {
+        modalMessenger.href = messengerUrl;
+        modalMessenger.style.display = 'inline-block';
+    } else {
+        modalMessenger.style.display = 'none';
+    }
+
+    modalOverlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+
+  function hideModal() {
+    modalOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  function closeModal() {
+      hideModal();
+      currentPlace = null;
+  }
+
+  function createEventCard(place) {
+    const card = document.createElement('div');
+    card.className = 'event-card';
+
+    // Store all place data in the dataset for the modal
+    card.dataset.place = JSON.stringify(place);
+    card.dataset.name = place.name; // For the query selector
+
+    card.innerHTML = `
+        <div class="card-image">
+            <img src="${place.image_url || 'images/default-event.jpg'}" alt="${place.name}" />
+        </div>
+        <div class="card-content">
+            <h3>${place.name}</h3>
+            <p>${place.location || 'Sorsogon, Philippines'}</p>
+        </div>
+    `;
+
+    card.addEventListener('click', () => showModal(place));
+    return card;
+  }
+
+  function loadEvents(eventsToShow) {
+    if (eventCardsContainer) {
+        eventCardsContainer.innerHTML = ''; // Clear existing cards
+        if (!eventsToShow || eventsToShow.length === 0) {
+            eventCardsContainer.innerHTML = '<p>No events found.</p>';
+            return;
+        }
+        eventsToShow.forEach(event => {
+            const card = createEventCard(event);
+            eventCardsContainer.appendChild(card);
+        });
+    }
+  }
+
+  // --- FullCalendar Implementation ---
+
+  // 1. Initialize FullCalendar with events from the database
+  function initializeCalendar(events) {
+    if (!calendarEl) return;
+
+    // Transform event data for FullCalendar
+    const calendarEvents = events.map(event => {
+      // FullCalendar's end date is exclusive, so we need to add one day if it exists
+      let endDate = event.end_date ? new Date(event.end_date) : null;
+      if (endDate) {
+          endDate.setDate(endDate.getDate() + 1);
+      }
+
+    return {
+      title: event.name,
+        start: event.start_date,
+        end: endDate ? endDate.toISOString().split('T')[0] : null, // Format as YYYY-MM-DD
+      extendedProps: {
+        eventId: event.id
+      }
+    };
+  });
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,listWeek'
+      },
+      events: calendarEvents,
+      dateClick: function(info) {
+        // When a date is clicked, filter the cards shown on the right
+        filterEventsByDate(info.date);
+        calendar.gotoDate(info.date); // Center the calendar on the clicked date
+      },
+      eventClick: function(info) {
+        // When an event on the calendar is clicked, find its data and show the modal
+        const eventId = info.event.extendedProps.eventId;
+        const eventData = events.find(e => e.id === eventId);
+        if (eventData) {
+          showModal(eventData);
+        }
+      }
+    });
+
+    calendar.render();
+
+    // Add event listener for the reset button
+    if (resetViewBtn) {
+        resetViewBtn.addEventListener('click', () => {
+            loadEvents(events); // Pass the original full list of events
+            if (calendar) {
+                calendar.today(); // Reset calendar to today's date
+            }
+        });
+    }
+  }
+  
+  // 2. Filter event cards based on the date clicked on the calendar
+  function filterEventsByDate(selectedDate) {
+    // This function now needs access to the full list of events.
+    // We'll handle this in the main fetch function.
+    console.warn("filterEventsByDate needs to be connected to the fetched events list.");
+  }
+
+  // Main function to fetch events and render everything
+  async function fetchAndRenderEvents() {
+    try {
+        const response = await fetch('/api/events');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const events = await response.json();
+
+        // 1. Load the event cards on the right side
+        loadEvents(events);
+        
+        // 2. Initialize the calendar with the same event data
+        initializeCalendar(events);
+        
+        // 3. Re-implement the filter function to use the fetched events
+        window.filterEventsByDate = (selectedDate) => {
+            const selectedDateTime = selectedDate.getTime();
+            const filteredEvents = events.filter(event => {
+                const startDate = new Date(event.start_date);
+                // Reset time to midnight for accurate date-only comparison
+                startDate.setUTCHours(0, 0, 0, 0);
+                
+                if (event.end_date) {
+                    const endDate = new Date(event.end_date);
+                    endDate.setUTCHours(0, 0, 0, 0);
+                    return selectedDateTime >= startDate.getTime() && selectedDateTime <= endDate.getTime();
+        } else {
+                    return selectedDateTime === startDate.getTime();
+        }
+    });
+    loadEvents(filteredEvents);
+        };
+        
+        // 4. Check for eventId in URL and open modal automatically
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get('eventId');
+        if (eventId) {
+            const eventToOpen = events.find(e => e.id === parseInt(eventId, 10));
+            if (eventToOpen) {
+                // Use a small timeout to ensure the page is fully rendered before opening the modal
+                setTimeout(() => showModal(eventToOpen), 100);
+            }
+        }
+        
+    } catch (error) {
+        console.error("Failed to fetch and render events:", error);
+        if (eventCardsContainer) {
+            eventCardsContainer.innerHTML = '<p class="error-message">Could not load events. Please try again later.</p>';
+        }
+    }
+  }
+
+  // --- Event Listeners ---
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener("click", closeModal);
+  }
+  if (modalOverlay) {
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) {
+        closeModal();
+      }
+    });
+  }
+
+  // Start the process
+  initializeSupabase();
+  fetchAndRenderEvents();
+}); 
