@@ -83,24 +83,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createEventItemCard(event) {
-        const card = document.createElement('div');
-        card.className = 'event-item-card';
+        const li = document.createElement('li');
+        li.className = 'event-item'; // Use the correct class for styling
+
         const eventDate = formatDateRange(event.start_date, event.end_date);
-        card.innerHTML = `
-            <div class="event-item-date">
-                <span class="month">${new Date(event.start_date).toLocaleString('en-US', { month: 'short' })}</span>
-                <span class="day">${new Date(event.start_date).getDate()}</span>
-            </div>
-            <div class="event-item-details">
-                <h4>${event.name}</h4>
-                <p><i class="far fa-calendar-alt"></i> ${eventDate}</p>
-                <p><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
-            </div>
-            <a href="events.html?eventId=${event.id}" class="event-item-link" aria-label="View details for ${event.name}">
-                <i class="fas fa-chevron-right"></i>
+
+        // This structure matches what the CSS file expects
+        li.innerHTML = `
+            <a href="events.html?eventId=${event.id}" class="event-link">
+                <div class="event-details">
+                    <h4>${event.name}</h4>
+                    <p><i class="fas fa-calendar-alt"></i> ${eventDate}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
+                </div>
             </a>
         `;
-        return card;
+        return li;
     }
 
     function formatDateRange(start, end) {
