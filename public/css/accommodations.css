@@ -213,12 +213,9 @@
   #cards-wrapper {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
-  .modal-content {
+  
+  #acc-modal .modal-header {
     flex-direction: column;
-  }
-  .modal-image {
-    flex: 0 0 auto;
-    height: 220px;
   }
 }
 @media (max-width: 640px) {
