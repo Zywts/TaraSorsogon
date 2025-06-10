@@ -389,7 +389,7 @@ app.get('/api/places/stays', async (req, res) => {
         const { data, error } = await supabase
             .from('places')
             .select('*')
-            .eq('type', 'stay');
+            .eq('type', 'accommodation');
 
         if (error) throw error;
         res.status(200).json(data);
