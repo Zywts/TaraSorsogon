@@ -520,82 +520,70 @@ app.delete('/api/events/:id', adminMiddleware, async (req, res) => {
 
 // Add a new attraction
 app.post('/api/attractions', adminMiddleware, async (req, res) => {
-    const { name, description, image_url, location, details } = req.body;
-
-    if (!name || !description || !image_url || !location) {
-        return res.status(400).json({ error: 'Missing required fields for attraction.' });
+    const { name, description, image_url, location, details, position } = req.body;
+    if (!name || !description || !location) {
+        return res.status(400).json({ error: 'Name, description, and location are required.' });
     }
-
     try {
-        const { data, error } = await supabaseAdmin
-            .from('places')
-            .insert([{ 
-                name, 
-                description, 
-                image_url, 
-                location, 
-                type: 'attraction',
-                details
-            }]);
-        
+        const { data, error } = await supabaseAdmin.from('places').insert([{ 
+            name, 
+            description, 
+            image_url, 
+            location, 
+            type: 'attraction',
+            details,
+            position: `POINT(${position.longitude} ${position.latitude})`
+        }]);
         if (error) throw error;
-        res.status(201).json({ message: 'Attraction added successfully.', data });
+        res.status(201).json({ message: 'Attraction added successfully.', data: data[0] });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to add attraction.' });
+        res.status(500).json({ error: `Failed to add attraction: ${error.message}` });
     }
 });
 
 // Add a new dining place
 app.post('/api/dining', adminMiddleware, async (req, res) => {
-    const { name, description, image_url, location, details } = req.body;
-
-    if (!name || !description || !image_url || !location) {
-        return res.status(400).json({ error: 'Missing required fields for dining place.' });
+    const { name, description, image_url, location, details, position } = req.body;
+    if (!name || !description || !location) {
+        return res.status(400).json({ error: 'Name, description, and location are required.' });
     }
-
     try {
-        const { data, error } = await supabaseAdmin
-            .from('places')
-            .insert([{ 
-                name, 
-                description, 
-                image_url, 
-                location, 
-                type: 'dining', 
-                details 
-            }]);
-        
+        const { data, error } = await supabaseAdmin.from('places').insert([{ 
+            name, 
+            description, 
+            image_url, 
+            location, 
+            type: 'dining',
+            details,
+            position: `POINT(${position.longitude} ${position.latitude})`
+        }]);
         if (error) throw error;
-        res.status(201).json({ message: 'Dining place added successfully.', data });
+        res.status(201).json({ message: 'Dining place added successfully.', data: data[0] });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to add dining place.' });
+        res.status(500).json({ error: `Failed to add dining place: ${error.message}` });
     }
 });
 
 // Add a new place to stay (replaces the old '/api/stays')
 app.post('/api/accommodations', adminMiddleware, async (req, res) => {
-    const { name, description, image_url, location, details } = req.body;
-
-    if (!name || !description || !image_url || !location) {
-        return res.status(400).json({ error: 'Missing required fields for place to stay.' });
+    const { name, description, image_url, location, details, position } = req.body;
+    if (!name || !description || !location) {
+        return res.status(400).json({ error: 'Name, description, and location are required.' });
     }
-
     try {
-        const { data, error } = await supabaseAdmin
-            .from('places')
-            .insert([{ 
-                name, 
-                description, 
-                image_url, 
-                location, 
-                type: 'accommodation', 
-                details 
-            }]);
-        
+        const { data, error } = await supabaseAdmin.from('places').insert([{ 
+            name, 
+            description, 
+            image_url, 
+            location, 
+            type: 'accommodation',
+            details,
+            position: `POINT(${position.longitude} ${position.latitude})`
+        }]);
         if (error) throw error;
-        res.status(201).json({ message: 'Place to stay added successfully.', data });
+        res.status(201).json({ message: 'Accommodation added successfully.', data: data[0] });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to add place to stay.' });
+        res.status(500).json({ error: `Failed to add accommodation: ${error.message}` });
     }
 });
 

@@ -263,51 +263,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const addDiningForm = document.getElementById('add-dining-form');
-    if (addDiningForm) {
-        addDiningForm.addEventListener('submit', (e) => {
+    // --- Form Submission Event Listeners ---
+    if (document.getElementById('add-dining-form')) {
+        document.getElementById('add-dining-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const form = e.target;
             const formData = {
-                name: form.elements['dining-name'].value,
-                description: form.elements['dining-description'].value,
-                image_url: form.elements['dining-image-url'].value,
-                location: form.elements['dining-location'].value,
+                name: document.getElementById('dining-name').value,
+                description: document.getElementById('dining-description').value,
+                image_url: document.getElementById('dining-image-url').value,
+                location: document.getElementById('dining-location').value,
+                type: 'dining',
                 details: {
-                    hours: form.elements['dining-hours'].value,
-                    best_seller: form.elements['dining-best-seller'].value,
-                    phone: form.elements['dining-phone'].value,
-                    facebook: form.elements['dining-facebook'].value,
-                    messenger: form.elements['dining-messenger'].value
+                    cuisine: document.getElementById('dining-cuisine').value,
+                    hours: document.getElementById('dining-hours').value,
+                    best_seller: document.getElementById('dining-best-seller').value,
+                    phone: document.getElementById('dining-phone').value,
+                    facebook: document.getElementById('dining-facebook').value,
+                    messenger: document.getElementById('dining-messenger').value
+                },
+                position: {
+                    latitude: parseFloat(document.getElementById('dining-latitude').value) || null,
+                    longitude: parseFloat(document.getElementById('dining-longitude').value) || null
                 }
             };
-            handleContentFormSubmit('/api/dining', formData, addDiningForm, 'dining');
+            handleContentFormSubmit('/api/dining', formData, document.getElementById('add-dining-form'), 'dining');
         });
     }
 
-    const addStayForm = document.getElementById('add-stay-form');
-    if (addStayForm) {
-        addStayForm.addEventListener('submit', (e) => {
+    if (document.getElementById('add-attraction-form')) {
+        document.getElementById('add-attraction-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = {
+                name: document.getElementById('attraction-name').value,
+                description: document.getElementById('attraction-description').value,
+                image_url: document.getElementById('attraction-image-url').value,
+                location: document.getElementById('attraction-location').value,
+                type: 'attraction',
+                details: {
+                    hours: document.getElementById('attraction-hours').value
+                },
+                position: {
+                    latitude: parseFloat(document.getElementById('attraction-latitude').value) || null,
+                    longitude: parseFloat(document.getElementById('attraction-longitude').value) || null
+                }
+            };
+            handleContentFormSubmit('/api/attractions', formData, document.getElementById('add-attraction-form'), 'attraction');
+        });
+    }
+
+    if (document.getElementById('add-stay-form')) {
+        document.getElementById('add-stay-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = {
                 name: document.getElementById('stay-name').value,
                 description: document.getElementById('stay-description').value,
                 image_url: document.getElementById('stay-image-url').value,
                 location: document.getElementById('stay-location').value,
+                type: 'accommodation',
                 details: {
                     hours: document.getElementById('stay-hours').value,
                     phone: document.getElementById('stay-phone').value,
-                    fb: document.getElementById('stay-facebook').value,
-                    msg: document.getElementById('stay-messenger').value
+                    facebook: document.getElementById('stay-facebook').value,
+                    messenger: document.getElementById('stay-messenger').value
+                },
+                position: {
+                    latitude: parseFloat(document.getElementById('stay-latitude').value) || null,
+                    longitude: parseFloat(document.getElementById('stay-longitude').value) || null
                 }
             };
-            handleContentFormSubmit('/api/accommodations', formData, addStayForm, 'stay');
+            handleContentFormSubmit('/api/accommodations', formData, document.getElementById('add-stay-form'), 'stay');
         });
     }
 
-    const addEventForm = document.getElementById('add-event-form');
-    if (addEventForm) {
-        addEventForm.addEventListener('submit', (e) => {
+    if (document.getElementById('add-event-form')) {
+        document.getElementById('add-event-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const form = e.target;
             const formData = {
