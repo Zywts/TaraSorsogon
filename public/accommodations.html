@@ -25,6 +25,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet" />
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -83,7 +85,6 @@
     <div class="modal-content">
       <span class="close-btn" id="close-review-modal">&times;</span>
       <h2>Submit a Review</h2>
-
       <form id="review-form">
         <div class="form-group">
           <label>Rating:</label>
@@ -94,28 +95,21 @@
             <i class="far fa-star" data-value="4"></i>
             <i class="far fa-star" data-value="5"></i>
           </div>
-          <input type="hidden" id="rating" name="rating" value="0" />
+          <input type="hidden" id="rating" name="rating" value="0">
         </div>
-
         <div class="form-group">
           <label for="visit-date">When did you go?</label>
-          <input type="date" id="visit-date" name="visit-date" required />
+          <input type="date" id="visit-date" name="visit-date" required>
         </div>
-
         <div class="form-group">
           <label for="review-title">Title of your review</label>
-          <input type="text" id="review-title" name="review-title" required />
+          <input type="text" id="review-title" name="review-title" required>
         </div>
-
         <div class="form-group">
           <label for="review-text">Your review</label>
           <textarea id="review-text" name="review-text" rows="5" required></textarea>
         </div>
-
-        <p id="review-login-message" style="display:none;color:red;">
-          You must be logged in to submit a review.
-        </p>
-
+        <p id="review-login-message" style="display: none; color: red;">You must be logged in to submit a review.</p>
         <button type="submit" class="btn">Submit Review</button>
       </form>
     </div>
