@@ -48,11 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     async function checkAdminRole(user) {
-        // In a real app, you would have a secure way to check roles,
-        // like using custom claims or a separate 'roles' table.
-        // For this project, we'll hardcode the admin User ID for simplicity.
-        const ADMIN_USER_ID = '2737754d-a9d2-4545-979d-3f10113f6311'; // Corresponds to tara.sorsogon@gmail.com
-        return user.id === ADMIN_USER_ID;
+        // Check the user's role from the metadata populated at signup/login.
+        // The server-side adminMiddleware provides the definitive server-side check.
+        // This client-side check is for UI purposes.
+        return user && user.user_metadata && user.user_metadata.role === 'admin';
     }
 
     // Sidebar navigation
