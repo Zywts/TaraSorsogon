@@ -1,192 +1,237 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Supabase client setup
-    const SUPABASE_URL = 'https://drzakkxfdfxateyevspp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRya2FreHhmZGZ4YXRleWV2c3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMyNzQ3MDAsImV4cCI6MjAyODg1MDcwMH0.VFRa2Mh9b-J1O0w_1yJtV2p2W-mMyBf5x4_0zJ22GgU';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const navLinks = document.querySelectorAll('.nav-link[data-target]');
+    const views = document.querySelectorAll('.view');
+    const reviewsTableBody = document.getElementById('reviews-table-body');
+    const usersTableContainer = document.getElementById('users-table-container');
+    const token = localStorage.getItem('accessToken');
 
-    const adminWrapper = document.querySelector('.admin-wrapper');
-
-    // Hide everything by default until user is verified
-    adminWrapper.style.display = 'none';
-
-    // Navigation links
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    const contentSections = document.querySelectorAll('.content-section');
-    const tabLinks = document.querySelectorAll('.content-tabs .tab-link');
-    const tabContents = document.querySelectorAll('.tab-content');
-    const addEventForm = document.getElementById('add-event-form');
-    const logoutBtn = document.getElementById('logout-btn');
-    const attractionsTableBody = document.getElementById('attractions-table-body');
-
-
-    // Check user auth state and role
-    const checkUser = async () => {
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-            console.error("Error getting session:", error);
-            window.location.href = '/';
-            return;
-        }
-
-        if (!session) {
-            window.location.href = '/'; // Redirect to home if not logged in
-            return;
-        }
-
-        // Check for admin role
-        const isAdmin = await checkAdminRole(session.user);
-        if (!isAdmin) {
-            alert("Access Denied: You are not an administrator.");
-            window.location.href = '/';
-        } else {
-             // Show admin content if authorized
-            adminWrapper.style.display = 'flex';
-            document.body.classList.add('admin-body');
-            // populatePlacesDropdown();
-        }
-    };
-    
-    async function checkAdminRole(user) {
-        if (!user) {
-            console.log("No user object provided to checkAdminRole.");
-            return false;
-        }
-
-        // This client-side check is for UI purposes. The definitive check is the server-side middleware on API routes.
-        // We fetch the user's profile directly from the 'users' table to ensure it's the
-        // authoritative source for the role, not the potentially stale user_metadata.
-        try {
-            const { data: userProfile, error } = await supabase
-                .from('users')
-                .select('role')
-                .eq('id', user.id)
-                .single();
-
-            if (error) {
-                console.error("Error fetching user profile for role check:", error.message);
-                // This can happen if RLS policies prevent the user from reading their own profile.
-                alert("Could not verify user role. Please ensure you are logged in and have permissions to view your profile. Check the developer console for details.");
-                return false;
-            }
-            
-            // For debugging: show what the database returned.
-            console.log("User profile from DB for role check:", userProfile);
-            
-            return userProfile && userProfile.role === 'admin';
-
-        } catch (e) {
-            console.error("An unexpected error occurred during role check:", e);
-            return false;
-        }
+    if (!token) {
+        window.location.href = '/'; // Redirect to home if not logged in
+        alert('You must be an admin to view this page.');
+        return;
     }
 
-    // Sidebar navigation
+    // Navigation logic
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            if(link.id === 'logout-btn') return;
+            const target = link.getAttribute('data-target');
 
-            const targetId = link.getAttribute('data-target');
-            
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-            
-            contentSections.forEach(section => {
-                section.classList.remove('active');
-                if (section.id === targetId) {
-                    section.classList.add('active');
-                }
-            });
-        });
-    });
-
-    // Content management tabs
-    tabLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('data-tab');
-
-            tabLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-                if (content.id === targetId) {
-                    content.classList.add('active');
-                }
+            views.forEach(view => {
+                view.classList.toggle('active', view.id === target);
             });
 
-            // Load content when tab is clicked
-            if (targetId === 'attractions') {
-                loadAttractions();
+            navLinks.forEach(navLink => {
+                navLink.classList.toggle('active', navLink === link);
+            });
+
+            if (target === 'review-management-view') {
+                loadReviews();
+            } else if (target === 'user-management-view') {
+                loadUsers();
             }
         });
     });
 
-    // Load attractions into the table
-    async function loadAttractions() {
-        attractionsTableBody.innerHTML = '<tr><td colspan="3">Loading...</td></tr>';
-        
+    // --- Review Management ---
+    const loadReviews = async () => {
+        reviewsTableBody.innerHTML = '<tr><td colspan="6">Loading reviews...</td></tr>';
         try {
-            const response = await fetch('/api/places/attractions');
-            if (!response.ok) throw new Error('Failed to fetch attractions.');
-            
-            const attractions = await response.json();
+            const response = await fetch('/api/admin/reviews', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch reviews.');
 
-            if (attractions.length === 0) {
-                attractionsTableBody.innerHTML = '<tr><td colspan="3">No attractions found.</td></tr>';
-                return;
-            }
+            const reviews = await response.json();
+            renderReviews(reviews);
+        } catch (error) {
+            reviewsTableBody.innerHTML = `<tr><td colspan="6" class="error">${error.message}</td></tr>`;
+        }
+    };
 
-            attractionsTableBody.innerHTML = ''; // Clear loading message
-            attractions.forEach(attraction => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${attraction.name}</td>
-                    <td>${attraction.location}</td>
-                    <td>
-                        <button class="btn-delete" data-id="${attraction.id}" data-name="${attraction.name}">Delete</button>
-                    </td>
-                `;
-                attractionsTableBody.appendChild(row);
+    const renderReviews = (reviews) => {
+        reviewsTableBody.innerHTML = '';
+        if (reviews.length === 0) {
+            reviewsTableBody.innerHTML = '<tr><td colspan="6">No reviews found.</td></tr>';
+            return;
+        }
+
+        reviews.forEach(review => {
+            const row = document.createElement('tr');
+            const ratingStars = '⭐'.repeat(review.rating);
+            row.innerHTML = `
+                <td>${review.place ? review.place.name : 'N/A'}</td>
+                <td>${review.user ? review.user.username : 'Anonymous'}</td>
+                <td class="rating">${ratingStars} (${review.rating})</td>
+                <td>${review.title}</td>
+                <td>${new Date(review.created_at).toLocaleDateString()}</td>
+                <td><button class="delete-btn" data-id="${review.id}">Delete</button></td>
+            `;
+            reviewsTableBody.appendChild(row);
+        });
+    };
+
+    // --- User Management ---
+    const loadUsers = async () => {
+        usersTableContainer.innerHTML = '<p>Loading users...</p>';
+        try {
+            const response = await fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch users.');
+            const users = await response.json();
+            renderUsers(users);
+        } catch (error) {
+            usersTableContainer.innerHTML = `<p class="error">${error.message}</p>`;
+        }
+    };
+
+    const renderUsers = (users) => {
+        usersTableContainer.innerHTML = '';
+        if (users.length === 0) {
+            usersTableContainer.innerHTML = '<p>No users found.</p>';
+            return;
+        }
+        const table = document.createElement('table');
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined On</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${users.map(user => `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        `;
+        usersTableContainer.appendChild(table);
+    };
+
+    // --- Content Management ---
+    const addDiningFormContainer = document.getElementById('add-dining-form-container');
+    const addAttractionFormContainer = document.getElementById('add-attraction-form-container');
+    const addStayFormContainer = document.getElementById('add-stay-form-container');
+
+    window.showAddForm = (type) => {
+        // Hide all forms first
+        addDiningFormContainer.style.display = 'none';
+        addAttractionFormContainer.style.display = 'none';
+        addStayFormContainer.style.display = 'none';
+        
+        if (type === 'dining') {
+            addDiningFormContainer.style.display = 'block';
+        } else if (type === 'attraction') {
+            addAttractionFormContainer.style.display = 'block';
+        } else if (type === 'stay') {
+            addStayFormContainer.style.display = 'block';
+        }
+    };
+
+    window.hideAddForm = (type) => {
+        if (type === 'dining') {
+            addDiningFormContainer.style.display = 'none';
+        } else if (type === 'attraction') {
+            addAttractionFormContainer.style.display = 'none';
+        } else if (type === 'stay') {
+            addStayFormContainer.style.display = 'none';
+        }
+    };
+    
+    // --- Form Submission Handlers ---
+    const handleContentFormSubmit = async (endpoint, formData, formElement, formType) => {
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
             });
 
+            if (!response.ok) {
+                const result = await response.json();
+                throw new Error(result.error || `Failed to add ${formType}.`);
+            }
+            alert(`${formType.charAt(0).toUpperCase() + formType.slice(1)} added successfully!`);
+            formElement.reset();
+            window.hideAddForm(formType);
         } catch (error) {
-            attractionsTableBody.innerHTML = `<tr><td colspan="3" class="error">${error.message}</td></tr>`;
+            console.error(`Error adding ${formType}:`, error);
+            alert(`Error: ${error.message}`);
         }
-    }
+    };
 
-    // Handle delete button clicks using event delegation
-    document.querySelector('.main-content').addEventListener('click', async (e) => {
-        if (e.target.matches('.btn-delete')) {
-            const placeId = e.target.dataset.id;
-            const placeName = e.target.dataset.name;
+    document.getElementById('add-dining-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+            name: form.elements['dining-name'].value,
+            description: form.elements['dining-description'].value,
+            image_url: form.elements['dining-image-url'].value,
+            location: form.elements['dining-location'].value,
+            details: {
+                hours: form.elements['dining-hours'].value,
+                best_seller: form.elements['dining-best-seller'].value,
+                phone: form.elements['dining-phone'].value,
+                facebook: form.elements['dining-facebook'].value,
+                messenger: form.elements['dining-messenger'].value
+            }
+        };
+        handleContentFormSubmit('/api/dining', formData, form, 'dining');
+    });
 
-            if (confirm(`Are you sure you want to delete "${placeName}"?`)) {
-                const { data: { session } } = await supabase.auth.getSession();
-                 if (!session) {
-                    alert('Authentication error. Please log in again.');
-                    return;
-                }
+    document.getElementById('add-attraction-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+            name: form.elements['attraction-name'].value,
+            description: form.elements['attraction-description'].value,
+            image_url: form.elements['attraction-image-url'].value,
+            location: form.elements['attraction-location'].value,
+            details: {
+                hours: form.elements['attraction-hours'].value
+            }
+        };
+        handleContentFormSubmit('/api/attractions', formData, form, 'attraction');
+    });
 
+    document.getElementById('add-stay-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+            name: form.elements['stay-name'].value,
+            description: form.elements['stay-description'].value,
+            image_url: form.elements['stay-image-url'].value,
+            location: form.elements['stay-location'].value,
+            category: form.elements['stay-category'].value
+        };
+        handleContentFormSubmit('/api/stays', formData, form, 'stay');
+    });
+
+    // Event delegation for delete buttons
+    reviewsTableBody.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('delete-btn')) {
+            const reviewId = e.target.dataset.id;
+            if (confirm('Are you sure you want to delete this review?')) {
                 try {
-                    const response = await fetch(`/api/places/${placeId}`, {
+                    const response = await fetch(`/api/admin/reviews/${reviewId}`, {
                         method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${session.accessToken}`
-                        }
+                        headers: { 'Authorization': `Bearer ${token}` }
                     });
+                    if (!response.ok) throw new Error('Failed to delete review.');
 
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Failed to delete place.');
-                    }
-
-                    alert(`"${placeName}" was deleted successfully.`);
-                    loadAttractions(); // Refresh the table
-
+                    alert('Review deleted successfully.');
+                    loadReviews(); // Refresh the list
                 } catch (error) {
                     alert(`Error: ${error.message}`);
                 }
@@ -194,88 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Populate Places Dropdown
-    async function populatePlacesDropdown() {
-        const { data: places, error } = await supabase.from('places').select('id, name');
-        if (error) {
-            console.error('Error fetching places:', error);
-            return;
-        }
-        const select = document.getElementById('event-place');
-        places.forEach(place => {
-            const option = document.createElement('option');
-            option.value = place.id;
-            option.textContent = place.name;
-            select.appendChild(option);
-        });
-    }
-
-    // Handle Add Event form submission
-    addEventForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formMsg = document.getElementById('add-event-message');
-
-        const eventData = {
-            name: document.getElementById('event-name').value.trim(),
-            description: document.getElementById('event-description').value.trim(),
-            start_date: document.getElementById('event-start-date').value,
-            end_date: document.getElementById('event-end-date').value || null,
-            location: document.getElementById('event-location').value.trim(),
-            place_id: document.getElementById('event-place').value || null,
-            image_url: document.getElementById('event-image-url').value.trim() || null,
-        };
-
-        if (!eventData.name || !eventData.description || !eventData.start_date || !eventData.location) {
-             formMsg.textContent = 'Please fill out all required fields.';
-             formMsg.className = 'form-message error';
-             return;
-        }
-
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            formMsg.textContent = 'Authentication error. Please log in again.';
-            formMsg.className = 'form-message error';
-            return;
-        }
-
-        try {
-            const response = await fetch('/api/events', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session.accessToken}`
-                },
-                body: JSON.stringify(eventData)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || 'An unknown error occurred.');
-            }
-
-            formMsg.textContent = 'Event added successfully!';
-            formMsg.className = 'form-message success';
-            addEventForm.reset();
-            // Optionally, refresh an events list or navigate away
-        } catch (error) {
-            formMsg.textContent = `Error: ${error.message}`;
-            formMsg.className = 'form-message error';
-        }
-    });
-
-    // Logout
-    logoutBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error("Error signing out:", error);
-            alert("Failed to sign out.");
-        } else {
-            window.location.href = '/';
-        }
-    });
-
-    // Initial check to secure the page
-    checkUser();
+    // Initial View Logic
+    // Activate the Review Management view by default as it's the first tab
+    loadReviews();
+    // Pre-load users in the background so the tab is ready when clicked
+    loadUsers();
 }); 

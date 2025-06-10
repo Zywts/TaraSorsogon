@@ -5,149 +5,182 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Tara! Sorsogon</title>
     <link rel="icon" href="images/head-logo.png" type="image/png">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-    <div class="admin-wrapper">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="images/logo.png" alt="Logo" class="logo">
-                <h2>Admin</h2>
-            </div>
-            <nav class="sidebar-nav">
-                <ul>
-                    <li><a href="#" class="nav-link active" data-target="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="#" class="nav-link" data-target="content-management"><i class="fas fa-edit"></i> Content Management</a></li>
-                    <li><a href="#" class="nav-link" data-target="users"><i class="fas fa-users"></i> Users</a></li>
-                    <li><a href="#" class="nav-link" data-target="settings"><i class="fas fa-cog"></i> Settings</a></li>
-                    <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="main-header">
-                <h1>Welcome, Admin!</h1>
-                <div class="header-icons">
-                    <i class="fas fa-bell"></i>
-                    <i class="fas fa-user-circle"></i>
-                </div>
-            </header>
-
-            <!-- Dashboard View -->
-            <section id="dashboard" class="content-section active">
-                <h2>Dashboard Overview</h2>
-                <div class="stats-cards">
-                    <div class="card">
-                        <h3>Total Visits</h3>
-                        <p>1,234</p>
-                    </div>
-                    <div class="card">
-                        <h3>New Users</h3>
-                        <p>56</p>
-                    </div>
-                    <div class="card">
-                        <h3>Upcoming Events</h3>
-                        <p>3</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Content Management View -->
-            <section id="content-management" class="content-section" style="display: none;">
-                <h2>Content Management</h2>
-                <div class="content-tabs">
-                    <button class="tab-link active" data-tab="events">Events</button>
-                    <button class="tab-link" data-tab="attractions">Attractions</button>
-                    <button class="tab-link" data-tab="dining">Dining</button>
-                    <button class="tab-link" data-tab="accommodations">Accommodations</button>
-                </div>
-
-                <!-- Events Tab -->
-                <div id="events" class="tab-content active">
-                    <h3>Add New Event</h3>
-                    <form id="add-event-form" class="admin-form">
-                        <div class="form-group">
-                            <label for="event-name">Event Name</label>
-                            <input type="text" id="event-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="event-description">Description</label>
-                            <textarea id="event-description" rows="4" required></textarea>
-                        </div>
-                         <div class="form-group-row">
-                            <div class="form-group">
-                                <label for="event-start-date">Start Date</label>
-                                <input type="date" id="event-start-date" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="event-end-date">End Date</label>
-                                <input type="date" id="event-end-date">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="event-location">Location</label>
-                            <input type="text" id="event-location" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="event-place">Related Place (Optional)</label>
-                            <select id="event-place">
-                                <option value="">None</option>
-                                <!-- Options will be populated from the database -->
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="event-image-url">Image URL</label>
-                            <input type="url" id="event-image-url" placeholder="https://example.com/image.png">
-                        </div>
-                        <button type="submit" class="btn">Add Event</button>
-                        <p id="add-event-message" class="form-message"></p>
-                    </form>
-                </div>
-                <!-- Other tabs would go here -->
-                 <div id="attractions" class="tab-content">
-                    <h3>Manage Attractions</h3>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Attraction Name</th>
-                                    <th>Location</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="attractions-table-body">
-                                <!-- Attractions will be loaded here dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                 <div id="dining" class="tab-content" style="display: none;">
-                    <h3>Dining Management (Coming Soon)</h3>
-                </div>
-                 <div id="accommodations" class="tab-content" style="display: none;">
-                    <h3>Accommodations Management (Coming Soon)</h3>
-                </div>
-            </section>
-            
-             <section id="users" class="content-section" style="display: none;">
-                <h2>User Management (Coming Soon)</h2>
-            </section>
-
-             <section id="settings" class="content-section" style="display: none;">
-                <h2>Settings (Coming Soon)</h2>
-            </section>
-
-        </main>
+    <div class="sidebar">
+        <h2>Admin</h2>
+        <a href="#" class="nav-link active" data-target="review-management-view"><i class="fas fa-comments"></i> Review Management</a>
+        <a href="#" class="nav-link" data-target="user-management-view"><i class="fas fa-users"></i> User Management</a>
+        <a href="#" class="nav-link" data-target="content-management-view"><i class="fas fa-edit"></i> Content Management</a>
+        <a href="/" class="nav-link back-to-site"><i class="fas fa-arrow-left"></i> Back to Main Site</a>
     </div>
+
+    <div class="main-content">
+        <header>
+            <h1>Admin Dashboard</h1>
+        </header>
+
+        <!-- Review Management View -->
+        <div id="review-management-view" class="view active">
+            <h2>Review Management</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Place Name</th>
+                            <th>User</th>
+                            <th>Rating</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviews-table-body">
+                        <!-- Review rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- User Management View -->
+        <div id="user-management-view" class="view">
+            <h2>User Management</h2>
+            <div id="users-table-container">
+                <p>Loading users...</p>
+            </div>
+        </div>
+
+        <!-- Content Management View -->
+        <div id="content-management-view" class="view">
+            <h2>Content Management</h2>
+            <div class="content-buttons">
+                <button onclick="showAddForm('attraction')">Add Attraction</button>
+                <button onclick="showAddForm('dining')">Add Place to Dine</button>
+                <button onclick="showAddForm('stay')">Add Place to Stay</button>
+            </div>
+
+            <!-- Form for Adding a Dining Place (hidden by default) -->
+            <div id="add-dining-form-container" class="form-container" style="display: none;">
+                <h3>Add New Place to Dine</h3>
+                <form id="add-dining-form">
+                    <div class="form-group">
+                        <label for="dining-name">Name</label>
+                        <input type="text" id="dining-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-description">Description</label>
+                        <textarea id="dining-description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-image-url">Image URL</label>
+                        <input type="text" id="dining-image-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-location">Location / Address</label>
+                        <input type="text" id="dining-location" required>
+                    </div>
+                    <h4>Details</h4>
+                    <div class="form-group">
+                        <label for="dining-cuisine">Cuisine Type</label>
+                        <input type="text" id="dining-cuisine">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-hours">Operating Hours (e.g., 9:00 AM – 10:00 PM)</label>
+                        <input type="text" id="dining-hours">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-best-seller">Best Sellers</label>
+                        <input type="text" id="dining-best-seller">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-phone">Phone Number</label>
+                        <input type="text" id="dining-phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-facebook">Facebook URL</label>
+                        <input type="url" id="dining-facebook">
+                    </div>
+                    <div class="form-group">
+                        <label for="dining-messenger">Messenger URL</label>
+                        <input type="url" id="dining-messenger">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-approve">Save Place</button>
+                        <button type="button" onclick="hideAddForm('dining')" class="btn-reject">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Form for Adding an Attraction (hidden by default) -->
+            <div id="add-attraction-form-container" class="form-container" style="display: none;">
+                <h3>Add New Attraction</h3>
+                <form id="add-attraction-form">
+                    <div class="form-group">
+                        <label for="attraction-name">Name</label>
+                        <input type="text" id="attraction-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="attraction-description">Description</label>
+                        <textarea id="attraction-description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="attraction-image-url">Image URL</label>
+                        <input type="text" id="attraction-image-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="attraction-location">Location / Address</label>
+                        <input type="text" id="attraction-location" required>
+                    </div>
+                    <h4>Details</h4>
+                    <div class="form-group">
+                        <label for="attraction-hours">Operating Hours</label>
+                        <input type="text" id="attraction-hours">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-approve">Save Attraction</button>
+                        <button type="button" onclick="hideAddForm('attraction')" class="btn-reject">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Form for Adding a Place to Stay (hidden by default) -->
+            <div id="add-stay-form-container" class="form-container" style="display: none;">
+                <h3>Add New Place to Stay</h3>
+                <form id="add-stay-form">
+                    <div class="form-group">
+                        <label for="stay-name">Name</label>
+                        <input type="text" id="stay-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stay-description">Description</label>
+                        <textarea id="stay-description" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="stay-image-url">Image URL</label>
+                        <input type="text" id="stay-image-url" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stay-location">Location / Address</label>
+                        <input type="text" id="stay-location" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="stay-category">Category (e.g., Hotel, Resort, Inn)</label>
+                        <input type="text" id="stay-category" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-approve">Save Place to Stay</button>
+                        <button type="button" onclick="hideAddForm('stay')" class="btn-reject">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="js/admin.js"></script>
 </body>
 </html> 

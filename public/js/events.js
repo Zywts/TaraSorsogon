@@ -178,16 +178,16 @@ document.addEventListener("DOMContentLoaded", () => {
         endDateString = endDate.toISOString().slice(0, 10);
       }
 
-      return {
-        title: event.name,
+    return {
+      title: event.name,
         start: startDateString,
         end: endDateString,
         allDay: true,
-        extendedProps: {
-          eventId: event.id
-        }
-      };
-    });
+      extendedProps: {
+        eventId: event.id
+      }
+    };
+  });
 
     calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth',
@@ -248,11 +248,11 @@ document.addEventListener("DOMContentLoaded", () => {
              const eventEndDateString = event.end_date.slice(0, 10);
              // Compare strings directly. e.g. "2025-06-05" is >= "2025-06-01"
              return selectedDateString >= eventStartDateString && selectedDateString <= eventEndDateString;
-         } else {
+        } else {
              return selectedDateString === eventStartDateString;
-         }
-     });
-     loadEvents(filteredEvents);
+        }
+    });
+    loadEvents(filteredEvents);
   }
 
   // --- Calendar Size Toggle ---

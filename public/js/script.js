@@ -106,10 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 4. Initializes the flatpickr calendar
     function initializeHomepageCalendar(allEvents) {
-        const calendarElement = document.getElementById('calendar');
-        const homeResetViewBtn = document.getElementById('home-reset-view-btn');
+    const calendarElement = document.getElementById('calendar');
+    const homeResetViewBtn = document.getElementById('home-reset-view-btn');
         if (!calendarElement || !homeResetViewBtn) return;
-        
+
         const calendarInstance = flatpickr(calendarElement, {
             inline: true,
             mode: 'single',
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (hasEvent) {
-                    dayElem.classList.add("event-day");
+                            dayElem.classList.add("event-day");
                 }
             },
             onChange: function(selectedDates, dateStr, instance) {
@@ -150,18 +150,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 
                 displayEventList(eventsForDate);
-                homeResetViewBtn.style.display = 'block';
+                    homeResetViewBtn.style.display = 'block';
             }
         });
 
         // Reset button logic
-        homeResetViewBtn.addEventListener('click', () => {
-            calendarInstance.clear();
+            homeResetViewBtn.addEventListener('click', () => {
+                calendarInstance.clear();
             const upcomingEvents = getUpcomingEvents(allEvents);
             displayEventList(upcomingEvents.slice(0, 3));
-            homeResetViewBtn.style.display = 'none';
-        });
-    }
+                homeResetViewBtn.style.display = 'none';
+            });
+        }
 
     function createEventItemCard(event) {
         const li = document.createElement('li');
