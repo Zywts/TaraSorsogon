@@ -237,6 +237,22 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
+// Get all accommodations
+app.get('/api/accommodations', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('places')
+            .select('*')
+            .eq('type', 'accommodation')
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch accommodations.' });
+    }
+});
+
 // Get all places for admin forms
 app.get('/api/places', adminMiddleware, async (req, res) => {
     try {
