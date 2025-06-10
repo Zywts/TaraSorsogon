@@ -237,6 +237,46 @@ app.get('/api/events', async (req, res) => {
     }
 });
 
+// Get all places for admin forms
+app.get('/api/places', adminMiddleware, async (req, res) => {
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('places')
+            .select('id, name')
+            .order('name', { ascending: true });
+        
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch places.' });
+    }
+});
+
+// Add a new event
+app.post('/api/events', adminMiddleware, async (req, res) => {
+    const { name, description, start_date, place_id, image_url } = req.body;
+    const user_id = req.user.id; 
+
+    if (!name || !description || !start_date || !place_id || !image_url) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('events')
+            .insert([{ name, description, start_date, place_id, user_id, image_url }]);
+
+        if (error) {
+            console.error('Error inserting event:', error);
+            throw error;
+        }
+        
+        res.status(201).json({ message: 'Event added successfully!', event: data });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to add event.' });
+    }
+});
+
 // --- ADMIN ROUTES ---
 
 // Get all reviews for admin
@@ -248,9 +288,12 @@ app.get('/api/admin/reviews', adminMiddleware, async (req, res) => {
                 id,
                 rating,
                 title,
+                comment,
                 created_at,
-                place:places (name),
-                user:users (username)
+                place_id,
+                user_id,
+                places ( name ),
+                users ( username )
             `)
             .order('created_at', { ascending: false });
 
@@ -484,6 +527,35 @@ app.post('/api/stays', adminMiddleware, async (req, res) => {
         res.status(500).json({ error: 'Failed to add place to stay.' });
     }
 });
+
+// Based on the JS, these endpoints seem to be missing. I'll add them.
+const placeApiEndpoint = (type) => async (req, res) => {
+    const { name, description, image_url, location, details, category } = req.body;
+
+    if (!name || !description || !image_url || !location) {
+        return res.status(400).json({ error: 'Name, description, image_url, and location are required.' });
+    }
+
+    try {
+        const insertData = { name, description, image_url, location, type };
+        if (details) insertData.details = details;
+        if (category) insertData.category = category;
+
+        const { data, error } = await supabaseAdmin
+            .from('places')
+            .insert([insertData])
+            .select();
+
+        if (error) throw error;
+        res.status(201).json({ message: `${type} added successfully!`, place: data });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to add ${type}. Details: ${error.message}` });
+    }
+};
+
+app.post('/api/dining', adminMiddleware, placeApiEndpoint('Dining'));
+app.post('/api/attractions', adminMiddleware, placeApiEndpoint('Attraction'));
+app.post('/api/stays', adminMiddleware, placeApiEndpoint('Stay'));
 
 // Start the server
 app.listen(port, () => {

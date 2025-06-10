@@ -120,12 +120,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const addDiningFormContainer = document.getElementById('add-dining-form-container');
     const addAttractionFormContainer = document.getElementById('add-attraction-form-container');
     const addStayFormContainer = document.getElementById('add-stay-form-container');
+    const addEventFormContainer = document.getElementById('add-event-form-container');
+
+    const loadPlaces = async () => {
+        const selectElement = document.getElementById('event-place');
+        selectElement.innerHTML = '<option value="">Loading places...</option>';
+        try {
+            const response = await fetch('/api/places', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch places.');
+
+            const places = await response.json();
+            
+            selectElement.innerHTML = '<option value="">Select a place</option>';
+            if (places.length > 0) {
+                places.forEach(place => {
+                    const option = document.createElement('option');
+                    option.value = place.id;
+                    option.textContent = place.name;
+                    selectElement.appendChild(option);
+                });
+            } else {
+                 selectElement.innerHTML = '<option value="">No places found. Add one first!</option>';
+            }
+        } catch (error) {
+            console.error('Error loading places:', error);
+            selectElement.innerHTML = `<option value="">Error loading places</option>`;
+        }
+    };
 
     window.showAddForm = (type) => {
         // Hide all forms first
         addDiningFormContainer.style.display = 'none';
         addAttractionFormContainer.style.display = 'none';
         addStayFormContainer.style.display = 'none';
+        addEventFormContainer.style.display = 'none';
         
         if (type === 'dining') {
             addDiningFormContainer.style.display = 'block';
@@ -133,6 +163,9 @@ document.addEventListener('DOMContentLoaded', () => {
             addAttractionFormContainer.style.display = 'block';
         } else if (type === 'stay') {
             addStayFormContainer.style.display = 'block';
+        } else if (type === 'event') {
+            addEventFormContainer.style.display = 'block';
+            loadPlaces(); // Load places when the event form is shown
         }
     };
 
@@ -143,6 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
             addAttractionFormContainer.style.display = 'none';
         } else if (type === 'stay') {
             addStayFormContainer.style.display = 'none';
+        } else if (type === 'event') {
+            addEventFormContainer.style.display = 'none';
         }
     };
     
@@ -216,6 +251,19 @@ document.addEventListener('DOMContentLoaded', () => {
             category: form.elements['stay-category'].value
         };
         handleContentFormSubmit('/api/stays', formData, form, 'stay');
+    });
+
+    document.getElementById('add-event-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = {
+            name: form.elements['event-name'].value,
+            description: form.elements['event-description'].value,
+            start_date: form.elements['event-start-date'].value,
+            image_url: form.elements['event-image-url'].value,
+            place_id: form.elements['event-place'].value
+        };
+        handleContentFormSubmit('/api/events', formData, form, 'event');
     });
 
     // Event delegation for delete buttons
