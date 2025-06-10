@@ -34,8 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
         revealOnScroll(); // Initial check
     }
 
-    // Dynamic Event Loading for Homepage
-    async function loadUpcomingEvents() {
+    // --- Dynamic Event Loading & Calendar for Homepage ---
+
+    // 1. Main function to fetch data and initialize components
+    async function initializeHomepageEvents() {
         const eventsListContainer = document.querySelector('.events-list');
         if (!eventsListContainer) {
             console.warn('Events list container not found on this page.');
@@ -44,42 +46,121 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch('/api/events');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
             const allEvents = await response.json();
 
-            const now = new Date();
-            const upcomingEvents = allEvents.filter(event => {
-                const eventDate = new Date(event.end_date || event.start_date);
-                return eventDate >= now;
-            }).sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+            // Initial display: show the top 3 upcoming events
+            const upcomingEvents = getUpcomingEvents(allEvents);
+            displayEventList(upcomingEvents.slice(0, 3));
 
-            const eventsToShow = upcomingEvents.slice(0, 3);
-
-            const existingEvents = eventsListContainer.querySelectorAll('.event-item-card, .no-events-message');
-            existingEvents.forEach(el => el.remove());
-
-            if (eventsToShow.length === 0) {
-                const noEventsMessage = document.createElement('p');
-                noEventsMessage.className = 'no-events-message';
-                noEventsMessage.textContent = 'No upcoming events at the moment. Please check back later!';
-                eventsListContainer.appendChild(noEventsMessage);
-                return;
-            }
-
-            eventsToShow.forEach(event => {
-                const eventCard = createEventItemCard(event);
-                eventsListContainer.appendChild(eventCard);
-            });
+            // Initialize the interactive calendar with all events
+            initializeHomepageCalendar(allEvents);
 
         } catch (error) {
             console.error('Failed to load upcoming events:', error);
             const errorMessage = document.createElement('p');
             errorMessage.className = 'no-events-message';
             errorMessage.textContent = 'Could not load events.';
-            eventsListContainer.appendChild(errorMessage);
+            if(eventsListContainer.querySelector('h3')) {
+                 eventsListContainer.querySelector('h3').insertAdjacentElement('afterend', errorMessage);
+            }
         }
+    }
+
+    // 2. Helper to filter and sort upcoming events
+    function getUpcomingEvents(allEvents) {
+        const now = new Date();
+        now.setHours(0,0,0,0); // Compare against the start of today
+        return allEvents
+            .filter(event => {
+                const eventDate = new Date(event.end_date || event.start_date);
+                return eventDate >= now;
+            })
+            .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+    }
+
+    // 3. Renders a list of events to the DOM
+    function displayEventList(eventsToDisplay) {
+        const eventsListContainer = document.querySelector('#events-list-ul');
+        if (!eventsListContainer) return;
+
+        // Clear only the event items, not the "Upcoming Events" title
+        const existingItems = eventsListContainer.querySelectorAll('.event-item, .no-events-message');
+        existingItems.forEach(el => el.remove());
+
+        if (eventsToDisplay.length === 0) {
+            const noEventsMessage = document.createElement('p');
+            noEventsMessage.className = 'no-events-message';
+            noEventsMessage.style.padding = '1rem';
+            noEventsMessage.textContent = 'No events found for this date.';
+            eventsListContainer.appendChild(noEventsMessage);
+            return;
+        }
+
+        eventsToDisplay.forEach(event => {
+            const eventCard = createEventItemCard(event);
+            eventsListContainer.appendChild(eventCard);
+        });
+    }
+    
+    // 4. Initializes the flatpickr calendar
+    function initializeHomepageCalendar(allEvents) {
+        const calendarElement = document.getElementById('calendar');
+        const homeResetViewBtn = document.getElementById('home-reset-view-btn');
+        if (!calendarElement || !homeResetViewBtn) return;
+        
+        const calendarInstance = flatpickr(calendarElement, {
+            inline: true,
+            mode: 'single',
+            dateFormat: 'Y-m-d',
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                const currentDate = dayElem.dateObj;
+                currentDate.setHours(0, 0, 0, 0);
+
+                // Highlight days that have events
+                const hasEvent = allEvents.some(event => {
+                    const startDate = new Date(event.start_date);
+                    startDate.setUTCHours(0, 0, 0, 0);
+                    if (event.end_date) {
+                        const endDate = new Date(event.end_date);
+                        endDate.setUTCHours(0, 0, 0, 0);
+                        return currentDate >= startDate && currentDate <= endDate;
+                    }
+                    return currentDate.getTime() === startDate.getTime();
+                });
+
+                if (hasEvent) {
+                    dayElem.classList.add("event-day");
+                }
+            },
+            onChange: function(selectedDates, dateStr, instance) {
+                if (selectedDates.length === 0) return;
+                const selectedDate = selectedDates[0];
+
+                const eventsForDate = allEvents.filter(event => {
+                     const startDate = new Date(event.start_date);
+                     startDate.setUTCHours(0, 0, 0, 0);
+                     if (event.end_date) {
+                        const endDate = new Date(event.end_date);
+                        endDate.setUTCHours(0, 0, 0, 0);
+                        return selectedDate >= startDate && selectedDate <= endDate;
+                    }
+                    return selectedDate.getTime() === startDate.getTime();
+                });
+                
+                displayEventList(eventsForDate);
+                homeResetViewBtn.style.display = 'block';
+            }
+        });
+
+        // Reset button logic
+        homeResetViewBtn.addEventListener('click', () => {
+            calendarInstance.clear();
+            const upcomingEvents = getUpcomingEvents(allEvents);
+            displayEventList(upcomingEvents.slice(0, 3));
+            homeResetViewBtn.style.display = 'none';
+        });
     }
 
     function createEventItemCard(event) {
@@ -112,8 +193,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
     }
 
-    // Initial call to load events
-    loadUpcomingEvents();
+    // Initial call to load events and calendar
+    initializeHomepageEvents();
 
     // Modal Functionality
     // Get modal elements
