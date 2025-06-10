@@ -40,19 +40,19 @@ document.addEventListener('DOMContentLoaded', () => {
   function buildCardGrid(items) {
     grid.innerHTML = ''; // Clear existing
     items.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'acc-card';
-      card.innerHTML = `
-        <div class="card-image">
+    const card = document.createElement('div');
+    card.className = 'acc-card';
+    card.innerHTML = `
+      <div class="card-image">
           <img src="${item.image_url || 'images/default-placeholder.png'}" alt="${item.name}">
-        </div>
-        <div class="acc-card-body">
+      </div>
+      <div class="acc-card-body">
           <h3>${item.name}</h3>
           <p>${item.location}</p>
-        </div>`;
+      </div>`;
       card.addEventListener('click', () => openModal(item));
-      grid.appendChild(card);
-    });
+    grid.appendChild(card);
+  });
   }
 
   /* ─── MODAL SET-UP ─────────────────────────────────────────── */
@@ -63,11 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openModal(data) {
     currentPlace = data; // Store current place
-    const markup = `
-      <div class="modal-header">
+  const markup = `
+    <div class="modal-header">
         <img src="${data.image_url || 'images/default-placeholder.png'}" alt="${data.name}">
-        <div class="modal-header-text">
-          <h3>${data.name}</h3>
+      <div class="modal-header-text">
+        <h3>${data.name}</h3>
           <p>${data.location}</p>
         </div>
       </div>
@@ -75,14 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="modal-divider"></div>
       <div class="modal-details">
         <p><strong>Opens:</strong> ${data.details.hours || 'N/A'}</p>
-      </div>
-      <div class="modal-divider"></div>
+    </div>
+    <div class="modal-divider"></div>
       <div class="modal-contact">
         ${data.details.phone ? `<a href="tel:${data.details.phone.replace(/\s|-/g, '')}"><i class="fas fa-phone"></i>${data.details.phone}</a>` : ''}
         ${data.details.fb ? `<a href="${data.details.fb}" target="_blank"><i class="fab fa-facebook"></i>Facebook</a>` : ''}
         ${data.details.msg ? `<a href="${data.details.msg}" target="_blank"><i class="fab fa-facebook-messenger"></i>Messenger</a>` : ''}
-      </div>
-      <div class="modal-divider"></div>
+    </div>
+    <div class="modal-divider"></div>
 
       <!-- Reviews Section -->
       <div class="dining-modal-actions">
@@ -91,20 +91,20 @@ document.addEventListener('DOMContentLoaded', () => {
       <div id="reviews-container">
         <h3>Reviews</h3>
         <div id="reviews-list"></div>
-      </div>
+    </div>
       `;
       
-    modalContent.innerHTML = markup;
-    modalContent.appendChild(closeBtn);
+  modalContent.innerHTML = markup;
+  modalContent.appendChild(closeBtn);
 
     // Add event listener to the new button
     modalContent.querySelector('#write-review-btn').addEventListener('click', openReviewModal);
 
-    overlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
 
     loadReviews(currentPlace.id);
-  }
+}
 
   function closeModal() {
     overlay.classList.remove('active');
@@ -142,8 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const openReviewModal = () => {
-    // We don't close the main modal, we show this one over it or next to it.
-    // Let's ensure the review modal is displayed as a block-level element.
+    closeModal(); // Close the main modal first
     reviewModal.style.display = 'block';
 
     const user = JSON.parse(localStorage.getItem('user'));
@@ -245,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (rating === "0") {
         alert("Please select a star rating.");
-        return;
+       return;
     }
 
     const reviewData = {
@@ -273,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         alert('Review submitted successfully!');
         closeReviewModal();
-        loadReviews(currentPlace.id); // Refresh reviews list
+        openModal(currentPlace); // Re-open the main modal to show the new review
 
     } catch (error) {
         console.error('Error submitting review:', error);
