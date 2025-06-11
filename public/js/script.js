@@ -1,3 +1,6 @@
+// This file has been updated to remove hardcoded event data and calendar logic,
+// and instead, fetches event data dynamically from the server.
+
 document.addEventListener('DOMContentLoaded', () => {
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -112,19 +115,19 @@ document.addEventListener('DOMContentLoaded', () => {
             mode: 'single',
             dateFormat: 'Y-m-d',
             onDayCreate: function(dObj, dStr, fp, dayElem) {
-                // dStr is the date in "YYYY-MM-DD" format, which is reliable for comparisons.
-                
+                const currentDate = dayElem.dateObj;
+                currentDate.setHours(0, 0, 0, 0);
+
                 // Highlight days that have events
                 const hasEvent = allEvents.some(event => {
-                    // Slicing the ISO string from the DB is the safest way to get the date part
-                    // without timezone conversions.
-                    const startDate = event.start_date.slice(0, 10); // "YYYY-MM-DD"
-                    
+                    const startDate = new Date(event.start_date);
+                    startDate.setUTCHours(0, 0, 0, 0);
                     if (event.end_date) {
-                        const endDate = event.end_date.slice(0, 10); // "YYYY-MM-DD"
-                        return dStr >= startDate && dStr <= endDate;
+                        const endDate = new Date(event.end_date);
+                        endDate.setUTCHours(0, 0, 0, 0);
+                        return currentDate >= startDate && currentDate <= endDate;
                     }
-                    return dStr === startDate;
+                    return currentDate.getTime() === startDate.getTime();
                 });
 
                 if (hasEvent) {
@@ -133,15 +136,17 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             onChange: function(selectedDates, dateStr, instance) {
                 if (selectedDates.length === 0) return;
-                // dateStr is already in "YYYY-MM-DD" format from flatpickr
+                const selectedDate = selectedDates[0];
 
                 const eventsForDate = allEvents.filter(event => {
-                     const startDate = event.start_date.slice(0, 10);
+                     const startDate = new Date(event.start_date);
+                     startDate.setUTCHours(0, 0, 0, 0);
                      if (event.end_date) {
-                        const endDate = event.end_date.slice(0, 10);
-                        return dateStr >= startDate && dateStr <= endDate;
+                        const endDate = new Date(event.end_date);
+                        endDate.setUTCHours(0, 0, 0, 0);
+                        return selectedDate >= startDate && selectedDate <= endDate;
                     }
-                    return dateStr === startDate;
+                    return selectedDate.getTime() === startDate.getTime();
                 });
                 
                 displayEventList(eventsForDate);
