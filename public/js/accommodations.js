@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rating = ratingInput.value;
     const visitDate = document.getElementById('visit-date').value;
     const title = document.getElementById('review-title').value;
-    const comment = document.getElementById('review-text').value;
+    const reviewText = document.getElementById('review-text').value;
 
     if (rating === "0") {
         alert("Please select a star rating.");
@@ -269,11 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const reviewData = {
+        user_id: user.id,
         place_id: currentPlace.id,
         rating: parseInt(rating, 10),
         visit_date: visitDate,
         title: title,
-        comment: comment,
+        comment: reviewText,
         place_type: 'accommodation'
     };
 

@@ -188,11 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const reviewData = {
+            user_id: user.id,
             place_id: currentPlace.id,
             rating: parseInt(rating, 10),
             visit_date: visitDate,
             title: title,
-            review_text: reviewText
+            comment: reviewText
         };
 
         try {
