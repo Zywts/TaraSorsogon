@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (hasEvent) {
-                            dayElem.classList.add("event-day");
+                            dayElem.classList.add("flatpickr-day", "event-day");
                 }
             },
             onChange: function(selectedDates, dateStr, instance) {
