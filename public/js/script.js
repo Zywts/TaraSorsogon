@@ -110,28 +110,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const homeResetViewBtn = document.getElementById('home-reset-view-btn');
         if (!calendarElement || !homeResetViewBtn) return;
 
+        // Function to parse date strings as UTC
+        const parseDateAsUTC = (dateString) => {
+            const date = new Date(dateString);
+            // Create a new date object in UTC by adding the timezone offset
+            return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+        };
+
+        const eventDates = allEvents.map(event => {
+            const start = parseDateAsUTC(event.start_date);
+            const end = event.end_date ? parseDateAsUTC(event.end_date) : start;
+            return { start, end };
+        });
+
         const calendarInstance = flatpickr(calendarElement, {
             inline: true,
             mode: 'single',
             dateFormat: 'Y-m-d',
             onDayCreate: function(dObj, dStr, fp, dayElem) {
                 const currentDate = dayElem.dateObj;
-                currentDate.setHours(0, 0, 0, 0);
 
-                // Highlight days that have events
-                const hasEvent = allEvents.some(event => {
-                    const startDate = new Date(event.start_date);
-                    startDate.setUTCHours(0, 0, 0, 0);
-                    if (event.end_date) {
-                        const endDate = new Date(event.end_date);
-                        endDate.setUTCHours(0, 0, 0, 0);
-                        return currentDate >= startDate && currentDate <= endDate;
-                    }
-                    return currentDate.getTime() === startDate.getTime();
+                const hasEvent = eventDates.some(event => {
+                    return currentDate >= event.start && currentDate <= event.end;
                 });
 
                 if (hasEvent) {
-                            dayElem.classList.add("event-day");
+                    dayElem.classList.add("event-day");
                 }
             },
             onChange: function(selectedDates, dateStr, instance) {
@@ -139,18 +143,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const selectedDate = selectedDates[0];
 
                 const eventsForDate = allEvents.filter(event => {
-                     const startDate = new Date(event.start_date);
-                     startDate.setUTCHours(0, 0, 0, 0);
-                     if (event.end_date) {
-                        const endDate = new Date(event.end_date);
-                        endDate.setUTCHours(0, 0, 0, 0);
-                        return selectedDate >= startDate && selectedDate <= endDate;
-                    }
-                    return selectedDate.getTime() === startDate.getTime();
+                     const startDate = parseDateAsUTC(event.start_date);
+                     const endDate = event.end_date ? parseDateAsUTC(event.end_date) : startDate;
+                     return selectedDate >= startDate && selectedDate <= endDate;
                 });
                 
                 displayEventList(eventsForDate);
-                    homeResetViewBtn.style.display = 'block';
+                homeResetViewBtn.style.display = 'block';
             }
         });
 
