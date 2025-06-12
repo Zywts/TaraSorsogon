@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modalPhone.parentElement.style.display = 'none';
     }
 
-    const facebookUrl = details.facebook || '';
+    const facebookUrl = details.fb || details.facebook || '';
     if (facebookUrl) {
         modalFacebook.href = facebookUrl;
         modalFacebook.style.display = 'inline-block';
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modalFacebook.style.display = 'none';
     }
 
-    const messengerUrl = details.messenger || '';
+    const messengerUrl = details.msg || details.messenger || '';
     if (messengerUrl) {
         modalMessenger.href = messengerUrl;
         modalMessenger.style.display = 'inline-block';
@@ -113,6 +113,22 @@ document.addEventListener("DOMContentLoaded", () => {
       hideModal();
       currentPlace = null;
   }
+
+  modalOverlay.addEventListener('click', (event) => {
+    if (event.target === modalOverlay) {
+        closeModal();
+    }
+  });
+
+  modalFacebook.addEventListener('click', (event) => {
+      event.preventDefault();
+      window.open(modalFacebook.href, '_blank');
+  });
+
+  modalMessenger.addEventListener('click', (event) => {
+        event.preventDefault();
+        window.open(modalMessenger.href, '_blank');
+  });
 
   const openReviewModal = () => {
     hideModal(); // Close the main modal first
@@ -310,12 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   modalCloseBtn.addEventListener("click", closeModal);
-
-  modalOverlay.addEventListener("click", (e) => {
-    if (e.target === modalOverlay) {
-      closeModal();
-    }
-  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && modalOverlay.classList.contains("active")) {

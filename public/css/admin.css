@@ -67,7 +67,7 @@ body {
 }
 
 .sidebar .back-to-site {
-    margin-top: auto; /* Pushes to the bottom */
+    margin-top: auto;
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
 }

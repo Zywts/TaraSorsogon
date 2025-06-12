@@ -100,8 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="modal-divider"></div>
       <div class="modal-contact">
         ${data.details.phone ? `<a href="tel:${data.details.phone.replace(/\s|-/g, '')}"><i class="fas fa-phone"></i>${data.details.phone}</a>` : ''}
-        ${data.details.fb ? `<a href="${data.details.fb}" target="_blank"><i class="fab fa-facebook"></i>Facebook</a>` : ''}
-        ${data.details.msg ? `<a href="${data.details.msg}" target="_blank"><i class="fab fa-facebook-messenger"></i>Messenger</a>` : ''}
+        ${(data.details.facebook || data.details.fb) ? `<a href="${data.details.facebook || data.details.fb}" target="_blank"><i class="fab fa-facebook"></i>Facebook</a>` : ''}
+        ${(data.details.messenger || data.details.msg) ? `<a href="${data.details.messenger || data.details.msg}" target="_blank"><i class="fab fa-facebook-messenger"></i>Messenger</a>` : ''}
     </div>
     <div class="modal-divider"></div>
 
