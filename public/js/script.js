@@ -2,20 +2,6 @@
 // and instead, fetches event data dynamically from the server.
 
 document.addEventListener('DOMContentLoaded', () => {
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
-
-    if (hamburger && navLinks) { // Ensure elements exist
-        hamburger.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
-                navLinks.classList.remove('active');
-            }
-        });
-    }
 
     // Scroll reveal animation
     const revealElements = document.querySelectorAll('.reveal-on-scroll');
@@ -390,9 +376,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Handle Review Form Date Picker
+    const reviewModal = document.getElementById('review-modal');
+    if (reviewModal) {
+        const dateInput = reviewModal.querySelector('#visit-date');
+        if (dateInput) {
+            flatpickr(dateInput, {
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+                maxDate: "today" // Disables future dates
+            });
+        }
+    }
+
     // Handle Feedback Form
     const feedbackForm = document.getElementById('feedback-form');
-    if(feedbackForm) {
+    if (feedbackForm) {
         const stars = feedbackForm.querySelectorAll('.star-rating i');
         const ratingInput = feedbackForm.querySelector('#rating-value');
         let currentRating = 0;
@@ -608,16 +608,51 @@ function createMarker(location) {
 
     const marker = L.marker([location.position.lat, location.position.lon], { icon: getMarkerIcon(location.type) });
 
-    // Create popup content
+    // Determine the correct page based on the location type
+    let detailsPage = '';
+    switch (location.type) {
+        case 'attraction':
+            detailsPage = 'attractions.html';
+            break;
+        case 'dining':
+            detailsPage = 'dining.html';
+            break;
+        case 'accommodation':
+            detailsPage = 'accommodations.html';
+            break;
+        default:
+            // Fallback or handle unknown types
+            detailsPage = '#'; 
+    }
+
+    // Create popup content with a "View Details" button
     let popupContent = `
         <div class="map-popup">
             ${location.image_url ? `<img src="${location.image_url}" alt="${location.name}" style="width:100%;height:auto;border-radius:5px;">` : ''}
             <h4>${location.name}</h4>
             <p>${location.description}</p>
+            <a href="${detailsPage}?name=${encodeURIComponent(location.name)}" class="map-details-btn" target="_blank">View Details</a>
         </div>
     `;
 
     marker.bindPopup(popupContent);
+
+    // When a marker is clicked, fly to its location.
+    marker.on('click', (e) => {
+        map.flyTo(e.latlng, 14);
+    });
+
+    // When the popup opens, pan the map to make sure the popup is fully visible.
+    marker.on('popupopen', (e) => {
+        map.once('moveend', () => {
+            if (e.popup.isOpen()) {
+                const popupHeight = e.popup.getElement().offsetHeight;
+                // Pan down by half the popup's height plus a small buffer.
+                map.panBy([0, -(popupHeight / 2) - 20], { animate: true });
+            }
+        });
+    });
+
     marker.options.type = location.type; // Store type for filtering
     return marker;
 }

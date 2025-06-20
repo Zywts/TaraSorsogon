@@ -303,4 +303,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Once we have the specific place, log the view
+  if (currentPlace && currentPlace.id) {
+    logPlaceView(currentPlace.id);
+  }
+
 });
+
+async function logPlaceView(placeId) {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return; // Don't log views for non-logged-in users
+
+    try {
+        await fetch('/api/places/view', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ place_id: placeId })
+        });
+    } catch (error) {
+        console.error('Could not log place view:', error);
+    }
+}

@@ -30,7 +30,6 @@
 </head>
 
 <body>
-
   <!-- Navigation -->
   <nav class="navbar">
     <div class="nav-brand">
@@ -43,11 +42,13 @@
         <li><a href="attractions.html">Attractions</a></li>
         <li><a href="events.html">Events</a></li>
         <li><a href="dining.html">Dining</a></li>
-        <li><a href="accommodations.html">Accommodation</a></li>
+        <li class="active"><a href="accommodations.html">Accommodation</a></li>
         <li><a href="index.html#emergency">Emergency</a></li>
         <li><a href="#" id="login-btn">Login</a></li>
         <li><a href="#" id="signup-btn">Sign Up</a></li>
+        <li class="nav-translate-mobile"><div id="google_translate_element"></div></li>
     </ul>
+    <div id="google_translate_element_desktop" class="nav-translate-desktop"></div>
     <div class="hamburger">
         <span></span>
         <span></span>
@@ -219,7 +220,30 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossorigin=""></script>
+  <script src="js/main.js"></script>
   <script src="js/accommodations.js" defer></script>
   <script src="js/script.js"></script>
+  <script>
+      // Initialize Flatpickr for the review modal
+      const reviewModal = document.getElementById('review-modal');
+      if (reviewModal) {
+          const dateInput = reviewModal.querySelector('#visit-date');
+          if (dateInput) {
+              flatpickr(dateInput, {
+                  altInput: true,
+                  altFormat: "F j, Y",
+                  dateFormat: "Y-m-d",
+                  maxDate: "today"
+              });
+          }
+      }
+  </script>
+  <script type="text/javascript">
+      function googleTranslateElementInit() {
+          new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+          new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element_desktop');
+      }
+  </script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>

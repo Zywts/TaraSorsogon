@@ -10,13 +10,42 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/admin.css">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">
+                
+            </a>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="attractions.html">Attractions</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="dining.html">Dining</a></li>
+            <li><a href="accommodations.html">Accommodation</a></li>
+            <li><a href="#emergency">Emergency</a></li>
+            <li><a href="#" id="login-btn">Login</a></li>
+            <li><a href="#" id="signup-btn">Sign Up</a></li>
+            <li class="nav-translate-mobile"><div id="google_translate_element"></div></li>
+        </ul>
+        <div id="google_translate_element_desktop" class="nav-translate-desktop"></div>
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
     <div class="sidebar">
         <h2>Admin</h2>
         <a href="#" class="nav-link active" data-target="review-management-view"><i class="fas fa-comments"></i> Review Management</a>
         <a href="#" class="nav-link" data-target="user-management-view"><i class="fas fa-users"></i> User Management</a>
         <a href="#" class="nav-link" data-target="content-management-view"><i class="fas fa-edit"></i> Content Management</a>
+        <a href="#" class="nav-link" data-target="reports-view"><i class="fas fa-chart-bar"></i> Reports</a>
         <a href="/" class="nav-link back-to-site"><i class="fas fa-arrow-left"></i> Back to Main Site</a>
     </div>
 
@@ -246,75 +275,117 @@
             </div>
 
             <div class="content-section">
-                <h3>Manage Attractions</h3>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Location</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attractions-table-body">
-                        </tbody>
-                    </table>
+                <label for="manage-dropdown" style="font-weight:600;font-size:1.1rem;margin-bottom:10px;display:block;">Manage Content:</label>
+                <select id="manage-dropdown" style="padding:8px 12px;border-radius:6px;border:1px solid #ccc;font-size:1rem;margin-bottom:24px;">
+                    <option value="attractions">Attractions</option>
+                    <option value="dining">Places to Dine</option>
+                    <option value="stays">Places to Stay</option>
+                    <option value="events">Events</option>
+                </select>
+                <div id="manage-attractions-table" class="manage-table">
+                    <h3>Manage Attractions</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attractions-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="manage-dining-table" class="manage-table" style="display:none;">
+                    <h3>Manage Places to Dine</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dining-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="manage-stays-table" class="manage-table" style="display:none;">
+                    <h3>Manage Places to Stay</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stays-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="manage-events-table" class="manage-table" style="display:none;">
+                    <h3>Manage Events</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Start Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="events-table-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="content-section">
-                <h3>Manage Places to Dine</h3>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Location</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dining-table-body">
-                        </tbody>
-                    </table>
+        <!-- Reports View -->
+        <div id="reports-view" class="view">
+            <h2>Reports</h2>
+            <div class="reports-cards" style="display:flex;gap:32px;flex-wrap:wrap;">
+                <div class="report-card" style="background:#fff;padding:28px 32px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);min-width:220px;flex:1;">
+                    <h3 style="margin:0 0 12px 0;font-size:1.2rem;color:#2e7d32;">Number of Visitors</h3>
+                    <div id="visitor-count" style="font-size:2.2rem;font-weight:700;color:#333;">...</div>
                 </div>
-            </div>
-
-            <div class="content-section">
-                <h3>Manage Places to Stay</h3>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Location</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stays-table-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="content-section">
-                <h3>Manage Events</h3>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Start Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="events-table-body">
-                        </tbody>
-                    </table>
+                <div class="report-card" style="background:#fff;padding:28px 32px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);min-width:220px;flex:1;">
+                    <h3 style="margin:0 0 12px 0;font-size:1.2rem;color:#2e7d32;">Popular Destinations</h3>
+                    <div id="popular-destinations" style="font-size:1.1rem;color:#333;">...</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="js/main.js"></script>
     <script src="js/admin.js"></script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element_desktop');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.getElementById('manage-dropdown');
+            const tables = {
+                attractions: document.getElementById('manage-attractions-table'),
+                dining: document.getElementById('manage-dining-table'),
+                stays: document.getElementById('manage-stays-table'),
+                events: document.getElementById('manage-events-table')
+            };
+            dropdown.addEventListener('change', function() {
+                Object.keys(tables).forEach(key => tables[key].style.display = 'none');
+                tables[this.value].style.display = '';
+            });
+        });
+    </script>
 </body>
 </html> 

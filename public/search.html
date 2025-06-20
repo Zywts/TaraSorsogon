@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Google Translate Element -->
+    <div id="google_translate_element" style="position: fixed; top: 15px; right: 15px; z-index: 1001;"></div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-brand">
@@ -97,6 +100,12 @@
 
     <script src="js/script.js"></script>
     <script src="js/search.js"></script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
 <style>

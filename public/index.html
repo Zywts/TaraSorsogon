@@ -34,7 +34,9 @@
             <li><a href="#emergency">Emergency</a></li>
             <li><a href="#" id="login-btn">Login</a></li>
             <li><a href="#" id="signup-btn">Sign Up</a></li>
+            <li class="nav-translate-mobile"><div id="google_translate_element"></div></li>
         </ul>
+        <div id="google_translate_element_desktop" class="nav-translate-desktop"></div>
         <div class="hamburger">
             <span></span>
             <span></span>
@@ -44,6 +46,10 @@
 
     <!-- Hero Section -->
     <header id="home" class="hero">
+        <video autoplay muted loop class="hero-video">
+            <source src="images/hero-video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
         <div class="hero-content">
             <div class="hero-logo">
                 <img src="images/logo-hero.png" alt="Tara! Sorsogon Logo" class="hero-logo-img">
@@ -470,6 +476,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Your Custom Scripts -->
+    <script src="js/main.js"></script>
     <script src="js/script.js"></script>
     <script src="js/auth.js"></script>
 
@@ -484,5 +491,12 @@
         setVhVariable();
         window.addEventListener('resize', setVhVariable);
     </script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element_desktop');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html> 

@@ -4,6 +4,7 @@ const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const cron = require('node-cron');
 
 // Initialize Express app
 const app = express();
@@ -139,6 +140,9 @@ app.post('/api/login', async (req, res) => {
             .single();
         
         if (profileError) throw profileError;
+
+        // Log the successful login for reporting
+        await supabaseAdmin.from('logins').insert({ user_id: data.user.id });
 
         res.status(200).json({ 
             message: 'Login successful!',
@@ -615,6 +619,105 @@ const placeApiEndpoint = (type) => async (req, res) => {
 app.post('/api/dining', adminMiddleware, placeApiEndpoint('Dining'));
 app.post('/api/attractions', adminMiddleware, placeApiEndpoint('Attraction'));
 app.post('/api/stays', adminMiddleware, placeApiEndpoint('Stay'));
+
+// --- AUTOMATED TASKS ---
+
+// Function to delete events that have already passed
+const deletePastEvents = async () => {
+    console.log('Running scheduled task: Deleting past events...');
+    const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD
+
+    try {
+        // Fetches events where the start_date is before today
+        const { data: pastEvents, error: fetchError } = await supabaseAdmin
+            .from('events')
+            .select('id, name, start_date')
+            .lt('start_date', today);
+
+        if (fetchError) {
+            console.error('Error fetching past events:', fetchError.message);
+            return;
+        }
+
+        if (pastEvents.length === 0) {
+            console.log('No past events to delete.');
+            return;
+        }
+
+        // Extracts the IDs of the past events
+        const eventIdsToDelete = pastEvents.map(event => event.id);
+
+        // Deletes the past events from the database
+        const { error: deleteError } = await supabaseAdmin
+            .from('events')
+            .delete()
+            .in('id', eventIdsToDelete);
+
+        if (deleteError) {
+            console.error('Error deleting past events:', deleteError.message);
+            return;
+        }
+
+        console.log(`Successfully deleted ${pastEvents.length} past event(s).`);
+    } catch (err) {
+        console.error('An unexpected error occurred while deleting past events:', err.message);
+    }
+};
+
+// Schedule the task to run once every day at midnight
+cron.schedule('0 0 * * *', deletePastEvents, {
+    scheduled: true,
+    timezone: "Asia/Manila"
+});
+
+// Immediately run the task once when the server starts
+deletePastEvents();
+
+// --- REPORTS API ---
+app.get('/api/admin/reports/visitor-count', adminMiddleware, async (req, res) => {
+    try {
+        const { count, error } = await supabaseAdmin
+            .from('logins')
+            .select('id', { count: 'exact', head: true });
+
+        if (error) throw error;
+        res.status(200).json({ count: count || 0 });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to fetch visitor count: ${error.message}` });
+    }
+});
+
+app.get('/api/admin/reports/popular-destinations', adminMiddleware, async (req, res) => {
+    try {
+        // This query counts views for each place, joins with the places table to get the name,
+        // orders by the count descending, and limits to the top 5.
+        const { data, error } = await supabaseAdmin
+            .rpc('get_popular_places', { limit_count: 5 });
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: `Failed to fetch popular destinations: ${error.message}` });
+    }
+});
+
+app.post('/api/places/view', authMiddleware, async (req, res) => {
+    const { place_id } = req.body;
+    const user_id = req.user.id;
+
+    if (!place_id) {
+        return res.status(400).json({ error: 'place_id is required.' });
+    }
+
+    try {
+        await supabaseAdmin
+            .from('place_views')
+            .insert({ place_id: place_id, user_id: user_id });
+        res.status(201).json({ message: 'View logged successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: `Failed to log view: ${error.message}` });
+    }
+});
 
 // Start the server
 app.listen(port, () => {

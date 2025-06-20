@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadUsers();
             } else if (target === 'content-management-view') {
                 loadAllContent();
+            } else if (target === 'reports-view') {
+                loadReports();
             }
         });
     });
@@ -208,6 +210,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const addStayFormContainer = document.getElementById('add-stay-form-container');
     const addEventFormContainer = document.getElementById('add-event-form-container');
 
+    // Initialize Flatpickr for the event start date
+    const eventStartDateInput = document.getElementById('event-start-date');
+    if (eventStartDateInput) {
+        flatpickr(eventStartDateInput, {
+            altInput: true,
+            altFormat: "F j, Y",
+            dateFormat: "Y-m-d",
+            minDate: "today" // Disables past dates
+        });
+    }
+
     window.showAddForm = (type) => {
         // Hide all forms first
         addDiningFormContainer.style.display = 'none';
@@ -335,17 +348,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (document.getElementById('add-event-form')) {
-        document.getElementById('add-event-form').addEventListener('submit', (e) => {
+    const addEventForm = document.getElementById('add-event-form');
+    if (addEventForm) {
+        addEventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
-            const formData = {
-                name: form.elements['event-name'].value,
-                description: form.elements['event-description'].value,
-                start_date: form.elements['event-start-date'].value,
-                image_url: form.elements['event-image-url'].value
-            };
-            handleContentFormSubmit('/api/events', formData, form, 'event');
+            
+            const name = document.getElementById('event-name').value;
+            const description = document.getElementById('event-description').value;
+            const startDate = document.getElementById('event-start-date').value;
+            const imageUrl = document.getElementById('event-image-url').value;
+
+            // --- Date Validation ---
+            const selectedDate = new Date(startDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to start of today for comparison
+
+            if (selectedDate < today) {
+                alert("You cannot select a past date for an event.");
+                return;
+            }
+            // --- End of Date Validation ---
+
+            const eventData = { name, description, start_date: startDate, image_url: imageUrl };
+
+            await handleContentFormSubmit('/api/events', eventData, addEventForm, 'event');
         });
     }
 
@@ -397,6 +423,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // --- Reports ---
+    const loadReports = () => {
+        loadVisitorCount();
+        loadPopularDestinations();
+    };
+
+    const loadVisitorCount = async () => {
+        const countEl = document.querySelector('#visitor-count');
+        countEl.textContent = 'Loading...';
+        try {
+            const response = await fetch('/api/admin/reports/visitor-count', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch count.');
+            const data = await response.json();
+            countEl.textContent = data.count;
+        } catch (error) {
+            countEl.textContent = 'Error';
+        }
+    };
+
+    const loadPopularDestinations = async () => {
+        const popularEl = document.querySelector('#popular-destinations');
+        popularEl.textContent = 'Loading...';
+        try {
+            const response = await fetch('/api/admin/reports/popular-destinations', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error('Failed to fetch destinations.');
+            const data = await response.json();
+            if (data.length === 0) {
+                popularEl.textContent = 'No data yet.';
+                return;
+            }
+            popularEl.textContent = data.map(item => `${item.name} (${item.view_count} views)`).join(', ');
+        } catch (error) {
+            popularEl.textContent = 'Error';
+        }
+    };
 
     // Initial View Logic
     // Activate the Review Management view by default as it's the first tab

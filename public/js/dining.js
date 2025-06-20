@@ -102,6 +102,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.style.overflow = "hidden";
 
     await loadReviews(data.id);
+
+    // Once we have the specific place, log the view
+    if (data && data.id) {
+        logPlaceView(data.id);
+    }
   }
 
   function hideModal() {
@@ -342,4 +347,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeSupabase();
   loadDiningPlaces();
-}); 
+});
+
+async function logPlaceView(placeId) {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return; // Don't log views for non-logged-in users
+
+    try {
+        await fetch('/api/places/view', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ place_id: placeId })
+        });
+    } catch (error) {
+        console.error('Could not log place view:', error);
+    }
+} 

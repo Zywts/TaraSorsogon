@@ -73,6 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = 'hidden';
 
         await loadReviews(place.id);
+
+        // Once we have the specific place, log the view
+        if (place && place.id) {
+            logPlaceView(place.id);
+        }
     };
 
     const hideModal = () => {
@@ -178,9 +183,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('review-login-message').style.display = 'none';
 
         const rating = document.getElementById('rating').value;
-        const visitDate = document.getElementById('visit-date').value;
+        const visitDateInput = document.getElementById('visit-date');
+        const visitDate = visitDateInput.value;
         const title = document.getElementById('review-title').value;
         const reviewText = document.getElementById('review-text').value;
+
+        // --- Date Validation ---
+        const selectedDate = new Date(visitDate);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999); // Set to end of today for comparison
+
+        if (selectedDate > today) {
+            alert("You cannot select a future date for a review.");
+            return;
+        }
+        // --- End of Date Validation ---
 
         if (rating === "0") {
             alert("Please select a star rating.");
@@ -373,5 +390,23 @@ async function fetchReviews(placeId) {
     } catch (error) {
         console.error('Error fetching reviews:', error);
         reviewsList.innerHTML = '<p style="color: red;">Could not load reviews.</p>';
+    }
+}
+
+async function logPlaceView(placeId) {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return; // Don't log views for non-logged-in users
+
+    try {
+        await fetch('/api/places/view', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ place_id: placeId })
+        });
+    } catch (error) {
+        console.error('Could not log place view:', error);
     }
 }
