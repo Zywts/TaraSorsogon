@@ -39,8 +39,44 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bo
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, '../public')));
 
+const hasPermission = (userRole, requiredRoles) => requiredRoles.includes(userRole);
+
 // --- AUTH & ADMIN MIDDLEWARE ---
 const adminMiddleware = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authorization token required' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    try {
+        // First, verify the token with Supabase. This uses the public client.
+        const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+        if (userError) throw userError;
+
+        // Now, use the ADMIN client to bypass RLS and check the role from the users table.
+        const { data: userProfile, error: profileError } = await supabaseAdmin
+            .from('users')
+            .select('id, role')
+            .eq('id', user.id)
+            .single();
+
+        if (profileError || !userProfile) throw new Error('User profile not found.');
+
+        const allowedRoles = ['admin', 'superadmin', 'content manager', 'event coordinator'];
+        if (!allowedRoles.includes(userProfile.role)) {
+            return res.status(403).json({ error: 'Admin access required.' });
+        }
+
+        req.user = { ...user, role: userProfile.role }; // Attach user and role to request object
+        next();
+    } catch (error) {
+        res.status(401).json({ error: 'Invalid or expired token.' });
+    }
+};
+
+const superAdminMiddleware = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'Authorization token required' });
@@ -62,11 +98,12 @@ const adminMiddleware = async (req, res, next) => {
 
         if (profileError || !userProfile) throw new Error('User profile not found.');
 
-        if (userProfile.role !== 'admin') {
-            return res.status(403).json({ error: 'Admin access required.' });
+        // Allow 'superadmin'
+        if (userProfile.role !== 'superadmin') {
+            return res.status(403).json({ error: 'Super admin access required.' });
         }
 
-        req.user = user; // Attach user to request object
+        req.user = { ...user, role: userProfile.role }; // Attach user and role to request object
         next();
     } catch (error) {
         res.status(401).json({ error: 'Invalid or expired token.' });
@@ -173,6 +210,7 @@ app.get('/api/search', async (req, res) => {
         const { data, error } = await supabase
             .from('places')
             .select('*')
+            .is('deleted_at', null)
             .or(`name.ilike.%${term}%,description.ilike.%${term}%,type.ilike.%${term}%`);
         
         if (error) throw error;
@@ -196,6 +234,7 @@ app.get('/api/places/suggestions', async (req, res) => {
         const { data, error } = await supabase
             .from('places')
             .select('name, type')
+            .is('deleted_at', null)
             .ilike('name', `%${term}%`)
             .limit(5); // Limit to 5 suggestions
         
@@ -227,11 +266,17 @@ app.post('/api/feedback', async (req, res) => {
 });
 
 // Get all events
-app.get('/api/events', async (req, res) => {
+app.get('/api/events', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'event coordinator'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view events.' });
+    }
+
     try {
         const { data, error } = await supabase
             .from('events')
             .select('*')
+            .is('deleted_at', null)
             .order('start_date', { ascending: true });
 
         if (error) throw error;
@@ -242,11 +287,17 @@ app.get('/api/events', async (req, res) => {
 });
 
 // Get all accommodations
-app.get('/api/accommodations', async (req, res) => {
+app.get('/api/accommodations', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view accommodations.' });
+    }
+
     try {
         const { data, error } = await supabase
             .from('places')
             .select('*')
+            .is('deleted_at', null)
             .eq('type', 'accommodation')
             .order('name', { ascending: true });
 
@@ -259,10 +310,16 @@ app.get('/api/accommodations', async (req, res) => {
 
 // Get all places for admin forms
 app.get('/api/places', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view places.' });
+    }
+
     try {
         const { data, error } = await supabaseAdmin
             .from('places')
             .select('id, name')
+            .is('deleted_at', null)
             .order('name', { ascending: true });
         
         if (error) throw error;
@@ -274,6 +331,11 @@ app.get('/api/places', adminMiddleware, async (req, res) => {
 
 // Add a new event
 app.post('/api/events', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'event coordinator'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to add events.' });
+    }
+
     const { name, description, start_date, image_url } = req.body;
     const user_id = req.user.id; 
 
@@ -301,40 +363,53 @@ app.post('/api/events', adminMiddleware, async (req, res) => {
 
 // Get all reviews for admin
 app.get('/api/admin/reviews', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view reviews.' });
+    }
+
     try {
         const { data, error } = await supabaseAdmin
             .from('reviews')
             .select(`
                 id,
-                rating,
                 title,
                 comment: review_text,
+                rating,
                 created_at,
-                place_id,
-                user_id,
-                places ( name ),
-                users ( username )
+                visit_date,
+                places (name),
+                users (username)
             `)
+            .is('deleted_at', null)
             .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+            console.error('Error fetching reviews for admin:', error);
+            throw error;
+        }
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch reviews.' });
     }
 });
 
-// Delete a review (Admin Only)
+// Delete a review (Admin Only) - Soft delete
 app.delete('/api/admin/reviews/:id', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to delete reviews.' });
+    }
+
     const { id } = req.params;
     try {
         const { error } = await supabaseAdmin
             .from('reviews')
-            .delete()
+            .update({ deleted_at: new Date().toISOString() })
             .eq('id', id);
 
         if (error) throw error;
-        res.status(200).json({ message: 'Review deleted successfully.' });
+        res.status(200).json({ message: 'Review moved to recycle bin.' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete review.' });
     }
@@ -342,6 +417,11 @@ app.delete('/api/admin/reviews/:id', adminMiddleware, async (req, res) => {
 
 // Get All Users (Admin Only)
 app.get('/api/admin/users', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin']; // Only superadmin and admin can view all users
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view users.' });
+    }
+
     try {
         const { data, error } = await supabaseAdmin
             .from('users')
@@ -355,14 +435,49 @@ app.get('/api/admin/users', adminMiddleware, async (req, res) => {
     }
 });
 
+// Update a user's role (Super Admin Only)
+app.put('/api/admin/users/:userId/role', superAdminMiddleware, async (req, res) => {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    const allowedRoles = ['user', 'admin', 'superadmin', 'content manager', 'event coordinator'];
+    if (!role || !allowedRoles.includes(role)) {
+        return res.status(400).json({ error: 'Invalid or missing role specified.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from('users')
+            .update({ role: role })
+            .eq('id', userId)
+            .select('id, username, email, role, created_at')
+            .single();
+
+        if (error) throw error;
+        
+        res.status(200).json({ message: 'User role updated successfully.', user: data });
+    } catch (error) {
+        if (error.code === 'PGRST204') { // PostgREST code for no rows found
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        res.status(500).json({ error: `Failed to update user role: ${error.message}` });
+    }
+});
+
 // --- PUBLIC CONTENT ROUTES ---
 
 // Get all dining places
-app.get('/api/places/dining', async (req, res) => {
+app.get('/api/places/dining', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view dining places.' });
+    }
+
     try {
         const { data, error } = await supabase
             .from('places')
             .select('*')
+            .is('deleted_at', null)
             .eq('type', 'dining');
 
         if (error) throw error;
@@ -373,11 +488,17 @@ app.get('/api/places/dining', async (req, res) => {
 });
 
 // Get all attraction places
-app.get('/api/places/attractions', async (req, res) => {
+app.get('/api/places/attractions', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view attraction places.' });
+    }
+
     try {
         const { data, error } = await supabase
             .from('places')
             .select('*')
+            .is('deleted_at', null)
             .eq('type', 'attraction');
 
         if (error) throw error;
@@ -388,11 +509,17 @@ app.get('/api/places/attractions', async (req, res) => {
 });
 
 // Get all stay places
-app.get('/api/places/stays', async (req, res) => {
+app.get('/api/places/stays', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view stay places.' });
+    }
+
     try {
         const { data, error } = await supabase
             .from('places')
             .select('*')
+            .is('deleted_at', null)
             .eq('type', 'accommodation');
 
         if (error) throw error;
@@ -423,6 +550,7 @@ app.get('/api/reviews/:place_id', async (req, res) => {
                 user:users(username)
             `)
             .eq('place_id', place_id)
+            .is('deleted_at', null)
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -488,33 +616,43 @@ app.post('/api/reviews', authMiddleware, async (req, res) => {
     }
 });
 
-// Delete a place (Admin Only)
+// Delete a place (Admin Only) - Soft delete
 app.delete('/api/places/:id', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to delete this content.' });
+    }
+
     const { id } = req.params;
     try {
         const { error } = await supabaseAdmin
             .from('places')
-            .delete()
+            .update({ deleted_at: new Date().toISOString() })
             .eq('id', id);
 
         if (error) throw error;
-        res.status(200).json({ message: 'Place deleted successfully.' });
+        res.status(200).json({ message: 'Place moved to recycle bin.' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete place.' });
     }
 });
 
-// Delete an event (Admin Only)
+// Delete an event (Admin Only) - Soft delete
 app.delete('/api/events/:id', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'event coordinator'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to delete this event.' });
+    }
+
     const { id } = req.params;
     try {
         const { error } = await supabaseAdmin
             .from('events')
-            .delete()
+            .update({ deleted_at: new Date().toISOString() })
             .eq('id', id);
 
         if (error) throw error;
-        res.status(200).json({ message: 'Event deleted successfully.' });
+        res.status(200).json({ message: 'Event moved to recycle bin.' });
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete event.' });
     }
@@ -524,6 +662,11 @@ app.delete('/api/events/:id', adminMiddleware, async (req, res) => {
 
 // Add a new attraction
 app.post('/api/attractions', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to add attractions.' });
+    }
+
     const { name, description, image_url, location, details, position } = req.body;
     if (!name || !description || !location) {
         return res.status(400).json({ error: 'Name, description, and location are required.' });
@@ -547,6 +690,11 @@ app.post('/api/attractions', adminMiddleware, async (req, res) => {
 
 // Add a new dining place
 app.post('/api/dining', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to add dining places.' });
+    }
+
     const { name, description, image_url, location, details, position } = req.body;
     if (!name || !description || !location) {
         return res.status(400).json({ error: 'Name, description, and location are required.' });
@@ -570,6 +718,11 @@ app.post('/api/dining', adminMiddleware, async (req, res) => {
 
 // Add a new place to stay (replaces the old '/api/stays')
 app.post('/api/accommodations', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to add accommodations.' });
+    }
+
     const { name, description, image_url, location, details, position } = req.body;
     if (!name || !description || !location) {
         return res.status(400).json({ error: 'Name, description, and location are required.' });
@@ -593,6 +746,11 @@ app.post('/api/accommodations', adminMiddleware, async (req, res) => {
 
 // Based on the JS, these endpoints seem to be missing. I'll add them.
 const placeApiEndpoint = (type) => async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to add this content.' });
+    }
+
     const { name, description, image_url, location, details, category } = req.body;
 
     if (!name || !description || !image_url || !location) {
@@ -620,18 +778,104 @@ app.post('/api/dining', adminMiddleware, placeApiEndpoint('Dining'));
 app.post('/api/attractions', adminMiddleware, placeApiEndpoint('Attraction'));
 app.post('/api/stays', adminMiddleware, placeApiEndpoint('Stay'));
 
+// --- RECYCLE BIN ROUTES (ADMIN ONLY) ---
+
+// Get all soft-deleted items
+app.get('/api/admin/deleted-items', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view the recycle bin.' });
+    }
+
+    try {
+        const [places, events, reviews] = await Promise.all([
+            supabaseAdmin.from('places').select('*').not('deleted_at', 'is', null),
+            supabaseAdmin.from('events').select('*').not('deleted_at', 'is', null),
+            supabaseAdmin.from('reviews').select('*, places(name), users(username)').not('deleted_at', 'is', null)
+        ]);
+
+        if (places.error || events.error || reviews.error) {
+            console.error(places.error || events.error || reviews.error);
+            throw new Error('Failed to fetch some deleted items.');
+        }
+
+        res.status(200).json({
+            places: places.data,
+            events: events.data,
+            reviews: reviews.data
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Restore a soft-deleted item
+app.post('/api/admin/restore/:item_type/:id', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to restore items.' });
+    }
+
+    const { item_type, id } = req.params;
+    const valid_types = ['places', 'events', 'reviews'];
+
+    if (!valid_types.includes(item_type)) {
+        return res.status(400).json({ error: 'Invalid item type.' });
+    }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from(item_type)
+            .update({ deleted_at: null })
+            .eq('id', id);
+        
+        if (error) throw error;
+        res.status(200).json({ message: 'Item restored successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to restore item.' });
+    }
+});
+
+// Permanently delete an item
+app.delete('/api/admin/permanently-delete/:item_type/:id', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to permanently delete items.' });
+    }
+
+    const { item_type, id } = req.params;
+    const valid_types = ['places', 'events', 'reviews'];
+
+    if (!valid_types.includes(item_type)) {
+        return res.status(400).json({ error: 'Invalid item type.' });
+    }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from(item_type)
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        res.status(200).json({ message: 'Item permanently deleted.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to permanently delete item.' });
+    }
+});
+
 // --- AUTOMATED TASKS ---
 
-// Function to delete events that have already passed
+// Function to soft-delete events that have already passed
 const deletePastEvents = async () => {
-    console.log('Running scheduled task: Deleting past events...');
+    console.log('Running scheduled task: Soft-deleting past events...');
     const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD
 
     try {
-        // Fetches events where the start_date is before today
+        // Fetches events where the start_date is before today and not already soft-deleted
         const { data: pastEvents, error: fetchError } = await supabaseAdmin
             .from('events')
             .select('id, name, start_date')
+            .is('deleted_at', null)
             .lt('start_date', today);
 
         if (fetchError) {
@@ -647,20 +891,20 @@ const deletePastEvents = async () => {
         // Extracts the IDs of the past events
         const eventIdsToDelete = pastEvents.map(event => event.id);
 
-        // Deletes the past events from the database
+        // Soft-deletes the past events from the database
         const { error: deleteError } = await supabaseAdmin
             .from('events')
-            .delete()
+            .update({ deleted_at: new Date().toISOString() })
             .in('id', eventIdsToDelete);
 
         if (deleteError) {
-            console.error('Error deleting past events:', deleteError.message);
+            console.error('Error soft-deleting past events:', deleteError.message);
             return;
         }
 
-        console.log(`Successfully deleted ${pastEvents.length} past event(s).`);
+        console.log(`Successfully soft-deleted ${pastEvents.length} past event(s).`);
     } catch (err) {
-        console.error('An unexpected error occurred while deleting past events:', err.message);
+        console.error('An unexpected error occurred while soft-deleting past events:', err.message);
     }
 };
 
@@ -675,6 +919,11 @@ deletePastEvents();
 
 // --- REPORTS API ---
 app.get('/api/admin/reports/visitor-count', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view reports.' });
+    }
+
     try {
         const { count, error } = await supabaseAdmin
             .from('logins')
@@ -688,6 +937,11 @@ app.get('/api/admin/reports/visitor-count', adminMiddleware, async (req, res) =>
 });
 
 app.get('/api/admin/reports/popular-destinations', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view reports.' });
+    }
+
     try {
         // This query counts views for each place, joins with the places table to get the name,
         // orders by the count descending, and limits to the top 5.
@@ -719,7 +973,154 @@ app.post('/api/places/view', authMiddleware, async (req, res) => {
     }
 });
 
+// Create a new place (attraction, dining, stay) - ADMIN ONLY
+app.post('/api/places', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin', 'content manager'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to add this content.' });
+    }
+
+    const { type, name, description, image_url, location, latitude, longitude, details } = req.body;
+
+    if (!type || !name || !description || !location) {
+        return res.status(400).json({ error: 'Missing required fields: type, name, description, location.' });
+    }
+
+    if (!['attraction', 'dining', 'accommodation'].includes(type)) {
+        return res.status(400).json({ error: 'Invalid place type.' });
+    }
+
+    try {
+        const lat = parseFloat(latitude);
+        const lon = parseFloat(longitude);
+
+        const { data, error } = await supabaseAdmin
+            .from('places')
+            .insert([{
+                type,
+                name,
+                description,
+                image_url,
+                location,
+                position: {
+                    lat: isNaN(lat) ? null : lat,
+                    lon: isNaN(lon) ? null : lon
+                },
+                details: details || {}
+            }])
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.status(201).json(data);
+    } catch (error) {
+        console.error('Error creating place:', error);
+        res.status(500).json({ error: 'Failed to create place.' });
+    }
+});
+
+// --- REPORTING & ANALYTICS ---
+app.get('/api/admin/reports/summary', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to view reports.' });
+    }
+
+    try {
+        const { data: report, error } = await supabaseAdmin.rpc('get_admin_summary');
+        if (error) throw error;
+        res.status(200).json(report);
+    } catch (error) {
+        res.status(500).json({ error: `Failed to fetch report: ${error.message}` });
+    }
+});
+
+// --- RECYCLE BIN ---
+app.get('/api/admin/recycle-bin/:type', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to access the recycle bin.' });
+    }
+
+    const { type } = req.params;
+    const allowedTypes = ['places', 'events', 'reviews'];
+
+    if (!allowedTypes.includes(type)) {
+        return res.status(400).json({ error: 'Invalid recycle bin type.' });
+    }
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from(type)
+            .select('*')
+            .not('deleted_at', 'is', null);
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: `Failed to fetch ${type}: ${error.message}` });
+    }
+});
+
+app.post('/api/admin/recycle-bin/restore/:type/:id', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to restore items.' });
+    }
+
+    const { type, id } = req.params;
+    const allowedTypes = ['places', 'events', 'reviews'];
+
+    if (!allowedTypes.includes(type)) {
+        return res.status(400).json({ error: 'Invalid recycle bin type.' });
+    }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from(type)
+            .update({ deleted_at: null })
+            .eq('id', id);
+        
+        if (error) throw error;
+        res.status(200).json({ message: 'Item restored successfully.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to restore item.' });
+    }
+});
+
+app.delete('/api/admin/recycle-bin/delete/:type/:id', adminMiddleware, async (req, res) => {
+    const requiredRoles = ['superadmin', 'admin'];
+    if (!hasPermission(req.user.role, requiredRoles)) {
+        return res.status(403).json({ error: 'You are not authorized to permanently delete items.' });
+    }
+
+    const { type, id } = req.params;
+    const allowedTypes = ['places', 'events', 'reviews'];
+
+    if (!allowedTypes.includes(type)) {
+        return res.status(400).json({ error: 'Invalid recycle bin type.' });
+    }
+
+    try {
+        const { error } = await supabaseAdmin
+            .from(type)
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+        res.status(200).json({ message: 'Item permanently deleted.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to permanently delete item.' });
+    }
+});
+
+// Fallback route for single-page application (SPA) behavior if needed
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public', 'index.html'));
+});
+
 // Start the server
 app.listen(port, () => {
-    console.log(`Server listening at http://localhost:${port}`);
+    console.log(`Server listening on port ${port}`);
 }); 

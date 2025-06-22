@@ -46,6 +46,7 @@
         <a href="#" class="nav-link" data-target="user-management-view"><i class="fas fa-users"></i> User Management</a>
         <a href="#" class="nav-link" data-target="content-management-view"><i class="fas fa-edit"></i> Content Management</a>
         <a href="#" class="nav-link" data-target="reports-view"><i class="fas fa-chart-bar"></i> Reports</a>
+        <a href="#" class="nav-link" data-target="recycle-bin-view"><i class="fas fa-trash"></i> Recycle Bin</a>
         <a href="/" class="nav-link back-to-site"><i class="fas fa-arrow-left"></i> Back to Main Site</a>
     </div>
 
@@ -334,7 +335,7 @@
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Start Date</th>
+                                    <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -348,21 +349,87 @@
         <!-- Reports View -->
         <div id="reports-view" class="view">
             <h2>Reports</h2>
-            <div class="reports-cards" style="display:flex;gap:32px;flex-wrap:wrap;">
-                <div class="report-card" style="background:#fff;padding:28px 32px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);min-width:220px;flex:1;">
-                    <h3 style="margin:0 0 12px 0;font-size:1.2rem;color:#2e7d32;">Number of Visitors</h3>
-                    <div id="visitor-count" style="font-size:2.2rem;font-weight:700;color:#333;">...</div>
+            <div class="report-card">
+                <h3>Total Logins</h3>
+                <p id="visitor-count">Loading...</p>
+            </div>
+            <div class="report-card">
+                <h3>Most Popular Destinations</h3>
+                <ul id="popular-destinations-list">
+                    <!-- Data will be loaded here -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recycle Bin View -->
+        <div id="recycle-bin-view" class="view">
+            <h2>Recycle Bin</h2>
+            
+            <div class="content-section">
+                <h3>Deleted Places (Attractions, Dining, Stays)</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Deleted At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deleted-places-table-body"></tbody>
+                    </table>
                 </div>
-                <div class="report-card" style="background:#fff;padding:28px 32px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);min-width:220px;flex:1;">
-                    <h3 style="margin:0 0 12px 0;font-size:1.2rem;color:#2e7d32;">Popular Destinations</h3>
-                    <div id="popular-destinations" style="font-size:1.1rem;color:#333;">...</div>
+            </div>
+
+            <div class="content-section">
+                <h3>Deleted Events</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Start Date</th>
+                                <th>Deleted At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deleted-events-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3>Deleted Reviews</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Place</th>
+                                <th>User</th>
+                                <th>Title</th>
+                                <th>Deleted At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deleted-reviews-table-body"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        flatpickr("#event-start-date", {
+            altInput: true,
+            altFormat: "F j, Y",
+            dateFormat: "Y-m-d",
+            minDate: "today"
+        });
+    </script>
     <script src="js/main.js"></script>
     <script src="js/admin.js"></script>
     <script type="text/javascript">

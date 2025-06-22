@@ -15,6 +15,10 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
     --danger-color: #d9534f;
     --danger-hover-color: #c9302c;
+    --warning-color: #f57c00;
+    --warning-hover-color: #ef6c00;
+    --success-color: #388e3c;
+    --success-hover-color: #2e7d32;
 }
 
 body {
@@ -164,18 +168,38 @@ tr:hover {
     transition: background 0.2s;
 }
 
-.delete-btn {
-    background: var(--danger-color);
+.delete-btn, .restore-btn, .delete-permanently-btn {
     color: #fff;
     padding: 8px 16px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 0.98rem;
+    font-size: 0.9rem;
     transition: background 0.2s;
+    margin: 2px;
+}
+
+.delete-btn {
+    background: var(--warning-color, #f57c00); /* Orange for soft delete */
 }
 
 .delete-btn:hover {
+    background: var(--warning-hover-color, #ef6c00);
+}
+
+.restore-btn {
+    background: var(--success-color, #388e3c); /* Green for restore */
+}
+
+.restore-btn:hover {
+    background: var(--success-hover-color, #2e7d32);
+}
+
+.delete-permanently-btn {
+    background: var(--danger-color); /* Red for permanent delete */
+}
+
+.delete-permanently-btn:hover {
     background: var(--danger-hover-color);
 }
 
@@ -323,4 +347,33 @@ tr:hover {
     .sidebar h2 {
         font-size: 1.1rem;
     }
+}
+
+.table-container th, .table-container td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.users-table .role-select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.users-table .save-role-btn {
+    padding: 5px 10px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.users-table .save-role-btn:disabled {
+    background-color: #ccc;
+}
+
+.rating {
+    color: #f8ce0b;
 } 

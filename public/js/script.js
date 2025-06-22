@@ -334,8 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const welcomeLi = document.createElement('li');
             welcomeLi.textContent = `Welcome, ${user.username}!`;
             
-            // Add Admin Dashboard link if user is admin
-            if (user.role === 'admin') {
+            // Add Admin Dashboard link if user has an admin-level role
+            const adminRoles = ['admin', 'superadmin', 'content manager', 'event coordinator'];
+            if (adminRoles.includes(user.role)) {
                 const adminLi = document.createElement('li');
                 adminLi.innerHTML = `<a href="admin.html">Admin Dashboard</a>`;
                 emergencyLi.parentElement.insertBefore(adminLi, emergencyLi.nextElementSibling);
