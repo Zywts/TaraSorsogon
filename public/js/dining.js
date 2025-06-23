@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadDiningPlaces() {
     try {
-        const response = await fetch('/api/places/dining');
+        const response = await fetch('/api/dining');
         if (!response.ok) throw new Error('Failed to fetch dining places.');
         
         const places = await response.json();

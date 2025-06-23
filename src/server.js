@@ -266,12 +266,7 @@ app.post('/api/feedback', async (req, res) => {
 });
 
 // Get all events
-app.get('/api/events', adminMiddleware, async (req, res) => {
-    const requiredRoles = ['superadmin', 'admin', 'event coordinator'];
-    if (!hasPermission(req.user.role, requiredRoles)) {
-        return res.status(403).json({ error: 'You are not authorized to view events.' });
-    }
-
+app.get('/api/events', async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('events')
@@ -283,28 +278,6 @@ app.get('/api/events', adminMiddleware, async (req, res) => {
         res.status(200).json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch events.' });
-    }
-});
-
-// Get all accommodations
-app.get('/api/accommodations', adminMiddleware, async (req, res) => {
-    const requiredRoles = ['superadmin', 'admin', 'content manager'];
-    if (!hasPermission(req.user.role, requiredRoles)) {
-        return res.status(403).json({ error: 'You are not authorized to view accommodations.' });
-    }
-
-    try {
-        const { data, error } = await supabase
-            .from('places')
-            .select('*')
-            .is('deleted_at', null)
-            .eq('type', 'accommodation')
-            .order('name', { ascending: true });
-
-        if (error) throw error;
-        res.status(200).json(data);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch accommodations.' });
     }
 });
 
@@ -774,9 +747,52 @@ const placeApiEndpoint = (type) => async (req, res) => {
     }
 };
 
-app.post('/api/dining', adminMiddleware, placeApiEndpoint('Dining'));
-app.post('/api/attractions', adminMiddleware, placeApiEndpoint('Attraction'));
-app.post('/api/stays', adminMiddleware, placeApiEndpoint('Stay'));
+app.post('/api/dining', adminMiddleware, placeApiEndpoint('dining'));
+app.post('/api/attractions', adminMiddleware, placeApiEndpoint('attraction'));
+app.post('/api/stays', adminMiddleware, placeApiEndpoint('accommodation'));
+
+// --- PUBLIC GET ROUTES ---
+
+// Generic endpoint to fetch places by type
+const getPlacesByType = (type) => async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('places')
+            .select('*')
+            .eq('type', type)
+            .is('deleted_at', null);
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: `Failed to fetch ${type}: ${error.message}` });
+    }
+};
+
+// Route to get all attractions
+app.get('/api/attractions', getPlacesByType('attraction'));
+
+// Route to get all dining places
+app.get('/api/dining', getPlacesByType('dining'));
+
+// Route to get all accommodations (stays)
+app.get('/api/accommodations', getPlacesByType('accommodation'));
+
+// Get all events
+app.get('/api/events', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('events')
+            .select('*')
+            .is('deleted_at', null)
+            .order('start_date', { ascending: true });
+
+        if (error) throw error;
+        res.status(200).json(data);
+    } catch (error) {
+        res.status(500).json({ error: `Failed to fetch events: ${error.message}` });
+    }
+});
 
 // --- RECYCLE BIN ROUTES (ADMIN ONLY) ---
 
@@ -1122,5 +1138,5 @@ app.get('*', (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+    console.log(`Server is running on http://localhost:${port}`);
 }); 

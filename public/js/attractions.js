@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadAttractions = async () => {
         try {
-            const response = await fetch('/api/places/attractions');
+            const response = await fetch('/api/attractions');
             if (!response.ok) {
                 throw new Error('Failed to fetch attractions.');
             }

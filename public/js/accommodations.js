@@ -46,7 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
       await initializeSupabase();
       const response = await fetch('/api/accommodations');
       if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status}`);
+        // Get more details from the response
+        const errorBody = await response.json().catch(() => ({ error: 'Could not parse error response.' }));
+        console.error('Server responded with an error:', response.status, errorBody);
+        throw new Error(`Server Error: ${errorBody.error || response.statusText}`);
       }
       accommodations = await response.json();
       buildCardGrid(accommodations);
