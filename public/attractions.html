@@ -31,7 +31,8 @@
             <li><a href="events.html">Events</a></li>
             <li><a href="dining.html">Dining</a></li>
             <li><a href="accommodations.html">Accommodation</a></li>
-            <li><a href="emergency.html">Emergency</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="index.html#emergency">Emergency</a></li>
             <li><a href="#" id="login-btn">Login</a></li>
             <li><a href="#" id="signup-btn">Sign Up</a></li>
             <li class="nav-translate-mobile"><div id="google_translate_element"></div></li>
@@ -159,9 +160,28 @@
                 <label for="login-password">Password:</label>
                 <input type="password" id="login-password" name="password" required>
             </div>
+            <div class="form-group-inline">
+                <a href="#" id="forgot-password-link">Forgot Password?</a>
+            </div>
             <button type="submit" class="btn">Login</button>
             <p class="form-message" id="login-message"></p>
             <p class="terms-message">By proceeding, you agree to our <a href="/terms.html">Terms of Use</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
+        </form>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgot-password-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" id="close-forgot-password-modal">&times;</span>
+        <h2>Forgot Password</h2>
+        <form id="forgot-password-form">
+            <div class="form-group">
+                <label for="forgot-password-email">Enter your email address:</label>
+                <input type="email" id="forgot-password-email" name="email" required>
+            </div>
+            <button type="submit" class="btn">Send Reset Link</button>
+            <p class="form-message" id="forgot-password-message"></p>
         </form>
     </div>
 </div>
@@ -197,9 +217,8 @@
 
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="js/main.js"></script>
+<script src="js/script.js"></script>
 <script src="js/attractions.js"></script>
-<script src="js/auth.js"></script>
 <script>
     // Initialize Flatpickr for the review modal
     const reviewModal = document.getElementById('review-modal');

@@ -1469,15 +1469,30 @@ button[type="submit"]:hover {
 
 .form-message {
     margin-top: 15px;
+    color: var(--accent-color);
     text-align: center;
+}
+
+.form-group-inline {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
     font-size: 0.9em;
 }
 
+.form-group-inline a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.form-group-inline a:hover {
+    text-decoration: underline;
+}
+
 .modal-content .btn {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-} 
+    width: 100%;
+    padding: 12px;
+}
 
 /* Make the search suggestions container responsive */
 .search-suggestions {

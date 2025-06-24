@@ -3,6 +3,22 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Initialize Supabase and load data
+    let supabase = null;
+    const initializeSupabase = async () => {
+        try {
+            const response = await fetch('/api/config');
+            if (!response.ok) throw new Error('Failed to fetch Supabase config');
+            const config = await response.json();
+            supabase = window.supabase.createClient(config.supabaseUrl, config.supabaseKey);
+        } catch (error) {
+            console.error('Error initializing Supabase client:', error);
+        }
+    };
+    
+    // Call initialization
+    initializeSupabase();
+
     // Scroll reveal animation
     const revealElements = document.querySelectorAll('.reveal-on-scroll');
     if (revealElements.length > 0) {
@@ -185,18 +201,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get modal elements
     const loginModal = document.getElementById('login-modal');
     const signupModal = document.getElementById('signup-modal');
+    const forgotPasswordModal = document.getElementById('forgot-password-modal');
 
     // Get buttons that open modals
     const loginBtn = document.getElementById('login-btn');
     const signupBtn = document.getElementById('signup-btn');
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
 
     // Get close buttons for modals
     const closeLoginModalBtn = document.getElementById('close-login-modal');
     const closeSignupModalBtn = document.getElementById('close-signup-modal');
+    const closeForgotPasswordModalBtn = document.getElementById('close-forgot-password-modal');
 
     // Get forms
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
     const heroSearchForm = document.querySelector('.search-form'); // Assuming this is your hero search form
 
     // Function to open a modal
@@ -219,14 +239,22 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal(signupModal);
     });
 
+    if (forgotPasswordLink) forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal(loginModal);
+        openModal(forgotPasswordModal);
+    });
+
     // Event listeners for closing modals with X button
     if (closeLoginModalBtn) closeLoginModalBtn.addEventListener('click', () => closeModal(loginModal));
     if (closeSignupModalBtn) closeSignupModalBtn.addEventListener('click', () => closeModal(signupModal));
+    if (closeForgotPasswordModalBtn) closeForgotPasswordModalBtn.addEventListener('click', () => closeModal(forgotPasswordModal));
 
     // Event listener for closing modals by clicking outside
     /* window.addEventListener('click', (event) => {
         if (event.target === loginModal) closeModal(loginModal);
         if (event.target === signupModal) closeModal(signupModal);
+        if (event.target === forgotPasswordModal) closeModal(forgotPasswordModal);
     }); */
 
     // Login form submission
@@ -298,6 +326,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => closeModal(signupModal), 2000);
             } catch (error) {
                 messageEl.textContent = error.message;
+            }
+        });
+    }
+
+    // Forgot password form submission
+    if (forgotPasswordForm) {
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-password-email').value;
+            const messageEl = document.getElementById('forgot-password-message');
+            
+            if (!supabase) {
+                messageEl.textContent = 'Error: Supabase client not initialized.';
+                return;
+            }
+
+            messageEl.textContent = 'Sending reset link...';
+
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin, // URL to redirect to after password reset
+            });
+
+            if (error) {
+                messageEl.textContent = `Error: ${error.message}`;
+                messageEl.style.color = 'red';
+            } else {
+                messageEl.textContent = 'Password reset link has been sent to your email.';
+                messageEl.style.color = 'green';
             }
         });
     }
@@ -451,6 +507,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageEl.style.color = 'red';
             }
         });
+    }
+
+    // User session handling
+    async function checkUserSession() {
+        // Implement user session handling logic here
     }
 });
 

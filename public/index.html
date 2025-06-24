@@ -6,6 +6,7 @@
     <title>Tara! Sorsogon</title>
     <link rel="icon" href="images/head-logo.png" type="image/png">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/weather.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Calendar CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -26,11 +27,12 @@
             </a>
         </div>
         <ul class="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#attractions">Attractions</a></li>
-            <li><a href="#events">Events</a></li>
-            <li><a href="#dining">Dining</a></li>
-            <li><a href="#accommodation">Accommodation</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="attractions.html">Attractions</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="dining.html">Dining</a></li>
+            <li><a href="accommodations.html">Accommodation</a></li>
+            <li><a href="products.html">Products</a></li>
             <li><a href="#emergency">Emergency</a></li>
             <li><a href="#" id="login-btn">Login</a></li>
             <li><a href="#" id="signup-btn">Sign Up</a></li>
@@ -65,6 +67,27 @@
             </div>
         </div>
     </header>
+
+    <!-- Weather Section -->
+    <section id="weather" class="section">
+        <div class="section-header">
+            <h2>Sorsogon Weather</h2>
+        </div>
+        <div class="weather-container">
+            <div class="weather-carousel-container">
+                <button class="weather-carousel-btn" id="prev-weather-btn"><i class="fas fa-chevron-left"></i></button>
+                <div class="weather-carousel">
+                    <div class="weather-carousel-track" id="weather-carousel-track">
+                        <!-- Municipality icons will be populated by JavaScript -->
+                    </div>
+                </div>
+                <button class="weather-carousel-btn" id="next-weather-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div id="weather-info" class="weather-info">
+                <!-- Weather data will be displayed here -->
+            </div>
+        </div>
+    </section>
 
     <!-- Attractions Gallery -->
     <section id="attractions" class="section reveal-on-scroll">
@@ -355,6 +378,17 @@
         </div>
     </section>
 
+    <!-- Products -->
+    <section id="products" class="section reveal-on-scroll">
+        <div class="section-header">
+            <h2>Local Products & Souvenirs</h2>
+            <a href="products.html" class="view-all">View All Products <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div id="product-cards-container" class="cards-container">
+            <!-- Product cards will be loaded here -->
+        </div>
+    </section>
+
     <!-- Emergency Contacts -->
     <section id="emergency" class="section reveal-on-scroll">
         <h2>Emergency Contacts</h2>
@@ -431,9 +465,28 @@
                     <label for="login-password">Password:</label>
                     <input type="password" id="login-password" name="password" required>
                 </div>
+                <div class="form-group-inline">
+                    <a href="#" id="forgot-password-link">Forgot Password?</a>
+                </div>
                 <button type="submit" class="btn">Login</button>
                 <p class="form-message" id="login-message"></p>
                 <p class="terms-message">By proceeding, you agree to our <a href="/terms.html">Terms of Use</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgot-password-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-forgot-password-modal">&times;</span>
+            <h2>Forgot Password</h2>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="forgot-password-email">Enter your email address:</label>
+                    <input type="email" id="forgot-password-email" name="email" required>
+                </div>
+                <button type="submit" class="btn">Send Reset Link</button>
+                <p class="form-message" id="forgot-password-message"></p>
             </form>
         </div>
     </div>
@@ -479,6 +532,7 @@
     <script src="js/main.js"></script>
     <script src="js/script.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/weather.js"></script>
 
     <script>
         // Set a CSS variable for the viewport height

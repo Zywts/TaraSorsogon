@@ -10,8 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
             hamburger.classList.toggle('active'); // Animate the hamburger icon
         });
 
-        // Close the menu if a link is clicked
-        navLinks.addEventListener('click', () => {
+        // Close the menu if a link is clicked, but not if it's the language switcher
+        navLinks.addEventListener('click', (e) => {
+            // Check if the click is inside the language switcher
+            if (e.target.closest('.nav-translate-mobile')) {
+                return; // Do nothing if the language switcher is clicked
+            }
             navLinks.classList.remove('active');
             hamburger.classList.remove('active'); // Reset hamburger icon
         });
@@ -24,4 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Intersection Observer for revealing elements on scroll
+    const revealElements = document.querySelectorAll('.reveal-on-scroll');
 }); 
