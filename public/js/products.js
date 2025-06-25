@@ -99,22 +99,29 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Check for a product ID in the URL and show the modal automatically
+    // Check for a product name in the URL and show the modal automatically
     const loadAndShowProductFromURL = async () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const productId = urlParams.get('id');
+        const productName = urlParams.get('name');
 
-        if (productId && supabase) {
+        if (productName && supabase) {
+            // No need to wait for all products to load on the main page first.
+            // Directly fetch the specific product.
+            const decodedProductName = decodeURIComponent(productName);
             try {
-                const { data, error } = await supabase.from('products').select('*').eq('id', productId).single();
-                
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .eq('name', decodedProductName)
+                    .single();
+
                 if (error) throw error;
-                
+
                 if (data) {
                     showModal(data);
                 }
             } catch (error) {
-                console.error('Error fetching product by ID:', error);
+                console.error('Error fetching product by name:', error);
             }
         }
     };

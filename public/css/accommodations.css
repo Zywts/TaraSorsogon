@@ -137,8 +137,34 @@
 }
 
 /* details / contact */
-.modal-details p{font-size:16px;margin:8px 0;color:#333}
+.modal-details{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px; /* Add space between items */
+}
+.modal-details p{font-size:16px;margin:0;color:#333}
 .modal-details strong{color:#222}
+
+.modal-details .book-now-inline-btn {
+  background-color: #0b5e2a;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0; /* Prevents the button from shrinking */
+  white-space: nowrap; /* Keep button text on one line */
+  width: auto; /* Override global .btn style */
+  display: inline-block; /* Override global .btn style */
+}
+.book-now-inline-btn:hover {
+  background-color: #094d23;
+}
+.book-now-inline-btn i {
+  margin-right: 8px;
+}
 
 .modal-contact{display:flex;gap:24px;flex-wrap:wrap;margin-top:12px}
 .modal-contact a{
@@ -248,14 +274,23 @@
    ================================================================== */
 .dining-modal-actions {
   text-align: center;
-  margin: 20px 0;
+  margin-top: 20px;
+}
+.dining-modal-actions .btn {
+  width: 100%;
+  display: block;
+}
+
+/* Add margin to the book now button when it's present */
+.dining-modal-actions .btn + .btn {
+  margin-top: 10px;
 }
 
 #write-review-btn {
-  background-color: #007bff;
+  background-color: #007bff; /* Blue */
   color: white;
+  padding: 12px 20px;
   border: none;
-  padding: 12px 24px;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 500;

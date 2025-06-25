@@ -1509,11 +1509,6 @@ button[type="submit"]:hover {
     overflow-y: auto;
 }
 
-.suggestion-item {
-    padding: 10px 15px;
-    cursor: pointer;
-}
-
 .suggestion-item:hover {
     background-color: #f0f0f0;
 }

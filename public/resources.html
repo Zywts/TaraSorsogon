@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorsogon Travel Guide</title>
+
+  <!-- Main site styles -->
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Page-specific overrides & multi-select styling -->
+  <link rel="stylesheet" href="css/resources.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap"
+  rel="stylesheet">
+
+  <!-- Font Awesome for icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-brand">
+        <a href="index.html">
+            <img src="images/logo.png" alt="Tara! Sorsogon Logo" class="logo">
+        </a>
+    </div>
+    <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="attractions.html">Attractions</a></li>
+        <li><a href="events.html">Events</a></li>
+        <li><a href="dining.html">Dining</a></li>
+        <li><a href="accommodations.html">Accommodation</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="index.html#emergency">Emergency</a></li>
+        <li><a href="#" id="login-btn">Login</a></li>
+        <li><a href="#" id="signup-btn">Sign Up</a></li>
+        <li class="nav-translate-mobile"><div id="google_translate_element"></div></li>
+    </ul>
+    <div id="google_translate_element_desktop" class="nav-translate-desktop"></div>
+    <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+<header id="home" class="hero">
+  <video autoplay muted loop class="hero-video">
+    <source src="images/sorsogon-tourism.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <div class="hero-content">
+    <h1>Sorsogon Travel Guide</h1>
+    <p>Your essential tips & custom itinerary</p>
+  </div>
+</header>
+
+  <!-- IN-PAGE NAV -->
+  <div class="map-filters">
+    <a href="#travel-tips" class="map-filter">Travel Tips</a>
+    <a href="#itinerary" class="map-filter">Itinerary</a>
+  </div>
+<!-- 1) TRAVEL TIPS -->
+<section id="travel-tips" class="section">
+  <div class="section-header">
+    <h2><i class="fas fa-map-marked-alt"></i> Travel Tips for Sorsogon</h2>
+  </div>
+  <div class="tips-content" style="max-width:800px; margin:1rem auto; line-height:1.6;">
+
+    <h3><i class="fas fa-plane"></i> How to Get to Sorsogon</h3>
+    <h4><i class="fas fa-plane-departure"></i> By Plane</h4>
+    <p>
+      The closest airport is in Legazpi, Albay.  
+      There are daily flights from Manila to Legazpi—book early for the best fares.  
+      From Legazpi, hop on a van or bus to Sorsogon City (≈2 hrs).
+    </p>
+
+    <h4><i class="fas fa-bus"></i> By Land</h4>
+    <ul class="tips-list">
+      <li>
+        <strong>EDSA Cubao:</strong>
+        Pintados (12:30 PM, ≈₱1 900),  
+        Isarog (3:30 PM, ≈₱1 340),  
+        Peñafrancia Tours (5:30 PM, ≈₱1 220),  
+        Elite (8:30 PM, ≈₱1 670).
+      </li>
+      <li><strong>LRT Buendia:</strong> DLTB (4:00 PM &amp; 7:00 PM; ≈₱1 200).</li>
+      <li>Others from Pasay &amp; Alabang; travel time ~14–16 hrs one way.</li>
+    </ul>
+
+    <h3><i class="fas fa-lightbulb"></i> General Tips</h3>
+    <ul class="tips-list">
+      <li><i class="fas fa-sun"></i> <strong>Start Early:</strong> Beat the heat by heading out at dawn.</li>
+      <li><i class="fas fa-tint"></i> <strong>Stay Hydrated:</strong> Carry a refillable bottle.</li>
+      <li><i class="fas fa-coins"></i> <strong>Small Change:</strong> Keep coins/bills ready for fares.</li>
+      <li><i class="fas fa-umbrella-beach"></i> <strong>Packing:</strong> Sunscreen, repellent, water shoes, rain jacket.</li>
+      <li><i class="fas fa-praying-hands"></i> <strong>Etiquette:</strong> Dress modestly in churches; ask before photos.</li>
+    </ul>
+
+    <h3><i class="fas fa-wallet"></i> Budget for Your Trip</h3>
+    <p>A comfortable 3-day budget is <strong>₱5 000–₱7 000</strong>, excluding transport fares.</p>
+
+    <h4><i class="fas fa-tags"></i> Budget Tips</h4>
+    <ul class="tips-list">
+      <li><i class="fas fa-users"></i> Join a larger whale-shark group to split boat/guide costs.</li>
+      <li><i class="fas fa-bed"></i> Stay in guesthouses or mid-range hotels.</li>
+      <li><i class="fas fa-car-side"></i> Take jeepneys &amp; UV-Express vans for inter-town travel.</li>
+      <li><i class="fas fa-handshake"></i> Travel with a buddy to split lodging.</li>
+      <li><i class="fas fa-utensils"></i> Eat at local carinderias for authentic, cheap meals.</li>
+    </ul>
+
+  </div>
+</section>
+
+<!-- 3) ITINERARY BUILDER -->
+<section id="itinerary" class="section">
+  <div class="section-header">
+    <h2><i class="fas fa-route"></i> Build Your 3-Day Itinerary</h2>
+  </div>
+
+  <div class="itinerary-form">
+    <!-- Accommodation (single) -->
+    <label for="accommodation-select"><strong>Accommodation:</strong></label>
+    <select id="accommodation-select" class="itinerary-select">
+      <option value="">— Select Accommodation —</option>
+    </select>
+
+    <hr>
+
+    <!-- DAYS 1–3 -->
+<template id="day-template">
+  <div class="day-block">
+    <h3></h3>
+
+    <!-- Attractions group -->
+    <div class="checkbox-group">
+      <strong>Attractions (up to 3):</strong>
+      <input
+        type="text"
+        class="filter-input"
+        data-target="attr"
+        placeholder="🔍 Filter attractions…"
+      />
+      <div class="checkbox-container" data-list="attr"></div>
+    </div>
+
+    <!-- Restaurants group -->
+    <div class="checkbox-group">
+      <strong>Restaurants (up to 3):</strong>
+      <input
+        type="text"
+        class="filter-input"
+        data-target="rest"
+        placeholder="🔍 Filter restaurants…"
+      />
+      <div class="checkbox-container" data-list="rest"></div>
+    </div>
+  </div>
+  <hr>
+    </template>
+
+    <div id="days-container"></div>
+
+    <button id="generate-itinerary-btn" class="map-filter" style="margin-top:1.5rem;">
+      Generate Itinerary
+    </button>
+  </div>
+
+  <div id="custom-itinerary-output" class="itinerary-output"></div>
+</section>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About Us</h3>
+                <p>Discover Sorsogon is your ultimate guide to exploring the beauty and culture of Sorsogon, Philippines.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="attractions.html">Attractions</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="dining.html">Dining</a></li>
+                    <li><a href="accommodations.html">Accommodation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: tarasorsogon@gmail.com</p>
+                <p>Phone: +63 995 640 8698</p>
+                <p>Sorsogon, Philippines</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Discover Sorsogon. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-login-modal">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <p class="form-message" id="login-message"></p>
+                <p class="terms-message">By proceeding, you agree to our <a href="/terms.html">Terms of Use</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-signup-modal">&times;</span>
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-username">Username:</label>
+                    <input type="text" id="signup-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email:</label>
+                    <input type="email" id="signup-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password:</label>
+                    <input type="password" id="signup-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password:</label>
+                    <input type="password" id="signup-confirm-password" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn">Sign Up</button>
+                <p class="form-message" id="signup-message"></p>
+                <p class="terms-message">By proceeding, you agree to our <a href="/terms.html">Terms of Use</a> and <a href="/privacy.html">Privacy Policy</a>.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    <script src="js/itinerary.js"></script> 
+    <script src="js/script.js"></script>
+    <script src="js/resources.js"></script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+            new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element_desktop');
+        }
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html> 

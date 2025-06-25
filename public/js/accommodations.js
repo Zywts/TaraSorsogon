@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="modal-divider"></div>
       <div class="modal-details">
         <p><strong>Opens:</strong> ${data.details.hours || 'N/A'}</p>
+        ${data.details && data.details.booking_url ? `<a href="${data.details.booking_url}" target="_blank" rel="noopener noreferrer" class="btn book-now-inline-btn"><i class="fas fa-calendar-check"></i> Book Now</a>` : ''}
     </div>
     <div class="modal-divider"></div>
       <div class="modal-contact">

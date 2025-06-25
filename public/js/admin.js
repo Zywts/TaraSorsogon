@@ -501,10 +501,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 latitude: latitude,
                 longitude: longitude,
                 details: {
-                    operating_hours: document.getElementById('stay-hours').value,
+                    hours: document.getElementById('stay-hours').value,
                     phone: document.getElementById('stay-phone').value,
-                    facebook_url: document.getElementById('stay-facebook').value,
-                    messenger_url: document.getElementById('stay-messenger').value
+                    facebook: document.getElementById('stay-facebook').value,
+                    messenger: document.getElementById('stay-messenger').value,
+                    booking_url: document.getElementById('stay-booking-url').value
                 }
             };
             handleFormSubmit('/api/places', data, addStayForm, 'stay');

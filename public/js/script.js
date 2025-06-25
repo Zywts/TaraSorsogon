@@ -1,6 +1,3 @@
-// This file has been updated to remove hardcoded event data and calendar logic,
-// and instead, fetches event data dynamically from the server.
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Supabase and load data
