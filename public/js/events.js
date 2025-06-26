@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Use the new date formatting function
     modalDate.textContent = formatEventDate(data.start_date, data.end_date);
-    modalTime.textContent = 'Not specified'; // Time is not in the DB yet
+    modalTime.textContent = data.time || 'Time not specified';
 
     const details = data.details || {};
 
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="card-content">
             <h3>${place.name}</h3>
-            <p>${place.location || 'Sorsogon, Philippines'}</p>
+            <p>${place.location || 'Address not available'}</p>
         </div>
     `;
 

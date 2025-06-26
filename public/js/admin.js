@@ -517,11 +517,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addEventForm) {
         addEventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const endDateValue = document.getElementById('event-end-date').value;
             const eventData = {
                 name: document.getElementById('event-name').value,
                 description: document.getElementById('event-description').value,
                 start_date: document.getElementById('event-start-date').value,
+                end_date: endDateValue ? endDateValue : null,
                 image_url: document.getElementById('event-image-url').value,
+                location: document.getElementById('event-location').value,
+                time: document.getElementById('event-time').value
             };
 
             try {

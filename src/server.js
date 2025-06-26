@@ -309,7 +309,8 @@ app.post('/api/events', adminMiddleware, async (req, res) => {
         return res.status(403).json({ error: 'You are not authorized to add events.' });
     }
 
-    const { name, description, start_date, image_url } = req.body;
+    console.log('Received new event data:', req.body);
+    const { name, description, start_date, end_date, image_url, location, time } = req.body;
     const user_id = req.user.id; 
 
     if (!name || !description || !start_date || !image_url) {
@@ -319,7 +320,7 @@ app.post('/api/events', adminMiddleware, async (req, res) => {
     try {
         const { data, error } = await supabaseAdmin
             .from('events')
-            .insert([{ name, description, start_date, user_id, image_url }]);
+            .insert([{ name, description, start_date, end_date, user_id, image_url, location, time }]);
 
         if (error) {
             console.error('Error inserting event:', error);
